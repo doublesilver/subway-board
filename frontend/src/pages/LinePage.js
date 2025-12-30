@@ -102,13 +102,13 @@ function LinePage() {
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem'
-        }}>
+        }} className="line-title">
           <span style={{
             width: '8px',
             height: '40px',
             backgroundColor: lineInfo.color,
             borderRadius: '4px'
-          }}></span>
+          }} className="line-indicator"></span>
           {lineInfo.line_name} 게시판
         </h2>
       )}

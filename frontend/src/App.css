@@ -398,39 +398,211 @@ footer p:first-child {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  body {
+    background: #fff;
+  }
+
   .container {
     padding: 0 1rem;
   }
 
+  .header {
+    padding: 0.8rem 0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+
   .header h1 {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
+  }
+
+  .main-content {
+    padding: 1.5rem 0;
+  }
+
+  h2 {
+    font-size: 1.3rem !important;
+    margin-bottom: 1.2rem !important;
   }
 
   .subway-lines-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
   }
 
   .subway-line-card {
-    padding: 1.5rem;
+    padding: 1.2rem 1rem;
+    border-radius: 12px;
   }
 
   .subway-line-card h3 {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .subway-line-card p {
+    font-size: 0.85rem;
   }
 
   .post-list,
   .write-form,
   .comment-section {
-    padding: 1.5rem;
+    padding: 1.2rem;
+    border-radius: 12px;
+  }
+
+  .post-item {
+    padding: 1rem 0;
+  }
+
+  .post-content {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .post-meta,
+  .post-date,
+  .comment-date {
+    font-size: 0.8rem;
+  }
+
+  .write-form {
+    margin-bottom: 1.2rem;
+  }
+
+  .write-form textarea {
+    min-height: 100px;
+    padding: 0.8rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
   }
 
   .write-form button {
     width: 100%;
+    padding: 0.9rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    margin-top: 0.8rem;
+  }
+
+  .back-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+
+  .comment-section {
+    margin-top: 1.2rem;
+  }
+
+  .comment-section h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .comment-item {
+    padding: 1rem 0;
+  }
+
+  .comment-content {
+    font-size: 0.9rem;
   }
 
   .pagination {
     flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .pagination button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  .pagination span {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .empty-state {
+    padding: 2.5rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .loading {
+    padding: 2rem;
+    font-size: 1rem;
+  }
+
+  .error-message {
+    padding: 1rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  footer {
+    padding: 1.8rem 0;
+    margin-top: 2rem;
+  }
+
+  footer p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  footer p:last-child {
+    font-size: 0.8rem !important;
+  }
+
+  .line-title {
+    gap: 0.4rem !important;
+  }
+
+  .line-indicator {
+    width: 6px !important;
+    height: 28px !important;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 400px) {
+  .container {
+    padding: 0 0.8rem;
+  }
+
+  .header h1 {
+    font-size: 1.05rem;
+  }
+
+  h2 {
+    font-size: 1.2rem !important;
+  }
+
+  .subway-lines-grid {
+    gap: 0.6rem;
+  }
+
+  .subway-line-card {
+    padding: 1rem 0.8rem;
+  }
+
+  .subway-line-card h3 {
+    font-size: 0.95rem;
+  }
+
+  .subway-line-card p {
+    font-size: 0.8rem;
+  }
+
+  .post-list,
+  .write-form,
+  .comment-section {
+    padding: 1rem;
+  }
+
+  .main-content {
+    padding: 1.2rem 0;
   }
 }
 
