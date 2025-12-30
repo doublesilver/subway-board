@@ -1,4 +1,4 @@
-const pool = require('./pool');
+const pool = require('./connection');
 const fs = require('fs');
 const path = require('path');
 

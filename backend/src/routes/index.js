@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../db/pool');
+const pool = require('../db/connection');
 
 const subwayLineController = require('../controllers/subwayLineController');
 const postController = require('../controllers/postController');
