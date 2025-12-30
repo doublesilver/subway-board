@@ -84,7 +84,21 @@ function LinePage() {
       </Link>
 
       {lineInfo && (
-        <h2 style={{ marginBottom: '1.5rem', color: lineInfo.color }}>
+        <h2 style={{
+          marginBottom: '2rem',
+          color: lineInfo.color,
+          fontSize: '1.8rem',
+          fontWeight: '700',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <span style={{
+            width: '8px',
+            height: '40px',
+            backgroundColor: lineInfo.color,
+            borderRadius: '4px'
+          }}></span>
           {lineInfo.line_name} 게시판
         </h2>
       )}
@@ -99,7 +113,7 @@ function LinePage() {
             disabled={submitting}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.9rem', color: '#666' }}>
+            <span style={{ fontSize: '0.9rem', color: '#999', fontWeight: '500' }}>
               {content.length}/1000
             </span>
             <button type="submit" disabled={submitting || !content.trim()}>

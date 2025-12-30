@@ -34,15 +34,20 @@ function HomePage() {
 
   return (
     <div>
-      <h2 style={{ marginBottom: '1.5rem', color: '#333' }}>
-        호선을 선택해주세요
+      <h2 style={{
+        marginBottom: '2rem',
+        color: '#333',
+        fontSize: '1.8rem',
+        fontWeight: '700'
+      }}>
+        출퇴근 호선을 선택해주세요
       </h2>
       <div className="subway-lines-grid">
         {lines.map((line) => (
           <div
             key={line.id}
             className="subway-line-card"
-            style={{ borderLeftColor: line.color }}
+            style={{ color: line.color }}
             onClick={() => handleLineClick(line.id)}
           >
             <h3>{line.line_name}</h3>

@@ -81,12 +81,29 @@ function PostPage() {
       </Link>
 
       <div className="post-list" style={{ marginTop: '1rem' }}>
-        <div style={{ borderLeft: `4px solid ${post.color}`, paddingLeft: '1rem' }}>
+        <div style={{
+          borderLeft: `6px solid ${post.color}`,
+          paddingLeft: '1.5rem',
+          background: `linear-gradient(to right, ${post.color}08, transparent)`
+        }}>
           <div className="post-header">
-            <h3>{post.line_name}</h3>
+            <h3 style={{
+              color: post.color,
+              fontSize: '1.2rem',
+              fontWeight: '700',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              {post.line_name}
+            </h3>
             <span className="post-date">{formatDate(post.created_at)}</span>
           </div>
-          <div className="post-content" style={{ fontSize: '1.1rem', marginTop: '1rem' }}>
+          <div className="post-content" style={{
+            fontSize: '1.1rem',
+            marginTop: '1.2rem',
+            lineHeight: '1.8'
+          }}>
             {post.content}
           </div>
         </div>
@@ -108,7 +125,7 @@ function PostPage() {
               style={{ minHeight: '80px' }}
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.9rem', color: '#666' }}>
+              <span style={{ fontSize: '0.9rem', color: '#999', fontWeight: '500' }}>
                 {commentContent.length}/500
               </span>
               <button type="submit" disabled={submitting || !commentContent.trim()}>
