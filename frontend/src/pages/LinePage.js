@@ -115,23 +115,15 @@ function LinePage() {
       </Link>
 
       {lineInfo && (
-        <h2 style={{
-          marginBottom: '2rem',
-          color: lineInfo.color,
-          fontSize: '1.8rem',
-          fontWeight: '700',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }} className="line-title">
-          <span style={{
-            width: '8px',
-            height: '40px',
-            backgroundColor: lineInfo.color,
-            borderRadius: '4px'
-          }} className="line-indicator"></span>
-          {lineInfo.line_name} 게시판
-        </h2>
+        <div className="line-header">
+          <div className="line-header-content">
+            <span className="line-indicator-thin" style={{ backgroundColor: lineInfo.color }}></span>
+            <div className="line-header-text">
+              <h2 className="line-title">{lineInfo.line_name}</h2>
+              <p className="line-subtitle">안전한 익명 공간</p>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="write-form">
@@ -139,18 +131,26 @@ function LinePage() {
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="출퇴근길 이야기를 나눠보세요... (최대 1000자)"
+            placeholder="오늘 하루 어떠셨나요? 편하게 이야기해보세요..."
             maxLength={1000}
             disabled={submitting}
           />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.9rem', color: '#999', fontWeight: '500' }}>
-              {content.length}/1000
-            </span>
-            <button type="submit" disabled={submitting || !content.trim()}>
-              {submitting ? '작성 중...' : '글쓰기'}
-            </button>
+
+          <div className="write-info">
+            <div className="write-info-tags">
+              <span className="info-tag">🔒 익명으로 작성돼요</span>
+              <span className="info-tag">⏰ 오전 9시에 자동 삭제돼요</span>
+            </div>
+            <span className="char-count">{content.length}/1000</span>
           </div>
+
+          <button
+            type="submit"
+            className="write-submit-btn"
+            disabled={submitting || !content.trim()}
+          >
+            {submitting ? '작성 중...' : '익명으로 글쓰기'}
+          </button>
         </form>
       </div>
 
