@@ -41,6 +41,19 @@ app.use('/api', limiter);
 
 app.use('/api', routes);
 
+app.get('/', (req, res) => {
+  res.json({
+    message: '출퇴근길 익명 게시판 API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      subwayLines: '/api/subway-lines',
+      posts: '/api/posts/line/:lineId',
+      comments: '/api/posts/:postId/comments'
+    }
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
