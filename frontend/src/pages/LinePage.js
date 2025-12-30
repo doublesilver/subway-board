@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { postAPI, subwayLineAPI } from '../services/api';
 
+// 호선 데이터 캐싱 (HomePage와 공유)
+let cachedLines = null;
+
 function LinePage() {
   const { lineId } = useParams();
   const navigate = useNavigate();
@@ -21,9 +24,16 @@ function LinePage() {
 
   const fetchLineInfo = async () => {
     try {
-      const response = await subwayLineAPI.getAll();
-      const line = response.data.find((l) => l.id === parseInt(lineId));
-      setLineInfo(line);
+      // 캐시가 있으면 바로 사용
+      if (cachedLines) {
+        const line = cachedLines.find((l) => l.id === parseInt(lineId));
+        setLineInfo(line);
+      } else {
+        const response = await subwayLineAPI.getAll();
+        cachedLines = response.data;
+        const line = response.data.find((l) => l.id === parseInt(lineId));
+        setLineInfo(line);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -75,7 +85,7 @@ function LinePage() {
     return date.toLocaleDateString('ko-KR');
   };
 
-  if (loading && !posts.length) return <div className="loading">로딩 중...</div>;
+  if (loading && posts.length === 0 && !lineInfo) return <div className="loading">로딩 중...</div>;
 
   return (
     <div>

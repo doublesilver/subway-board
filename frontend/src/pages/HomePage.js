@@ -2,14 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subwayLineAPI } from '../services/api';
 
+// 호선 데이터 캐싱
+let cachedLines = null;
+
 function HomePage() {
-  const [lines, setLines] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [lines, setLines] = useState(cachedLines || []);
+  const [loading, setLoading] = useState(!cachedLines);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchSubwayLines();
+    if (!cachedLines) {
+      fetchSubwayLines();
+    }
   }, []);
 
   const fetchSubwayLines = async () => {
@@ -17,6 +22,7 @@ function HomePage() {
       setLoading(true);
       const response = await subwayLineAPI.getAll();
       setLines(response.data);
+      cachedLines = response.data; // 캐시 저장
     } catch (err) {
       setError('호선 목록을 불러오는데 실패했습니다.');
       console.error(err);

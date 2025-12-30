@@ -67,9 +67,9 @@ function PostPage() {
     return date.toLocaleDateString('ko-KR');
   };
 
-  if (loading) return <div className="loading">로딩 중...</div>;
+  if (loading && !post) return <div className="loading">로딩 중...</div>;
   if (error) return <div className="error-message">{error}</div>;
-  if (!post) return <div className="error-message">게시글을 찾을 수 없습니다.</div>;
+  if (!loading && !post) return <div className="error-message">게시글을 찾을 수 없습니다.</div>;
 
   return (
     <div>
