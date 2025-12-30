@@ -61,7 +61,92 @@ body {
   flex: 1;
 }
 
-/* Subway Lines Grid */
+/* Sort Select */
+.sort-select {
+  padding: 0.6rem 1rem;
+  border: 2px solid #e8ecf1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sort-select:hover {
+  border-color: #0052a4;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: #0052a4;
+  box-shadow: 0 0 0 3px rgba(0, 82, 164, 0.1);
+}
+
+/* Subway Lines List */
+.subway-lines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.subway-line-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 2px solid transparent;
+}
+
+.subway-line-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #e8ecf1;
+}
+
+.subway-line-item .line-indicator {
+  width: 6px;
+  height: 40px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.subway-line-item .line-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.subway-line-item .line-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.subway-line-item .active-users {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.subway-line-item .line-arrow {
+  font-size: 1.5rem;
+  color: #ccc;
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+/* Subway Lines Grid (Legacy) */
 .subway-lines-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -418,8 +503,20 @@ footer p:first-child {
   }
 
   h2 {
+    font-size: 1.2rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Header with Sort Dropdown Mobile */
+  .main-content > div > div:first-child {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.8rem;
+    margin-bottom: 1rem !important;
+  }
+
+  .main-content > div > div:first-child h2 {
     font-size: 1.3rem !important;
-    margin-bottom: 1.2rem !important;
   }
 
   .subway-lines-grid {
@@ -492,6 +589,41 @@ footer p:first-child {
   .comment-section h3 {
     font-size: 1.05rem;
     margin-bottom: 0.8rem;
+  }
+
+  /* Sort Select Mobile */
+  .sort-select {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 6px;
+  }
+
+  /* Subway Lines List Mobile */
+  .subway-lines-list {
+    gap: 0.6rem;
+  }
+
+  .subway-line-item {
+    padding: 1rem;
+    border-radius: 10px;
+    gap: 0.8rem;
+  }
+
+  .subway-line-item .line-indicator {
+    width: 5px;
+    height: 35px;
+  }
+
+  .subway-line-item .line-name {
+    font-size: 1.1rem;
+  }
+
+  .subway-line-item .active-users {
+    font-size: 0.8rem;
+  }
+
+  .subway-line-item .line-arrow {
+    font-size: 1.3rem;
   }
 
   .comment-item {

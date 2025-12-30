@@ -1,9 +1,14 @@
 const pool = require('../db/connection');
+const { recordActivity } = require('../utils/activeUsers');
 
 const getPostsByLine = async (req, res) => {
   try {
     const { lineId } = req.params;
     const { page = 1, limit = 20 } = req.query;
+
+    // 세션 ID 생성 또는 가져오기 (IP + User-Agent 기반)
+    const sessionId = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    recordActivity(lineId, sessionId);
 
     const offset = (page - 1) * limit;
 
