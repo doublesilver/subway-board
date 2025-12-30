@@ -5,6 +5,7 @@ const pool = require('../db/connection');
 const subwayLineController = require('../controllers/subwayLineController');
 const postController = require('../controllers/postController');
 const commentController = require('../controllers/commentController');
+const authController = require('../controllers/authController');
 const { validatePost, validateComment } = require('../middleware/validator');
 
 // 특수 호선 삭제 (1회성 정리용)
@@ -23,6 +24,11 @@ router.post('/admin/cleanup-lines', async (req, res) => {
     res.status(500).json({ error: '정리 작업 실패' });
   }
 });
+
+// Auth routes
+router.get('/auth/kakao', authController.getKakaoAuthURL);
+router.get('/auth/kakao/callback', authController.kakaoCallback);
+router.get('/auth/me', authController.getCurrentUser);
 
 router.get('/subway-lines', subwayLineController.getAllLines);
 

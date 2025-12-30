@@ -1,27 +1,67 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import './App.css';
 import HomePage from './pages/HomePage';
 import LinePage from './pages/LinePage';
-import PostPage from './pages/PostPage';
+import LoginPage from './pages/LoginPage';
+import KakaoCallback from './pages/KakaoCallback';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import AuthButton from './components/AuthButton';
+
+// 로그인 필요한 페이지 보호
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading">로딩 중...</div>;
+  }
+
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+}
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Header />
-        <main className="main-content">
-          <div className="container">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/line/:lineId" element={<LinePage />} />
-              <Route path="/post/:postId" element={<PostPage />} />
-            </Routes>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
+  );
+}
+
+function AppContent() {
+  return (
+    <div className="App">
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth/kakao/success" element={<KakaoCallback />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </div>
+  );
+}
+
+function MainLayout() {
+  return (
+    <>
+      <Header />
+      <main className="main-content">
+        <div className="container">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/line/:lineId" element={<LinePage />} />
+          </Routes>
+        </div>
+      </main>
+      <Footer />
+    </>
   );
 }
 
@@ -31,7 +71,10 @@ function Header() {
   return (
     <header className="header">
       <div className="container">
-        <h1 onClick={() => navigate('/')}>출퇴근길 익명 게시판</h1>
+        <div className="header-content">
+          <h1 onClick={() => navigate('/')}>출퇴근길 익명 채팅</h1>
+          <AuthButton />
+        </div>
       </div>
     </header>
   );
@@ -41,11 +84,8 @@ function Footer() {
   return (
     <footer>
       <div className="container">
-        <p>모든 게시글은 매일 오전 9시에 자동 삭제됩니다.</p>
+        <p>모든 메시지는 매일 오전 9시에 자동 삭제됩니다.</p>
         <p>익명으로 가볍게 출퇴근길 이야기를 나눠보세요.</p>
-        <p style={{ fontSize: '0.85rem', color: '#999', marginTop: '0.5rem' }}>
-          운영시간: 평일 오전 7시 ~ 9시 (주말 및 공휴일 휴무)
-        </p>
       </div>
     </footer>
   );

@@ -12,7 +12,14 @@
       "Bash(git push:*)",
       "Bash(git ls-tree:*)",
       "Bash(git rm:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(curl:*)",
+      "Bash(인기 순\"\n\n4. ❌ Weak CTA with just \"›\" arrow\n   ✅ Active state badge: \"N명 이야기 중\" with pulse dot\n\n5. ❌ Empty lines look dead \\(0 users shown\\)\n   ✅ Friendly message: \"대화가 시작되길 기다리고 있어요\"\n\nUser Psychology Flow:\n1. See inviting headline \\(not command\\)\n2. Understand safety \\(anonymous + auto-delete\\)\n3. Choose sorting easily \\(tabs, not dropdown\\)\n4. See activity status \\(real-time feel\\)\n5. Click confidently \\(clear visual feedback\\)\n\nLaunch Risk Mitigation:\n- Empty state no longer looks abandoned\n- Active users badge creates social proof\n- Simplified sorting reduces decision paralysis\n- Core values visible without scrolling\n\nMobile-First:\n- Thumb-friendly tabs instead of dropdown\n- Single-hand operation optimized\n- Reduced cognitive load\n- Faster decision making\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(node src/db/migrate-kakao.js:*)",
+      "Bash(node backend/src/db/migrate-kakao.js:*)",
+      "Bash(npm start)",
+      "Bash(npm run build:*)",
+      "Bash(echo:*)"
     ]
   }
 }

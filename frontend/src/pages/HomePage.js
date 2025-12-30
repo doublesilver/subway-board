@@ -86,7 +86,7 @@ function HomePage() {
       {/* 메인 헤더 */}
       <div className="home-header">
         <h2 className="home-title">
-          출퇴근하는 노선의<br />이야기를 들어보세요
+          출퇴근하는 노선의<br />채팅방에 참여하세요
         </h2>
         <p className="home-subtitle">
           🔒 익명 · ⏰ 매일 오전 9시 초기화
