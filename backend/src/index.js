@@ -36,13 +36,15 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+// POST/DELETE 요청에만 Rate Limit 적용 (GET 조회는 제외)
+const writeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15분
+  max: 50, // 15분에 50개 쓰기 요청
   message: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
+  skip: (req) => req.method === 'GET', // GET 요청은 제한 제외
 });
 
-app.use('/api', limiter);
+app.use('/api', writeLimiter);
 
 app.use('/api', routes);
 
