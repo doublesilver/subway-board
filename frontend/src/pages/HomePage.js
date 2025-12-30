@@ -83,24 +83,30 @@ function HomePage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{
-          margin: 0,
-          color: '#333',
-          fontSize: '1.8rem',
-          fontWeight: '700'
-        }}>
-          출퇴근 호선을 선택해주세요
+      {/* 메인 헤더 */}
+      <div className="home-header">
+        <h2 className="home-title">
+          출퇴근하는 노선의<br />이야기를 들어보세요
         </h2>
-        <select
-          value={sortType}
-          onChange={(e) => setSortType(e.target.value)}
-          className="sort-select"
+        <p className="home-subtitle">
+          🔒 익명 · ⏰ 매일 오전 9시 초기화
+        </p>
+      </div>
+
+      {/* 정렬 탭 */}
+      <div className="sort-tabs">
+        <button
+          className={`sort-tab ${sortType === 'line' ? 'active' : ''}`}
+          onClick={() => setSortType('line')}
         >
-          <option value="line">호선 순</option>
-          <option value="active">접속자 순</option>
-          <option value="usage">이용량 순</option>
-        </select>
+          호선 순
+        </button>
+        <button
+          className={`sort-tab ${sortType === 'active' || sortType === 'usage' ? 'active' : ''}`}
+          onClick={() => setSortType(sortType === 'usage' ? 'active' : 'usage')}
+        >
+          인기 순
+        </button>
       </div>
 
       <div className="subway-lines-list">
@@ -113,9 +119,14 @@ function HomePage() {
             <div className="line-indicator" style={{ backgroundColor: line.color }}></div>
             <div className="line-info">
               <h3 className="line-name">{line.line_name}</h3>
-              <span className="active-users">
-                {line.activeUsers > 0 && `👤 ${line.activeUsers}명`}
-              </span>
+              {line.activeUsers > 0 ? (
+                <span className="active-users-badge">
+                  <span className="pulse-dot"></span>
+                  {line.activeUsers}명 이야기 중
+                </span>
+              ) : (
+                <span className="inactive-users">대화가 시작되길 기다리고 있어요</span>
+              )}
             </div>
             <div className="line-arrow">›</div>
           </div>

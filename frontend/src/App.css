@@ -61,27 +61,57 @@ body {
   flex: 1;
 }
 
-/* Sort Select */
-.sort-select {
-  padding: 0.6rem 1rem;
-  border: 2px solid #e8ecf1;
+/* Home Header */
+.home-header {
+  margin-bottom: 2rem;
+}
+
+.home-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.4;
+  margin: 0 0 0.75rem 0;
+}
+
+.home-subtitle {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Sort Tabs */
+.sort-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.25rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.sort-tab {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  background: transparent;
+  border: none;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
-  background: white;
-  color: #333;
+  color: #666;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-.sort-select:hover {
-  border-color: #0052a4;
+.sort-tab.active {
+  background: white;
+  color: #0052a4;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
-.sort-select:focus {
-  outline: none;
-  border-color: #0052a4;
-  box-shadow: 0 0 0 3px rgba(0, 82, 164, 0.1);
+.sort-tab:hover:not(.active) {
+  color: #333;
 }
 
 /* Subway Lines List */
@@ -132,11 +162,42 @@ body {
   margin: 0;
 }
 
-.subway-line-item .active-users {
-  font-size: 0.9rem;
-  color: #666;
+/* Active Users Badge */
+.active-users-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #0052a4;
   font-weight: 600;
-  white-space: nowrap;
+  padding: 0.25rem 0.75rem;
+  background: rgba(0, 82, 164, 0.08);
+  border-radius: 12px;
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  background: #00a84d;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
+.inactive-users {
+  font-size: 0.8rem;
+  color: #999;
+  font-weight: 500;
 }
 
 .subway-line-item .line-arrow {
@@ -690,11 +751,28 @@ footer p:first-child {
     margin-bottom: 0.8rem;
   }
 
-  /* Sort Select Mobile */
-  .sort-select {
-    padding: 0.5rem 0.8rem;
+  /* Home Header Mobile */
+  .home-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .home-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .home-subtitle {
+    font-size: 0.8rem;
+  }
+
+  /* Sort Tabs Mobile */
+  .sort-tabs {
+    margin-bottom: 1.2rem;
+  }
+
+  .sort-tab {
+    padding: 0.6rem 0.8rem;
     font-size: 0.85rem;
-    border-radius: 6px;
   }
 
   /* Subway Lines List Mobile */
@@ -717,8 +795,13 @@ footer p:first-child {
     font-size: 1.1rem;
   }
 
-  .subway-line-item .active-users {
+  .active-users-badge {
     font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .inactive-users {
+    font-size: 0.75rem;
   }
 
   .subway-line-item .line-arrow {
