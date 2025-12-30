@@ -72,13 +72,17 @@ body {
 .subway-line-card {
   background: white;
   border-radius: 16px;
-  padding: 1.8rem;
+  padding: 1.5rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
 }
 
 .subway-line-card::before {
@@ -104,19 +108,13 @@ body {
 }
 
 .subway-line-card h3 {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin: 0;
   color: #333;
   position: relative;
   z-index: 1;
-}
-
-.subway-line-card p {
-  color: #666;
-  font-size: 0.95rem;
-  position: relative;
-  z-index: 1;
+  text-align: center;
 }
 
 /* Post List Styles */
@@ -425,22 +423,18 @@ footer p:first-child {
   }
 
   .subway-lines-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.8rem;
   }
 
   .subway-line-card {
-    padding: 1.2rem 1rem;
+    padding: 1rem;
     border-radius: 12px;
+    min-height: 70px;
   }
 
   .subway-line-card h3 {
-    font-size: 1rem;
-    margin-bottom: 0.3rem;
-  }
-
-  .subway-line-card p {
-    font-size: 0.85rem;
+    font-size: 1.1rem;
   }
 
   .post-list,
@@ -580,19 +574,17 @@ footer p:first-child {
   }
 
   .subway-lines-grid {
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.6rem;
   }
 
   .subway-line-card {
-    padding: 1rem 0.8rem;
+    padding: 0.9rem 0.7rem;
+    min-height: 65px;
   }
 
   .subway-line-card h3 {
-    font-size: 0.95rem;
-  }
-
-  .subway-line-card p {
-    font-size: 0.8rem;
+    font-size: 1rem;
   }
 
   .post-list,

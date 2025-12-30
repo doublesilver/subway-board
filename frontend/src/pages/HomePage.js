@@ -57,7 +57,6 @@ function HomePage() {
             onClick={() => handleLineClick(line.id)}
           >
             <h3>{line.line_name}</h3>
-            <p>익명 게시판</p>
           </div>
         ))}
       </div>

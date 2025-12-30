@@ -11,7 +11,8 @@
     "dev": "nodemon src/index.js",
     "start": "npm run migrate:safe && node src/index.js",
     "migrate": "node src/db/migrate.js",
-    "migrate:safe": "node src/db/migrate.js || echo 'Migration skipped'"
+    "migrate:safe": "node src/db/migrate.js || echo 'Migration skipped'",
+    "cleanup": "node src/db/cleanup.js"
   },
   "keywords": [],
   "author": "",
