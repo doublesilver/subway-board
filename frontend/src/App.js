@@ -35,11 +35,14 @@ function AppContent() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/auth/kakao/success" element={<KakaoCallback />} />
+        <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
         <Route
-          path="/*"
+          path="/line/:lineId"
           element={
             <ProtectedRoute>
-              <MainLayout />
+              <MainLayout>
+                <LinePage />
+              </MainLayout>
             </ProtectedRoute>
           }
         />
@@ -48,16 +51,13 @@ function AppContent() {
   );
 }
 
-function MainLayout() {
+function MainLayout({ children }) {
   return (
     <>
       <Header />
       <main className="main-content">
         <div className="container">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/line/:lineId" element={<LinePage />} />
-          </Routes>
+          {children}
         </div>
       </main>
       <Footer />

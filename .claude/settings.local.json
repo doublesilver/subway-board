@@ -19,7 +19,12 @@
       "Bash(node backend/src/db/migrate-kakao.js:*)",
       "Bash(npm start)",
       "Bash(npm run build:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(node:*)",
+      "Bash(railway run:*)",
+      "Bash(railway status:*)",
+      "Bash(railway link:*)",
+      "Bash(set:*)"
     ]
   }
 }

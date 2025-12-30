@@ -4,7 +4,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 // Axios 인스턴스 생성 (인증 헤더 자동 추가)
 const authAPI = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: API_URL,
 });
 
 // 요청 인터셉터: Authorization 헤더 자동 추가
@@ -24,7 +24,7 @@ authAPI.interceptors.request.use(
 // 카카오 로그인 URL 받기
 export const getKakaoAuthURL = async () => {
   try {
-    const response = await authAPI.get('/auth/kakao');
+    const response = await authAPI.get('/api/auth/kakao');
     return response.data.url;
   } catch (error) {
     console.error('Failed to get Kakao auth URL:', error);
@@ -35,7 +35,7 @@ export const getKakaoAuthURL = async () => {
 // 현재 로그인한 사용자 정보 조회
 export const getCurrentUser = async () => {
   try {
-    const response = await authAPI.get('/auth/me');
+    const response = await authAPI.get('/api/auth/me');
     return response.data.user;
   } catch (error) {
     console.error('Failed to get current user:', error);
