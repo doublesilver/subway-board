@@ -14,14 +14,19 @@ app.use(helmet());
 
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://subway-board.vercel.app',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
+console.log('Allowed CORS origins:', allowedOrigins);
+
 app.use(cors({
   origin: function (origin, callback) {
+    console.log('CORS request from origin:', origin);
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.log('CORS blocked for origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
