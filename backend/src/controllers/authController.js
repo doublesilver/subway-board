@@ -4,7 +4,10 @@ const pool = require('../db/connection');
 
 // 카카오 로그인 URL 생성
 const getKakaoAuthURL = (req, res) => {
-  const kakaoAuthURL = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.KAKAO_REST_API_KEY}&redirect_uri=${process.env.KAKAO_REDIRECT_URI}&response_type=code`;
+  const redirectUri = process.env.NODE_ENV === 'production'
+    ? process.env.KAKAO_REDIRECT_URI_PROD
+    : process.env.KAKAO_REDIRECT_URI;
+  const kakaoAuthURL = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.KAKAO_REST_API_KEY}&redirect_uri=${redirectUri}&response_type=code`;
   res.json({ url: kakaoAuthURL });
 };
 
@@ -17,6 +20,10 @@ const kakaoCallback = async (req, res) => {
   }
 
   try {
+    const redirectUri = process.env.NODE_ENV === 'production'
+      ? process.env.KAKAO_REDIRECT_URI_PROD
+      : process.env.KAKAO_REDIRECT_URI;
+
     // 1. 카카오 액세스 토큰 받기
     const tokenResponse = await axios.post(
       'https://kauth.kakao.com/oauth/token',
@@ -25,7 +32,7 @@ const kakaoCallback = async (req, res) => {
         params: {
           grant_type: 'authorization_code',
           client_id: process.env.KAKAO_REST_API_KEY,
-          redirect_uri: process.env.KAKAO_REDIRECT_URI,
+          redirect_uri: redirectUri,
           code,
         },
         headers: {
