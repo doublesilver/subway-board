@@ -20,6 +20,27 @@ function LinePage() {
   useEffect(() => {
     fetchLineInfo();
     fetchPosts();
+
+    // 10초마다 게시글 갱신 (활동 기록 유지 및 새 게시글 확인)
+    const interval = setInterval(() => {
+      if (!document.hidden) {
+        fetchPosts();
+      }
+    }, 10000);
+
+    // Page Visibility API - 포그라운드 복귀 시 즉시 갱신
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchPosts();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [lineId, page]);
 
   const fetchLineInfo = async () => {

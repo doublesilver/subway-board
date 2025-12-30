@@ -14,9 +14,27 @@ function HomePage() {
 
   useEffect(() => {
     fetchSubwayLines();
-    // 5초마다 갱신
-    const interval = setInterval(fetchSubwayLines, 5000);
-    return () => clearInterval(interval);
+
+    // 3초마다 갱신 (백그라운드 시에는 중지)
+    let interval = setInterval(() => {
+      if (!document.hidden) {
+        fetchSubwayLines();
+      }
+    }, 3000);
+
+    // Page Visibility API - 포그라운드 복귀 시 즉시 갱신
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchSubwayLines();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const fetchSubwayLines = async () => {

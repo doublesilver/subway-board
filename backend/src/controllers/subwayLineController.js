@@ -1,8 +1,12 @@
 const pool = require('../db/connection');
-const { getAllActiveUserCounts } = require('../utils/activeUsers');
+const { getAllActiveUserCounts, recordActivity } = require('../utils/activeUsers');
 
 const getAllLines = async (req, res) => {
   try {
+    // 홈 화면 활동 기록
+    const sessionId = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    recordActivity('home', sessionId);
+
     const result = await pool.query(
       'SELECT * FROM subway_lines ORDER BY id'
     );
