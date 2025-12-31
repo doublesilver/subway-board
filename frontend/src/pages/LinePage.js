@@ -151,7 +151,7 @@ function LinePage() {
       fetchMessages();
 
       if (textareaRef.current) {
-        textareaRef.current.style.height = '44px';
+        textareaRef.current.style.height = 'auto';
       }
     } catch (err) {
       const errorMsg = err.response?.data?.error || '메시지 작성에 실패했습니다.';
@@ -177,7 +177,7 @@ function LinePage() {
     setContent(e.target.value);
 
     if (textareaRef.current) {
-      textareaRef.current.style.height = '44px';
+      textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
     }
   };
@@ -272,14 +272,8 @@ function LinePage() {
 
         {lineInfo && (
           <>
-            <div className="chat-line-badge" style={{ backgroundColor: lineInfo.color }}>
-              {lineInfo.line_number}
-            </div>
-
-            <div className="chat-header-info">
-              <h1 className="chat-title">{lineInfo.line_name}</h1>
-              <p className="chat-subtitle">{messages.length}개 메시지 · 매일 9시 리셋</p>
-            </div>
+            <h1 className="chat-title">{lineInfo.line_name}</h1>
+            <p className="chat-subtitle">{messages.length}개 메시지 · 매일 9시 리셋</p>
           </>
         )}
       </header>
@@ -293,10 +287,10 @@ function LinePage() {
         {error && <div className="error-message">{error}</div>}
 
         {messages.length === 0 ? (
-          <div className="chat-empty">
-            <div className="chat-empty-icon">💬</div>
-            <p className="chat-empty-title">첫 메시지를 남겨보세요</p>
-            <p className="chat-empty-subtitle">이 대화는 매일 9시에 리셋됩니다</p>
+          <div className="empty-state">
+            <div className="empty-icon">💬</div>
+            <p className="empty-title">첫 메시지를 남겨보세요</p>
+            <p className="empty-subtitle">이 대화는 매일 9시에 리셋됩니다</p>
           </div>
         ) : (
           messagesWithDates.map((item, index) => {
@@ -333,36 +327,17 @@ function LinePage() {
                   onTouchMove={(e) => handleTouchMove(e, message)}
                   onTouchEnd={() => handleTouchEnd(message)}
                 >
-                  {!isMyMessage && (
-                    <div
-                      className="message-avatar"
-                      style={{ backgroundColor: userColor }}
-                    >
-                      {message.user_id % 100}
-                    </div>
-                  )}
-
                   <div className="message-content">
-                    {!isMyMessage && (
-                      <div className="message-username" style={{ color: userColor }}>
-                        익명 #{message.user_id % 1000}
-                      </div>
-                    )}
-
-                    <div className="message-bubbles">
-                      <div className={`message-bubble ${isMyMessage ? 'my' : 'other'}`}>
-                        {message.reply_to && (
-                          <div className="reply-preview">
-                            <div className="reply-preview-text">
-                              답장: {messages.find(m => m.id === message.reply_to)?.content?.substring(0, 30) || '삭제된 메시지'}
-                            </div>
-                          </div>
-                        )}
-                        {message.content}
-                      </div>
+                    <div className={`message-bubble ${isMyMessage ? 'my' : 'other'}`} style={!isMyMessage ? { color: userColor } : {}}>
+                      {message.reply_to && (
+                        <div className="reply-preview">
+                          답장: {messages.find(m => m.id === message.reply_to)?.content?.substring(0, 30) || '삭제된 메시지'}
+                        </div>
+                      )}
+                      <div className="message-text">{message.content}</div>
                     </div>
 
-                    <div className="message-footer">
+                    <div className="message-meta">
                       <span className="message-time">{formatTime(message.created_at)}</span>
                       {isMyMessage && (
                         <button
@@ -405,20 +380,20 @@ function LinePage() {
       )}
 
       {/* 입력 영역 */}
-      <div className="chat-input-container">
+      <div className="chat-composer">
         {replyTo && (
           <div className="reply-bar">
             <div className="reply-bar-content">
-              <div className="reply-bar-label">답장</div>
-              <div className="reply-bar-text">{replyTo.content.substring(0, 40)}</div>
+              <span className="reply-label">답장</span>
+              <span className="reply-text">{replyTo.content.substring(0, 40)}</span>
             </div>
-            <button onClick={() => setReplyTo(null)} className="reply-bar-close">
+            <button onClick={() => setReplyTo(null)} className="reply-close">
               ✕
             </button>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="chat-input-form">
+        <form onSubmit={handleSubmit} className="composer-form">
           <textarea
             ref={textareaRef}
             value={content}
@@ -426,7 +401,7 @@ function LinePage() {
             placeholder="메시지를 입력하세요"
             maxLength={1000}
             disabled={submitting}
-            className="chat-input-textarea"
+            className="composer-input"
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -437,7 +412,7 @@ function LinePage() {
 
           <button
             type="submit"
-            className={`chat-send-btn ${content.trim() ? 'active' : ''}`}
+            className={`composer-send ${content.trim() ? 'active' : ''}`}
             disabled={submitting || !content.trim()}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
