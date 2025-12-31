@@ -70,7 +70,7 @@ const getDateLabel = (dateString) => {
   return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
 };
 
-function LinePage() {
+function LinePageImproved() {
   const { lineId } = useParams();
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
@@ -433,4 +433,4 @@ function LinePage() {
   );
 }
 
-export default LinePage;
+export default LinePageImproved;
