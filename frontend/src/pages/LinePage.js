@@ -8,12 +8,13 @@ let cachedLines = null;
 
 // 익명 사용자 색상 해시 함수
 const getAnonymousColor = (userId) => {
-  if (!userId) return '#95A5A6';
+  if (!userId) return '#94a3b8';
 
   const colors = [
-    '#E74C3C', '#E67E22', '#F39C12', '#F1C40F',
-    '#2ECC71', '#1ABC9C', '#3498DB', '#9B59B6',
-    '#34495E', '#E91E63', '#FF5722', '#795548'
+    '#ef4444', '#f97316', '#f59e0b', '#eab308',
+    '#84cc16', '#22c55e', '#10b981', '#14b8a6',
+    '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1',
+    '#8b5cf6', '#a855f7', '#d946ef', '#ec4899'
   ];
 
   const hash = userId.toString().split('').reduce((acc, char) => {
@@ -150,7 +151,7 @@ function LinePage() {
       fetchMessages();
 
       if (textareaRef.current) {
-        textareaRef.current.style.height = '20px';
+        textareaRef.current.style.height = '44px';
       }
     } catch (err) {
       const errorMsg = err.response?.data?.error || '메시지 작성에 실패했습니다.';
@@ -176,8 +177,8 @@ function LinePage() {
     setContent(e.target.value);
 
     if (textareaRef.current) {
-      textareaRef.current.style.height = '20px';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 100)}px`;
+      textareaRef.current.style.height = '44px';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
     }
   };
 
@@ -193,7 +194,7 @@ function LinePage() {
     return `${period} ${hours}:${minutes.toString().padStart(2, '0')}`;
   };
 
-  // 터치 이벤트 핸들러 (스와이프 답장)
+  // 터치 이벤트 핸들러
   const handleTouchStart = (e, message) => {
     setTouchStart({
       x: e.touches[0].clientX,
@@ -210,19 +211,16 @@ function LinePage() {
     const deltaX = touchX - touchStart.x;
     const deltaY = touchY - touchStart.y;
 
-    // 가로 스와이프가 세로 스와이프보다 크면
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
       e.preventDefault();
 
       const isMyMessage = user && !user.isAnonymous && message.user_id === user.id;
 
       if (isMyMessage) {
-        // 내 메시지: 왼쪽으로 스와이프 (음수)
         if (deltaX < 0 && deltaX > -80) {
           setTouchOffset(deltaX);
         }
       } else {
-        // 다른 사람 메시지: 오른쪽으로 스와이프 (양수)
         if (deltaX > 0 && deltaX < 80) {
           setTouchOffset(deltaX);
         }
@@ -234,10 +232,8 @@ function LinePage() {
     const isMyMessage = user && !user.isAnonymous && message.user_id === user.id;
 
     if (isMyMessage && touchOffset < -40) {
-      // 내 메시지를 왼쪽으로 충분히 스와이프
       setReplyTo(message);
     } else if (!isMyMessage && touchOffset > 40) {
-      // 다른 사람 메시지를 오른쪽으로 충분히 스와이프
       setReplyTo(message);
     }
 
@@ -265,42 +261,49 @@ function LinePage() {
   }
 
   return (
-    <div className="kakao-chat">
+    <div className="chat-container">
       {/* 헤더 */}
-      <header className="kakao-header">
-        <Link to="/" className="kakao-back">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+      <header className="chat-header">
+        <Link to="/" className="chat-back-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
         </Link>
 
         {lineInfo && (
-          <div className="kakao-header-info">
-            <h1 className="kakao-title">{lineInfo.line_name}</h1>
-            <p className="kakao-subtitle">{messages.length}개 메시지 · 매일 9시 리셋</p>
-          </div>
+          <>
+            <div className="chat-line-badge" style={{ backgroundColor: lineInfo.color }}>
+              {lineInfo.line_number}
+            </div>
+
+            <div className="chat-header-info">
+              <h1 className="chat-title">{lineInfo.line_name}</h1>
+              <p className="chat-subtitle">{messages.length}개 메시지 · 매일 9시 리셋</p>
+            </div>
+          </>
         )}
       </header>
 
       {/* 메시지 영역 */}
       <div
-        className="kakao-messages"
+        className="chat-messages"
         ref={messagesContainerRef}
         onScroll={handleScroll}
       >
         {error && <div className="error-message">{error}</div>}
 
         {messages.length === 0 ? (
-          <div className="kakao-empty">
-            <div className="kakao-empty-icon">💬</div>
-            <p className="kakao-empty-text">첫 메시지를 남겨보세요</p>
+          <div className="chat-empty">
+            <div className="chat-empty-icon">💬</div>
+            <p className="chat-empty-title">첫 메시지를 남겨보세요</p>
+            <p className="chat-empty-subtitle">이 대화는 매일 9시에 리셋됩니다</p>
           </div>
         ) : (
           messagesWithDates.map((item, index) => {
             if (item.type === 'date') {
               return (
-                <div key={`date-${index}`} className="kakao-date">
-                  {item.label}
+                <div key={`date-${index}`} className="date-divider">
+                  <span>{item.label}</span>
                 </div>
               );
             }
@@ -314,13 +317,17 @@ function LinePage() {
             return (
               <div
                 key={message.id}
-                className={`kakao-message-wrapper ${isMyMessage ? 'my' : 'other'}`}
+                className={`message-wrapper ${isMyMessage ? 'my-message' : ''}`}
               >
                 <div
-                  className="kakao-message-container"
                   style={{
                     transform: `translateX(${swipeOffset}px)`,
                     transition: isSwipingThis ? 'none' : 'transform 0.2s ease',
+                    position: 'relative',
+                    display: 'flex',
+                    gap: '10px',
+                    alignItems: 'flex-end',
+                    width: '100%',
                   }}
                   onTouchStart={(e) => handleTouchStart(e, message)}
                   onTouchMove={(e) => handleTouchMove(e, message)}
@@ -328,54 +335,55 @@ function LinePage() {
                 >
                   {!isMyMessage && (
                     <div
-                      className="kakao-avatar"
+                      className="message-avatar"
                       style={{ backgroundColor: userColor }}
                     >
                       {message.user_id % 100}
                     </div>
                   )}
 
-                  <div className="kakao-message-content">
+                  <div className="message-content">
                     {!isMyMessage && (
-                      <div className="kakao-username" style={{ color: userColor }}>
+                      <div className="message-username" style={{ color: userColor }}>
                         익명 #{message.user_id % 1000}
                       </div>
                     )}
 
-                    <div className={`kakao-bubble ${isMyMessage ? 'my' : 'other'}`}>
-                      {message.reply_to && (
-                        <div className="kakao-reply-preview">
-                          <div className="kakao-reply-bar"></div>
-                          <div className="kakao-reply-text">
-                            답장: {messages.find(m => m.id === message.reply_to)?.content?.substring(0, 30) || '삭제된 메시지'}
+                    <div className="message-bubbles">
+                      <div className={`message-bubble ${isMyMessage ? 'my' : 'other'}`}>
+                        {message.reply_to && (
+                          <div className="reply-preview">
+                            <div className="reply-preview-text">
+                              답장: {messages.find(m => m.id === message.reply_to)?.content?.substring(0, 30) || '삭제된 메시지'}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      <div className="kakao-text">{message.content}</div>
+                        )}
+                        {message.content}
+                      </div>
                     </div>
 
-                    <div className="kakao-message-footer">
-                      <span className="kakao-time">{formatTime(message.created_at)}</span>
+                    <div className="message-footer">
+                      <span className="message-time">{formatTime(message.created_at)}</span>
                       {isMyMessage && (
                         <button
                           onClick={() => handleDeleteMessage(message.id)}
-                          className="kakao-delete"
+                          className="message-delete-btn"
                         >
                           삭제
                         </button>
                       )}
                     </div>
                   </div>
-                </div>
 
-                {/* 스와이프 답장 아이콘 */}
-                {isSwipingThis && Math.abs(swipeOffset) > 20 && (
-                  <div className={`kakao-reply-icon ${isMyMessage ? 'left' : 'right'}`}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
-                    </svg>
-                  </div>
-                )}
+                  {/* 스와이프 아이콘 */}
+                  {isSwipingThis && Math.abs(swipeOffset) > 20 && (
+                    <div className={`swipe-reply-icon ${isMyMessage ? 'left' : 'right'}`}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+                      </svg>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })
@@ -387,38 +395,30 @@ function LinePage() {
       {/* 하단으로 스크롤 버튼 */}
       {showScrollButton && (
         <button
-          className="kakao-scroll-down"
+          className="scroll-to-bottom"
           onClick={() => scrollToBottom(true)}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
           </svg>
         </button>
       )}
 
       {/* 입력 영역 */}
-      <div className="kakao-input-wrapper">
+      <div className="chat-input-container">
         {replyTo && (
-          <div className="kakao-reply-bar">
-            <div className="kakao-reply-info">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
-              </svg>
-              <span>답장: {replyTo.content.substring(0, 30)}</span>
+          <div className="reply-bar">
+            <div className="reply-bar-content">
+              <div className="reply-bar-label">답장</div>
+              <div className="reply-bar-text">{replyTo.content.substring(0, 40)}</div>
             </div>
-            <button onClick={() => setReplyTo(null)} className="kakao-reply-close">
+            <button onClick={() => setReplyTo(null)} className="reply-bar-close">
               ✕
             </button>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="kakao-input-form">
-          <button type="button" className="kakao-plus-btn">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-            </svg>
-          </button>
-
+        <form onSubmit={handleSubmit} className="chat-input-form">
           <textarea
             ref={textareaRef}
             value={content}
@@ -426,7 +426,7 @@ function LinePage() {
             placeholder="메시지를 입력하세요"
             maxLength={1000}
             disabled={submitting}
-            className="kakao-input"
+            className="chat-input-textarea"
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -437,10 +437,12 @@ function LinePage() {
 
           <button
             type="submit"
-            className={`kakao-send-btn ${content.trim() ? 'active' : ''}`}
+            className={`chat-send-btn ${content.trim() ? 'active' : ''}`}
             disabled={submitting || !content.trim()}
           >
-            {submitting ? '...' : '전송'}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
           </button>
         </form>
       </div>

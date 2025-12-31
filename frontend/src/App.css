@@ -1,312 +1,503 @@
-/* 카카오톡 스타일 채팅 UI */
+/*
+  지하철 간편 소통 커뮤니티 - 모바일 퍼스트 디자인
+  컨셉: 깔끔하고 빠른 소통, 지하철 노선 색상 활용
+*/
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #F7F9FC;
 }
 
-/* 카카오톡 채팅 컨테이너 */
-.kakao-chat {
+/* ========================================
+   홈 페이지 (호선 선택)
+   ======================================== */
+
+.home-header {
+  padding: 40px 20px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.home-title {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
+}
+
+.home-subtitle {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* 정렬 탭 */
+.sort-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding-bottom: 16px;
+}
+
+.sort-tab {
+  flex: 1;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sort-tab.active {
+  color: white;
+  border-bottom-color: white;
+}
+
+.sort-tab:active {
+  transform: scale(0.95);
+}
+
+/* 호선 목록 */
+.subway-lines-list {
+  padding: 16px 16px 24px;
+  background: #F7F9FC;
+}
+
+.subway-line-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  background: white;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 2px solid transparent;
+}
+
+.subway-line-item:active {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.line-indicator {
+  width: 6px;
+  height: 56px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.line-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.line-name {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
+}
+
+.active-users-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 20px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+.inactive-users {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.line-arrow {
+  font-size: 28px;
+  color: #cbd5e1;
+  flex-shrink: 0;
+  font-weight: 300;
+}
+
+/* ========================================
+   채팅 페이지
+   ======================================== */
+
+.chat-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
   height: 100dvh;
-  background-color: #ABC1D1;
+  background: #F7F9FC;
   overflow: hidden;
 }
 
-/* ========= 헤더 ========= */
-.kakao-header {
+/* 채팅 헤더 */
+.chat-header {
   display: flex;
   align-items: center;
-  padding: 0 8px;
-  height: 56px;
-  background: #fff;
-  border-bottom: 1px solid #E5E5EA;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+  gap: 12px;
+  padding: 12px 16px;
+  min-height: 60px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   z-index: 100;
 }
 
-.kakao-back {
+.chat-back-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  color: #000;
+  width: 40px;
+  height: 40px;
+  color: #475569;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
   text-decoration: none;
 }
 
-.kakao-header-info {
+.chat-back-btn:active {
+  background: #f1f5f9;
+  transform: scale(0.9);
+}
+
+.chat-line-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.chat-header-info {
   flex: 1;
-  margin-left: 8px;
+  min-width: 0;
 }
 
-.kakao-title {
-  margin: 0;
+.chat-title {
+  margin: 0 0 2px 0;
   font-size: 17px;
-  font-weight: 600;
-  color: #000;
-  line-height: 1.3;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
 }
 
-.kakao-subtitle {
-  margin: 2px 0 0 0;
-  font-size: 11px;
-  color: #8E8E93;
-  line-height: 1.2;
+.chat-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
 }
 
-/* ========= 메시지 영역 ========= */
-.kakao-messages {
+/* 메시지 영역 */
+.chat-messages {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 12px 16px 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
 
-.kakao-messages::-webkit-scrollbar {
-  width: 0;
-  display: none;
+.chat-messages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
 }
 
 /* Empty State */
-.kakao-empty {
+.chat-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
   padding: 40px 20px;
+  text-align: center;
 }
 
-.kakao-empty-icon {
-  font-size: 60px;
-  opacity: 0.3;
+.chat-empty-icon {
+  font-size: 64px;
+  opacity: 0.2;
   margin-bottom: 16px;
 }
 
-.kakao-empty-text {
-  font-size: 15px;
-  color: #6C7378;
+.chat-empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #475569;
+  margin: 0 0 8px 0;
+}
+
+.chat-empty-subtitle {
+  font-size: 14px;
+  color: #94a3b8;
   margin: 0;
 }
 
 /* 날짜 구분선 */
-.kakao-date {
+.date-divider {
   display: flex;
+  align-items: center;
   justify-content: center;
-  margin: 20px 0 16px;
+  margin: 20px 0;
 }
 
-.kakao-date::before {
-  content: '';
-  flex: 1;
-}
-
-.kakao-date::after {
-  content: '';
-  flex: 1;
-}
-
-.kakao-date {
+.date-divider span {
+  padding: 6px 16px;
+  background: rgba(148, 163, 184, 0.12);
+  color: #64748b;
   font-size: 12px;
-  color: #6C7378;
-  text-align: center;
-  padding: 4px 12px;
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  display: inline-block;
-  margin: 20px auto 16px;
+  font-weight: 600;
+  border-radius: 16px;
+  letter-spacing: -0.2px;
 }
 
-/* ========= 메시지 래퍼 ========= */
-.kakao-message-wrapper {
-  margin-bottom: 8px;
-  position: relative;
+/* 메시지 래퍼 */
+.message-wrapper {
   display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
   align-items: flex-end;
 }
 
-.kakao-message-wrapper.my {
-  justify-content: flex-end;
-}
-
-.kakao-message-wrapper.other {
-  justify-content: flex-start;
-}
-
-/* 메시지 컨테이너 (스와이프 가능) */
-.kakao-message-container {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  max-width: 80%;
-  position: relative;
-}
-
-.kakao-message-wrapper.my .kakao-message-container {
+.message-wrapper.my-message {
   flex-direction: row-reverse;
 }
 
-/* 아바타 */
-.kakao-avatar {
-  width: 42px;
-  height: 42px;
+/* 프로필 아바타 */
+.message-avatar {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: white;
   font-size: 13px;
-  font-weight: 600;
-  background: #95A5A6;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* 메시지 콘텐츠 */
-.kakao-message-content {
+.message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 75%;
   flex: 1;
   min-width: 0;
 }
 
-/* 사용자 이름 */
-.kakao-username {
+.message-wrapper.my-message .message-content {
+  align-items: flex-end;
+}
+
+.message-username {
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 4px;
-  padding-left: 2px;
+  padding: 0 4px;
+  letter-spacing: -0.2px;
+}
+
+/* 말풍선 그룹 */
+.message-bubbles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.message-wrapper.my-message .message-bubbles {
+  align-items: flex-end;
 }
 
 /* 말풍선 */
-.kakao-bubble {
+.message-bubble {
   display: inline-block;
-  padding: 9px 14px;
-  border-radius: 18px;
+  padding: 12px 16px;
+  border-radius: 20px;
   font-size: 15px;
-  line-height: 1.4;
+  line-height: 1.5;
   word-wrap: break-word;
   word-break: break-word;
   white-space: pre-wrap;
   max-width: 100%;
   position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
 }
 
-.kakao-bubble.other {
-  background: #fff;
-  color: #000;
-  border-top-left-radius: 4px;
+.message-bubble.other {
+  background: white;
+  color: #1a1a1a;
+  border-top-left-radius: 6px;
 }
 
-.kakao-bubble.my {
-  background: #FFE812;
-  color: #000;
-  border-top-right-radius: 4px;
+.message-bubble.my {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-top-right-radius: 6px;
 }
 
-.kakao-text {
-  margin: 0;
-}
-
-/* 답장 미리보기 (말풍선 내부) */
-.kakao-reply-preview {
+/* 답장 미리보기 */
+.reply-preview {
   display: flex;
   gap: 8px;
-  padding: 8px 10px;
-  margin: -4px -6px 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
   background: rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
+  border-radius: 12px;
+  border-left: 3px solid rgba(0, 0, 0, 0.2);
+}
+
+.message-bubble.my .reply-preview {
+  background: rgba(255, 255, 255, 0.15);
+  border-left-color: rgba(255, 255, 255, 0.4);
+}
+
+.reply-preview-text {
   font-size: 13px;
-}
-
-.kakao-bubble.my .kakao-reply-preview {
-  background: rgba(0, 0, 0, 0.08);
-}
-
-.kakao-reply-bar {
-  width: 3px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-.kakao-reply-text {
   color: rgba(0, 0, 0, 0.6);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+}
+
+.message-bubble.my .reply-preview-text {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* 메시지 하단 정보 */
-.kakao-message-footer {
+.message-footer {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  padding: 0 4px;
   margin-top: 4px;
-  font-size: 11px;
-  padding: 0 2px;
 }
 
-.kakao-message-wrapper.my .kakao-message-footer {
-  justify-content: flex-end;
+.message-wrapper.my-message .message-footer {
   flex-direction: row-reverse;
 }
 
-.kakao-time {
-  color: rgba(0, 0, 0, 0.4);
+.message-time {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
   white-space: nowrap;
 }
 
-.kakao-delete {
-  padding: 2px 8px;
+.message-delete-btn {
+  padding: 4px 10px;
   font-size: 11px;
-  color: #FF3B30;
+  color: #ef4444;
   background: transparent;
-  border: none;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
   cursor: pointer;
-  border-radius: 4px;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  font-weight: 600;
 }
 
-.kakao-delete:active {
-  background: rgba(255, 59, 48, 0.1);
+.message-delete-btn:active {
+  background: #fef2f2;
+  transform: scale(0.95);
 }
 
 /* 스와이프 답장 아이콘 */
-.kakao-reply-icon {
+.swipe-reply-icon {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(102, 126, 234, 0.9);
   border-radius: 50%;
-  color: #fff;
+  color: white;
   opacity: 0;
-  animation: replyIconFadeIn 0.2s forwards;
+  animation: replyIconShow 0.2s forwards;
 }
 
-.kakao-reply-icon.left {
-  left: -40px;
+.swipe-reply-icon.left {
+  left: -44px;
 }
 
-.kakao-reply-icon.right {
-  right: -40px;
+.swipe-reply-icon.right {
+  right: -44px;
 }
 
-@keyframes replyIconFadeIn {
+@keyframes replyIconShow {
   from {
     opacity: 0;
     transform: translateY(-50%) scale(0.8);
@@ -318,225 +509,298 @@ body {
 }
 
 /* 스크롤 다운 버튼 */
-.kakao-scroll-down {
-  position: absolute;
-  bottom: 90px;
-  right: 16px;
-  width: 42px;
-  height: 42px;
+.scroll-to-bottom {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  background: white;
+  color: #667eea;
   border: none;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   z-index: 50;
-  backdrop-filter: blur(10px);
+  transition: all 0.2s;
 }
 
-.kakao-scroll-down:active {
-  transform: scale(0.95);
+.scroll-to-bottom:active {
+  transform: scale(0.9);
 }
 
-/* ========= 입력 영역 ========= */
-.kakao-input-wrapper {
-  background: #F5F5F5;
-  border-top: 1px solid #D1D1D6;
-  padding: 8px 8px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
+/* 입력 영역 */
+.chat-input-container {
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* 답장 바 */
-.kakao-reply-bar {
+.reply-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  margin-bottom: 6px;
-  background: #fff;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  background: #f1f5f9;
   border-radius: 12px;
-  border-left: 3px solid #FFE812;
+  border-left: 4px solid #667eea;
 }
 
-.kakao-reply-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.reply-bar-content {
   flex: 1;
   min-width: 0;
 }
 
-.kakao-reply-info svg {
-  flex-shrink: 0;
-  color: #8E8E93;
+.reply-bar-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
-.kakao-reply-info span {
-  font-size: 13px;
-  color: #3C3C43;
+.reply-bar-text {
+  font-size: 14px;
+  color: #1a1a1a;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.kakao-reply-close {
-  width: 24px;
-  height: 24px;
+.reply-bar-close {
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: none;
-  color: #8E8E93;
-  font-size: 18px;
+  color: #94a3b8;
+  font-size: 20px;
   cursor: pointer;
   border-radius: 50%;
   flex-shrink: 0;
+  transition: all 0.2s;
 }
 
-.kakao-reply-close:active {
-  background: rgba(0, 0, 0, 0.05);
+.reply-bar-close:active {
+  background: #e2e8f0;
+  transform: scale(0.9);
 }
 
 /* 입력 폼 */
-.kakao-input-form {
+.chat-input-form {
   display: flex;
   align-items: flex-end;
-  gap: 6px;
-  background: #fff;
-  border-radius: 20px;
-  padding: 6px 6px 6px 2px;
+  gap: 8px;
 }
 
-.kakao-plus-btn {
-  width: 36px;
-  height: 36px;
+.chat-input-textarea {
+  flex: 1;
+  min-height: 44px;
+  max-height: 120px;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-family: inherit;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #f7f9fc;
+  border: 2px solid #e2e8f0;
+  border-radius: 24px;
+  resize: none;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.chat-input-textarea:focus {
+  background: white;
+  border-color: #667eea;
+}
+
+.chat-input-textarea::placeholder {
+  color: #cbd5e1;
+}
+
+.chat-send-btn {
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: #e2e8f0;
+  color: #94a3b8;
   border: none;
-  color: #8E8E93;
-  cursor: pointer;
-  flex-shrink: 0;
   border-radius: 50%;
-}
-
-.kakao-plus-btn:active {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.kakao-input {
-  flex: 1;
-  min-height: 20px;
-  max-height: 100px;
-  padding: 8px 12px;
-  font-size: 16px;
-  font-family: inherit;
-  line-height: 1.4;
-  color: #000;
-  background: transparent;
-  border: none;
-  resize: none;
-  outline: none;
-  -webkit-appearance: none;
-}
-
-.kakao-input::placeholder {
-  color: #C7C7CC;
-}
-
-.kakao-send-btn {
-  padding: 0 14px;
-  height: 36px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #8E8E93;
-  background: transparent;
-  border: none;
-  border-radius: 18px;
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
-  white-space: nowrap;
 }
 
-.kakao-send-btn.active {
-  color: #000;
+.chat-send-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
 }
 
-.kakao-send-btn:active:not(:disabled) {
-  transform: scale(0.95);
+.chat-send-btn:active:not(:disabled) {
+  transform: scale(0.9);
 }
 
-.kakao-send-btn:disabled {
+.chat-send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* ========= 모바일 최적화 ========= */
-@media (max-width: 640px) {
-  .kakao-header {
-    height: 52px;
-  }
-
-  .kakao-title {
-    font-size: 16px;
-  }
-
-  .kakao-subtitle {
-    font-size: 10px;
-  }
-
-  .kakao-messages {
-    padding: 10px 12px 16px;
-  }
-
-  .kakao-avatar {
-    width: 38px;
-    height: 38px;
-    font-size: 12px;
-  }
-
-  .kakao-bubble {
-    font-size: 14px;
-    padding: 8px 12px;
-  }
-
-  .kakao-username {
-    font-size: 12px;
-  }
-
-  .kakao-time {
-    font-size: 10px;
-  }
-
-  .kakao-input {
-    font-size: 16px; /* iOS 자동 줌 방지 */
-  }
-}
-
-/* 로딩 상태 */
+/* 로딩 & 에러 */
 .loading {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
   font-size: 16px;
-  color: #8E8E93;
+  color: #94a3b8;
+  font-weight: 600;
 }
 
-/* 에러 메시지 */
 .error-message {
-  padding: 12px;
-  margin: 0 16px 16px;
-  background: rgba(255, 59, 48, 0.1);
-  border: 1px solid rgba(255, 59, 48, 0.2);
-  border-radius: 12px;
-  color: #FF3B30;
+  padding: 16px;
+  margin: 16px;
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  border-radius: 16px;
+  color: #ef4444;
   font-size: 14px;
+  font-weight: 600;
   text-align: center;
+}
+
+/* ========================================
+   모바일 최적화
+   ======================================== */
+
+@media (max-width: 640px) {
+  .home-header {
+    padding: 32px 16px 24px;
+  }
+
+  .home-title {
+    font-size: 24px;
+  }
+
+  .home-subtitle {
+    font-size: 14px;
+  }
+
+  .sort-tabs {
+    padding: 0 16px;
+    padding-bottom: 12px;
+  }
+
+  .sort-tab {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .subway-line-item {
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+
+  .line-indicator {
+    height: 52px;
+  }
+
+  .line-name {
+    font-size: 17px;
+  }
+
+  .active-users-badge {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .chat-header {
+    padding: 10px 12px;
+    min-height: 56px;
+  }
+
+  .chat-line-badge {
+    min-width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+
+  .chat-title {
+    font-size: 16px;
+  }
+
+  .chat-subtitle {
+    font-size: 11px;
+  }
+
+  .message-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .message-bubble {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .message-username {
+    font-size: 12px;
+  }
+
+  .message-time {
+    font-size: 10px;
+  }
+
+  .scroll-to-bottom {
+    width: 44px;
+    height: 44px;
+    bottom: 90px;
+    right: 16px;
+  }
+
+  .chat-input-textarea {
+    font-size: 16px;
+  }
+}
+
+/* Extra Small Screens */
+@media (max-width: 375px) {
+  .home-title {
+    font-size: 22px;
+  }
+
+  .subway-line-item {
+    padding: 14px 16px;
+  }
+
+  .message-content {
+    max-width: 80%;
+  }
+
+  .message-bubble {
+    padding: 9px 12px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
