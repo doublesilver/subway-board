@@ -463,10 +463,10 @@
   }
 }
 
-/* Composer Footer (포커스 시 표시) */
+/* Composer Footer (입력 중에만 표시) */
 .composer-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 0.5rem;
   padding: 0 0.25rem;
@@ -484,28 +484,10 @@
   }
 }
 
-.composer-info {
-  font-size: 0.75rem;
-  color: #64748B;
-  font-weight: 500;
-}
-
 .composer-counter {
   font-size: 0.75rem;
   color: #94A3B8;
   font-variant-numeric: tabular-nums;
-}
-
-/* Composer Hint (비포커스 시 표시) */
-.composer-hint {
-  margin-top: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  text-align: center;
-  font-size: 0.8rem;
-  color: #64748B;
-  background: #F1F5F9;
-  border-radius: 8px;
-  animation: fadeInUp 0.2s ease;
 }
 
 /* ========================================
@@ -1121,10 +1103,10 @@ a {
   }
 }
 
-/* Composer Footer (포커스 시 표시) */
+/* Composer Footer (입력 중에만 표시) */
 .composer-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 0.5rem;
   padding: 0 0.25rem;
@@ -1142,28 +1124,10 @@ a {
   }
 }
 
-.composer-info {
-  font-size: 0.75rem;
-  color: #64748B;
-  font-weight: 500;
-}
-
 .composer-counter {
   font-size: 0.75rem;
   color: #94A3B8;
   font-variant-numeric: tabular-nums;
-}
-
-/* Composer Hint (비포커스 시 표시) */
-.composer-hint {
-  margin-top: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  text-align: center;
-  font-size: 0.8rem;
-  color: #64748B;
-  background: #F1F5F9;
-  border-radius: 8px;
-  animation: fadeInUp 0.2s ease;
 }
 
 /* ========================================

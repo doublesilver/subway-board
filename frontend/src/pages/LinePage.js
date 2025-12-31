@@ -413,21 +413,13 @@ function LinePage() {
             </button>
           </div>
 
-          {/* 하단 정보 (포커스 시 or 입력 중 표시) */}
-          {(inputFocused || content.length > 0) && (
+          {/* 하단 정보 (입력 중에만 표시) */}
+          {content.length > 0 && (
             <div className="composer-footer">
-              <span className="composer-info">🔒 익명</span>
               <span className="composer-counter">{content.length}/1000</span>
             </div>
           )}
         </form>
-
-        {/* 가벼운 안내 문구 */}
-        {!inputFocused && content.length === 0 && (
-          <div className="composer-hint">
-            🕘 매일 9시 자동 리셋
-          </div>
-        )}
       </div>
     </div>
   );
