@@ -114,9 +114,12 @@ function HomePage() {
           <div
             key={line.id}
             className="subway-line-item"
+            style={{ '--line-color': line.color }}
             onClick={() => handleLineClick(line.id)}
           >
-            <div className="line-indicator" style={{ backgroundColor: line.color }}></div>
+            <div className="line-indicator" style={{ backgroundColor: line.color }}>
+              {line.line_number}
+            </div>
             <div className="line-info">
               <h3 className="line-name">{line.line_name}</h3>
               {line.activeUsers > 0 ? (
