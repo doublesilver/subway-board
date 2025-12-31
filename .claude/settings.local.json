@@ -24,7 +24,12 @@
       "Bash(railway run:*)",
       "Bash(railway status:*)",
       "Bash(railway link:*)",
-      "Bash(set:*)"
+      "Bash(set:*)",
+      "Bash(grep:*)",
+      "Bash(pkill:*)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)"
     ]
   }
 }

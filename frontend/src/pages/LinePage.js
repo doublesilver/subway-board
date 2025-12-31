@@ -16,10 +16,11 @@ function LinePage() {
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const messagesEndRef = useRef(null);
+  const isInitialLoad = useRef(true);
 
   // 스크롤을 하단으로 이동
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = (smooth = true) => {
+    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
   };
 
   useEffect(() => {
@@ -48,9 +49,16 @@ function LinePage() {
     };
   }, [lineId]);
 
-  // 메시지 업데이트 시 스크롤
+  // 메시지 업데이트 시 스크롤 (초기 로드는 즉시, 이후는 부드럽게)
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      if (isInitialLoad.current) {
+        scrollToBottom(false); // 초기 로드는 애니메이션 없이
+        isInitialLoad.current = false;
+      } else {
+        scrollToBottom(true); // 이후는 부드럽게
+      }
+    }
   }, [messages]);
 
   const fetchLineInfo = async () => {
