@@ -1,640 +1,542 @@
-/* ========================================
-   모바일 퍼스트 익명 채팅 UX 개선 스타일
-   ======================================== */
+/* 카카오톡 스타일 채팅 UI */
 
-.chat-page-improved {
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 카카오톡 채팅 컨테이너 */
+.kakao-chat {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  height: 100dvh; /* 모바일 브라우저 주소창 고려 */
-  max-width: 100%;
-  background: #F8FAFC;
-  position: relative;
+  height: 100dvh;
+  background-color: #ABC1D1;
   overflow: hidden;
 }
 
-/* ========================================
-   1. Compact Header (최소화된 헤더)
-   ======================================== */
-
-.chat-header-compact {
+/* ========= 헤더 ========= */
+.kakao-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: white;
-  border-bottom: 1px solid #E2E8F0;
-  min-height: 56px;
-  position: sticky;
-  top: 0;
+  padding: 0 8px;
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #E5E5EA;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
   z-index: 100;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.chat-back-btn {
+.kakao-back {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  color: #64748B;
-  background: transparent;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s;
-  -webkit-tap-highlight-color: transparent;
+  width: 44px;
+  height: 44px;
+  color: #000;
   text-decoration: none;
 }
 
-.chat-back-btn:active {
-  background: #F1F5F9;
-  transform: scale(0.95);
-}
-
-.chat-header-info {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.kakao-header-info {
   flex: 1;
-  position: relative;
+  margin-left: 8px;
 }
 
-.chat-line-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  height: 32px;
-  padding: 0 0.5rem;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.chat-title-compact {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1E293B;
+.kakao-title {
   margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: #000;
+  line-height: 1.3;
+}
+
+.kakao-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  color: #8E8E93;
   line-height: 1.2;
 }
 
-.chat-info-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  margin-left: auto;
-  background: transparent;
-  border: none;
-  color: #94A3B8;
-  cursor: pointer;
-  border-radius: 50%;
-  transition: all 0.2s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.chat-info-btn:active {
-  background: #F1F5F9;
-  transform: scale(0.95);
-}
-
-.chat-info-tooltip {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: #1E293B;
-  color: white;
-  font-size: 0.85rem;
-  border-radius: 8px;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: tooltipFadeIn 0.2s ease;
-  z-index: 101;
-}
-
-.chat-info-tooltip::before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  right: 12px;
-  width: 8px;
-  height: 8px;
-  background: #1E293B;
-  transform: rotate(45deg);
-}
-
-@keyframes tooltipFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ========================================
-   2. Messages Area (메시지 영역)
-   ======================================== */
-
-.chat-messages-improved {
+/* ========= 메시지 영역 ========= */
+.kakao-messages {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  padding: 12px 16px 20px;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
 
-/* 커스텀 스크롤바 (모바일에서는 숨김) */
-.chat-messages-improved::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chat-messages-improved::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chat-messages-improved::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 3px;
+.kakao-messages::-webkit-scrollbar {
+  width: 0;
+  display: none;
 }
 
 /* Empty State */
-.empty-chat-improved {
+.kakao-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  text-align: center;
-  padding: 2rem;
+  padding: 40px 20px;
 }
 
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
+.kakao-empty-icon {
+  font-size: 60px;
+  opacity: 0.3;
+  margin-bottom: 16px;
 }
 
-.empty-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #475569;
-  margin: 0 0 0.5rem 0;
-}
-
-.empty-subtitle {
-  font-size: 0.9rem;
-  color: #94A3B8;
+.kakao-empty-text {
+  font-size: 15px;
+  color: #6C7378;
   margin: 0;
 }
 
-/* Date Divider */
-.date-divider {
+/* 날짜 구분선 */
+.kakao-date {
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin: 1.5rem 0 1rem 0;
+  margin: 20px 0 16px;
 }
 
-.date-divider span {
-  padding: 0.35rem 0.75rem;
-  background: rgba(148, 163, 184, 0.15);
-  color: #64748B;
-  font-size: 0.75rem;
-  font-weight: 600;
+.kakao-date::before {
+  content: '';
+  flex: 1;
+}
+
+.kakao-date::after {
+  content: '';
+  flex: 1;
+}
+
+.kakao-date {
+  font-size: 12px;
+  color: #6C7378;
+  text-align: center;
+  padding: 4px 12px;
+  background: rgba(0, 0, 0, 0.08);
   border-radius: 12px;
-  letter-spacing: -0.01em;
+  display: inline-block;
+  margin: 20px auto 16px;
 }
 
-/* ========================================
-   3. Message Grouping (메시지 그룹핑)
-   ======================================== */
-
-.message-group {
+/* ========= 메시지 래퍼 ========= */
+.kakao-message-wrapper {
+  margin-bottom: 8px;
+  position: relative;
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  animation: messageSlideIn 0.3s ease;
+  align-items: flex-end;
 }
 
-.message-group.my-message {
+.kakao-message-wrapper.my {
+  justify-content: flex-end;
+}
+
+.kakao-message-wrapper.other {
+  justify-content: flex-start;
+}
+
+/* 메시지 컨테이너 (스와이프 가능) */
+.kakao-message-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 80%;
+  position: relative;
+}
+
+.kakao-message-wrapper.my .kakao-message-container {
   flex-direction: row-reverse;
 }
 
-@keyframes messageSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Anonymous Color Indicator */
-.anonymous-indicator {
-  width: 4px;
-  min-width: 4px;
-  border-radius: 2px;
-  align-self: stretch;
-  opacity: 0.6;
-}
-
-.message-group-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  max-width: 75%;
-}
-
-.message-group.my-message .message-group-content {
-  align-items: flex-end;
-}
-
-/* ========================================
-   4. Message Bubble (말풍선)
-   ======================================== */
-
-.message-bubble-improved {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.75rem 1rem;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  word-wrap: break-word;
-  word-break: break-word;
-}
-
-.my-message .message-bubble-improved {
-  background: #0052A4;
-  color: white;
-}
-
-.message-text {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin: 0;
-  white-space: pre-wrap;
-  letter-spacing: -0.01em;
-}
-
-.my-message .message-text {
-  color: white;
-}
-
-/* Message Meta (시간 + 삭제) */
-.message-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-}
-
-.message-time-improved {
-  font-size: 0.7rem;
-  color: #94A3B8;
-  font-weight: 500;
-}
-
-.my-message .message-time-improved {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.message-delete-btn-improved {
-  padding: 0.15rem 0.5rem;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.message-delete-btn-improved:active {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(0.95);
-}
-
-/* ========================================
-   5. Scroll to Bottom Button
-   ======================================== */
-
-.scroll-to-bottom {
-  position: absolute;
-  bottom: 140px;
-  right: 1rem;
-  width: 44px;
-  height: 44px;
+/* 아바타 */
+.kakao-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
-  color: #0052A4;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  background: #95A5A6;
+}
+
+/* 메시지 콘텐츠 */
+.kakao-message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 사용자 이름 */
+.kakao-username {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  padding-left: 2px;
+}
+
+/* 말풍선 */
+.kakao-bubble {
+  display: inline-block;
+  padding: 9px 14px;
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  max-width: 100%;
+  position: relative;
+}
+
+.kakao-bubble.other {
+  background: #fff;
+  color: #000;
+  border-top-left-radius: 4px;
+}
+
+.kakao-bubble.my {
+  background: #FFE812;
+  color: #000;
+  border-top-right-radius: 4px;
+}
+
+.kakao-text {
+  margin: 0;
+}
+
+/* 답장 미리보기 (말풍선 내부) */
+.kakao-reply-preview {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px;
+  margin: -4px -6px 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.kakao-bubble.my .kakao-reply-preview {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.kakao-reply-bar {
+  width: 3px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.kakao-reply-text {
+  color: rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 메시지 하단 정보 */
+.kakao-message-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 11px;
+  padding: 0 2px;
+}
+
+.kakao-message-wrapper.my .kakao-message-footer {
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+}
+
+.kakao-time {
+  color: rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+.kakao-delete {
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #FF3B30;
+  background: transparent;
   border: none;
-  border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  z-index: 50;
-  animation: buttonBounceIn 0.3s ease;
-  -webkit-tap-highlight-color: transparent;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
 
-.scroll-to-bottom:active {
-  transform: scale(0.95);
+.kakao-delete:active {
+  background: rgba(255, 59, 48, 0.1);
 }
 
-@keyframes buttonBounceIn {
+/* 스와이프 답장 아이콘 */
+.kakao-reply-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  color: #fff;
+  opacity: 0;
+  animation: replyIconFadeIn 0.2s forwards;
+}
+
+.kakao-reply-icon.left {
+  left: -40px;
+}
+
+.kakao-reply-icon.right {
+  right: -40px;
+}
+
+@keyframes replyIconFadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.8);
+    transform: translateY(-50%) scale(0.8);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(-50%) scale(1);
   }
 }
 
-/* ========================================
-   6. Composer (입력 영역)
-   ======================================== */
-
-.chat-composer {
-  padding: 0.75rem 1rem;
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-  background: white;
-  border-top: 1px solid #E2E8F0;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+/* 스크롤 다운 버튼 */
+.kakao-scroll-down {
+  position: absolute;
+  bottom: 90px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  z-index: 50;
+  backdrop-filter: blur(10px);
 }
 
-.composer-input-wrapper {
+.kakao-scroll-down:active {
+  transform: scale(0.95);
+}
+
+/* ========= 입력 영역 ========= */
+.kakao-input-wrapper {
+  background: #F5F5F5;
+  border-top: 1px solid #D1D1D6;
+  padding: 8px 8px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+/* 답장 바 */
+.kakao-reply-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: #fff;
+  border-radius: 12px;
+  border-left: 3px solid #FFE812;
+}
+
+.kakao-reply-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.kakao-reply-info svg {
+  flex-shrink: 0;
+  color: #8E8E93;
+}
+
+.kakao-reply-info span {
+  font-size: 13px;
+  color: #3C3C43;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kakao-reply-close {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #8E8E93;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.kakao-reply-close:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* 입력 폼 */
+.kakao-input-form {
   display: flex;
   align-items: flex-end;
-  gap: 0.5rem;
+  gap: 6px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 6px 6px 6px 2px;
 }
 
-.composer-textarea {
+.kakao-plus-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #8E8E93;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.kakao-plus-btn:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.kakao-input {
   flex: 1;
-  min-height: 44px;
-  max-height: 120px;
-  padding: 0.75rem 1rem;
-  font-size: 1rem; /* iOS 자동 줌 방지 */
+  min-height: 20px;
+  max-height: 100px;
+  padding: 8px 12px;
+  font-size: 16px;
   font-family: inherit;
-  line-height: 1.5;
-  color: #1E293B;
-  background: #F8FAFC;
-  border: 2px solid transparent;
-  border-radius: 22px;
+  line-height: 1.4;
+  color: #000;
+  background: transparent;
+  border: none;
   resize: none;
   outline: none;
-  transition: all 0.2s;
   -webkit-appearance: none;
 }
 
-.composer-textarea:focus {
-  background: white;
-  border-color: #0052A4;
+.kakao-input::placeholder {
+  color: #C7C7CC;
 }
 
-.composer-textarea::placeholder {
-  color: #94A3B8;
-}
-
-/* Send Button */
-.composer-send-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  background: #E2E8F0;
-  color: #94A3B8;
+.kakao-send-btn {
+  padding: 0 14px;
+  height: 36px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #8E8E93;
+  background: transparent;
   border: none;
-  border-radius: 50%;
+  border-radius: 18px;
   cursor: pointer;
   transition: all 0.2s;
-  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.composer-send-btn.active {
-  background: #0052A4;
-  color: white;
-  box-shadow: 0 2px 8px rgba(0, 82, 164, 0.3);
+.kakao-send-btn.active {
+  color: #000;
 }
 
-.composer-send-btn:active:not(:disabled) {
+.kakao-send-btn:active:not(:disabled) {
   transform: scale(0.95);
 }
 
-.composer-send-btn:disabled {
+.kakao-send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
 }
 
-/* Spinner Animation */
-.spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Composer Footer (입력 중에만 표시) */
-.composer-footer {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 0.5rem;
-  padding: 0 0.25rem;
-  animation: fadeInUp 0.2s ease;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.composer-counter {
-  font-size: 0.75rem;
-  color: #94A3B8;
-  font-variant-numeric: tabular-nums;
-}
-
-/* ========================================
-   7. Mobile Responsive (모바일 최적화)
-   ======================================== */
-
+/* ========= 모바일 최적화 ========= */
 @media (max-width: 640px) {
-  .chat-header-compact {
-    padding: 0.65rem 0.85rem;
-    min-height: 52px;
+  .kakao-header {
+    height: 52px;
   }
 
-  .chat-back-btn {
-    width: 36px;
-    height: 36px;
+  .kakao-title {
+    font-size: 16px;
   }
 
-  .chat-line-badge {
-    min-width: 28px;
-    height: 28px;
-    font-size: 0.7rem;
+  .kakao-subtitle {
+    font-size: 10px;
   }
 
-  .chat-title-compact {
-    font-size: 0.95rem;
+  .kakao-messages {
+    padding: 10px 12px 16px;
   }
 
-  .chat-messages-improved {
-    padding: 0.75rem;
+  .kakao-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 12px;
   }
 
-  .message-group-content {
-    max-width: 80%;
+  .kakao-bubble {
+    font-size: 14px;
+    padding: 8px 12px;
   }
 
-  .message-bubble-improved {
-    padding: 0.65rem 0.85rem;
-    border-radius: 14px;
+  .kakao-username {
+    font-size: 12px;
   }
 
-  .message-text {
-    font-size: 0.9rem;
+  .kakao-time {
+    font-size: 10px;
   }
 
-  .date-divider span {
-    font-size: 0.7rem;
-  }
-
-  .scroll-to-bottom {
-    width: 40px;
-    height: 40px;
-    bottom: 120px;
-    right: 0.75rem;
-  }
-
-  .composer-textarea {
-    font-size: 1rem; /* 16px 유지 (iOS 줌 방지) */
-    padding: 0.65rem 0.85rem;
-  }
-
-  .composer-send-btn {
-    min-width: 40px;
-    min-height: 40px;
+  .kakao-input {
+    font-size: 16px; /* iOS 자동 줌 방지 */
   }
 }
 
-/* Extra Small Screens */
-@media (max-width: 375px) {
-  .chat-messages-improved {
-    padding: 0.6rem;
-  }
-
-  .message-group-content {
-    max-width: 85%;
-  }
-
-  .message-bubble-improved {
-    padding: 0.6rem 0.75rem;
-  }
-
-  .composer-hint {
-    font-size: 0.75rem;
-  }
+/* 로딩 상태 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 16px;
+  color: #8E8E93;
 }
 
-/* ========================================
-   8. Accessibility & Touch Optimization
-   ======================================== */
-
-/* 터치 영역 최소 44px 보장 */
-button,
-a {
-  min-width: 44px;
-  min-height: 44px;
-}
-
-/* 다크모드 대응 (선택사항) */
-@media (prefers-color-scheme: dark) {
-  .chat-page-improved {
-    background: #0F172A;
-  }
-
-  .chat-header-compact {
-    background: #1E293B;
-    border-bottom-color: #334155;
-  }
-
-  .chat-title-compact {
-    color: #F1F5F9;
-  }
-
-  .chat-messages-improved {
-    background: #0F172A;
-  }
-
-  .message-bubble-improved {
-    background: #1E293B;
-    color: #F1F5F9;
-  }
-
-  .composer-textarea {
-    background: #1E293B;
-    color: #F1F5F9;
-  }
-
-  .composer-textarea:focus {
-    background: #334155;
-  }
-
-  .chat-composer {
-    background: #1E293B;
-    border-top-color: #334155;
-  }
-
-  .composer-hint {
-    background: #334155;
-    color: #94A3B8;
-  }
-}
-
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+/* 에러 메시지 */
+.error-message {
+  padding: 12px;
+  margin: 0 16px 16px;
+  background: rgba(255, 59, 48, 0.1);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  border-radius: 12px;
+  color: #FF3B30;
+  font-size: 14px;
+  text-align: center;
 }

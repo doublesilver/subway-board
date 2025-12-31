@@ -6,20 +6,14 @@ import { useAuth } from '../contexts/AuthContext';
 // 호선 데이터 캐싱
 let cachedLines = null;
 
-// 익명 사용자 색상 해시 함수 (일관된 색상 부여)
+// 익명 사용자 색상 해시 함수
 const getAnonymousColor = (userId) => {
-  if (!userId) return '#CBD5E1'; // 기본 회색
+  if (!userId) return '#95A5A6';
 
   const colors = [
-    '#FECACA', // red-200
-    '#FED7AA', // orange-200
-    '#FEF08A', // yellow-200
-    '#BBF7D0', // green-200
-    '#A5F3FC', // cyan-200
-    '#BAE6FD', // blue-200
-    '#C7D2FE', // indigo-200
-    '#DDD6FE', // violet-200
-    '#FBCFE8', // pink-200
+    '#E74C3C', '#E67E22', '#F39C12', '#F1C40F',
+    '#2ECC71', '#1ABC9C', '#3498DB', '#9B59B6',
+    '#34495E', '#E91E63', '#FF5722', '#795548'
   ];
 
   const hash = userId.toString().split('').reduce((acc, char) => {
@@ -29,35 +23,7 @@ const getAnonymousColor = (userId) => {
   return colors[Math.abs(hash) % colors.length];
 };
 
-// 메시지 그룹핑 함수 (같은 사용자의 연속 메시지)
-const groupMessages = (messages) => {
-  const groups = [];
-  let currentGroup = null;
-
-  messages.forEach((message, index) => {
-    const isSameUser = currentGroup && currentGroup.userId === message.user_id;
-    const prevMessage = messages[index - 1];
-    const timeDiff = prevMessage
-      ? new Date(message.created_at) - new Date(prevMessage.created_at)
-      : Infinity;
-
-    // 5분 이내 + 같은 사용자면 그룹핑
-    if (isSameUser && timeDiff < 300000) {
-      currentGroup.messages.push(message);
-    } else {
-      currentGroup = {
-        userId: message.user_id,
-        messages: [message],
-        color: getAnonymousColor(message.user_id),
-      };
-      groups.push(currentGroup);
-    }
-  });
-
-  return groups;
-};
-
-// 날짜 구분선을 위한 함수
+// 날짜 구분선 함수
 const getDateLabel = (dateString) => {
   const date = new Date(dateString);
   const today = new Date();
@@ -67,7 +33,10 @@ const getDateLabel = (dateString) => {
   if (date.toDateString() === today.toDateString()) return '오늘';
   if (date.toDateString() === yesterday.toDateString()) return '어제';
 
-  return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return `${year}년 ${month}월 ${day}일`;
 };
 
 function LinePage() {
@@ -80,26 +49,24 @@ function LinePage() {
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [showInfoTooltip, setShowInfoTooltip] = useState(false);
-  const [inputFocused, setInputFocused] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
+  const [swipedMessageId, setSwipedMessageId] = useState(null);
+  const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
+  const [touchOffset, setTouchOffset] = useState(0);
 
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const isInitialLoad = useRef(true);
   const textareaRef = useRef(null);
 
-  // 스크롤을 하단으로 이동
   const scrollToBottom = (smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
   };
 
-  // 스크롤 위치 감지
   const handleScroll = () => {
     if (!messagesContainerRef.current) return;
-
     const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 200;
-
     setShowScrollButton(!isNearBottom);
   };
 
@@ -107,14 +74,12 @@ function LinePage() {
     fetchLineInfo();
     fetchMessages();
 
-    // 5초마다 메시지 갱신
     const interval = setInterval(() => {
       if (!document.hidden) {
         fetchMessages();
       }
     }, 5000);
 
-    // Page Visibility API
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         fetchMessages();
@@ -129,14 +94,12 @@ function LinePage() {
     };
   }, [lineId]);
 
-  // 메시지 업데이트 시 스크롤
   useEffect(() => {
     if (messages.length > 0) {
       if (isInitialLoad.current) {
         scrollToBottom(false);
         isInitialLoad.current = false;
       } else if (!showScrollButton) {
-        // 사용자가 하단 근처에 있을 때만 자동 스크롤
         scrollToBottom(true);
       }
     }
@@ -180,13 +143,14 @@ function LinePage() {
       await postAPI.create({
         content: content.trim(),
         subway_line_id: parseInt(lineId),
+        reply_to: replyTo?.id || null,
       });
       setContent('');
+      setReplyTo(null);
       fetchMessages();
 
-      // textarea 높이 초기화
       if (textareaRef.current) {
-        textareaRef.current.style.height = '44px';
+        textareaRef.current.style.height = '20px';
       }
     } catch (err) {
       const errorMsg = err.response?.data?.error || '메시지 작성에 실패했습니다.';
@@ -208,41 +172,92 @@ function LinePage() {
     }
   };
 
-  // Textarea 자동 높이 조절
   const handleTextareaChange = (e) => {
     setContent(e.target.value);
 
     if (textareaRef.current) {
-      textareaRef.current.style.height = '44px';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+      textareaRef.current.style.height = '20px';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 100)}px`;
     }
   };
 
   const formatTime = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('ko-KR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const period = hours >= 12 ? '오후' : '오전';
+
+    if (hours > 12) hours -= 12;
+    if (hours === 0) hours = 12;
+
+    return `${period} ${hours}:${minutes.toString().padStart(2, '0')}`;
   };
 
-  // 메시지 그룹핑
-  const messageGroups = groupMessages(messages);
+  // 터치 이벤트 핸들러 (스와이프 답장)
+  const handleTouchStart = (e, message) => {
+    setTouchStart({
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    });
+    setSwipedMessageId(message.id);
+  };
+
+  const handleTouchMove = (e, message) => {
+    if (swipedMessageId !== message.id) return;
+
+    const touchX = e.touches[0].clientX;
+    const touchY = e.touches[0].clientY;
+    const deltaX = touchX - touchStart.x;
+    const deltaY = touchY - touchStart.y;
+
+    // 가로 스와이프가 세로 스와이프보다 크면
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      e.preventDefault();
+
+      const isMyMessage = user && !user.isAnonymous && message.user_id === user.id;
+
+      if (isMyMessage) {
+        // 내 메시지: 왼쪽으로 스와이프 (음수)
+        if (deltaX < 0 && deltaX > -80) {
+          setTouchOffset(deltaX);
+        }
+      } else {
+        // 다른 사람 메시지: 오른쪽으로 스와이프 (양수)
+        if (deltaX > 0 && deltaX < 80) {
+          setTouchOffset(deltaX);
+        }
+      }
+    }
+  };
+
+  const handleTouchEnd = (message) => {
+    const isMyMessage = user && !user.isAnonymous && message.user_id === user.id;
+
+    if (isMyMessage && touchOffset < -40) {
+      // 내 메시지를 왼쪽으로 충분히 스와이프
+      setReplyTo(message);
+    } else if (!isMyMessage && touchOffset > 40) {
+      // 다른 사람 메시지를 오른쪽으로 충분히 스와이프
+      setReplyTo(message);
+    }
+
+    setTouchOffset(0);
+    setSwipedMessageId(null);
+  };
 
   // 날짜별로 메시지 구분
   const messagesWithDates = [];
   let lastDate = null;
 
-  messageGroups.forEach((group) => {
-    const firstMessage = group.messages[0];
-    const currentDate = getDateLabel(firstMessage.created_at);
+  messages.forEach((message) => {
+    const currentDate = getDateLabel(message.created_at);
 
     if (currentDate !== lastDate) {
       messagesWithDates.push({ type: 'date', label: currentDate });
       lastDate = currentDate;
     }
 
-    messagesWithDates.push({ type: 'group', data: group });
+    messagesWithDates.push({ type: 'message', data: message });
   });
 
   if (loading && messages.length === 0 && !lineInfo) {
@@ -250,107 +265,117 @@ function LinePage() {
   }
 
   return (
-    <div className="chat-page-improved">
-      {/* Compact Header */}
-      <header className="chat-header-compact">
-        <Link to="/" className="chat-back-btn">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
+    <div className="kakao-chat">
+      {/* 헤더 */}
+      <header className="kakao-header">
+        <Link to="/" className="kakao-back">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
           </svg>
         </Link>
 
         {lineInfo && (
-          <div className="chat-header-info">
-            <div className="chat-line-badge" style={{ backgroundColor: lineInfo.color }}>
-              {lineInfo.line_number}
-            </div>
-            <h1 className="chat-title-compact">{lineInfo.line_name}</h1>
-
-            <button
-              className="chat-info-btn"
-              onClick={() => setShowInfoTooltip(!showInfoTooltip)}
-              aria-label="채팅방 정보"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
-              </svg>
-            </button>
-
-            {showInfoTooltip && (
-              <div className="chat-info-tooltip">
-                🕘 매일 오전 9시 자동 초기화
-              </div>
-            )}
+          <div className="kakao-header-info">
+            <h1 className="kakao-title">{lineInfo.line_name}</h1>
+            <p className="kakao-subtitle">{messages.length}개 메시지 · 매일 9시 리셋</p>
           </div>
         )}
       </header>
 
-      {/* Messages Area */}
+      {/* 메시지 영역 */}
       <div
-        className="chat-messages-improved"
+        className="kakao-messages"
         ref={messagesContainerRef}
         onScroll={handleScroll}
       >
         {error && <div className="error-message">{error}</div>}
 
         {messages.length === 0 ? (
-          <div className="empty-chat-improved">
-            <div className="empty-icon">💬</div>
-            <p className="empty-title">첫 메시지를 남겨보세요</p>
-            <p className="empty-subtitle">이 대화는 매일 9시에 리셋됩니다</p>
+          <div className="kakao-empty">
+            <div className="kakao-empty-icon">💬</div>
+            <p className="kakao-empty-text">첫 메시지를 남겨보세요</p>
           </div>
         ) : (
           messagesWithDates.map((item, index) => {
             if (item.type === 'date') {
               return (
-                <div key={`date-${index}`} className="date-divider">
-                  <span>{item.label}</span>
+                <div key={`date-${index}`} className="kakao-date">
+                  {item.label}
                 </div>
               );
             }
 
-            const group = item.data;
-            const isMyMessage = user && !user.isAnonymous && group.userId === user.id;
+            const message = item.data;
+            const isMyMessage = user && !user.isAnonymous && message.user_id === user.id;
+            const userColor = getAnonymousColor(message.user_id);
+            const isSwipingThis = swipedMessageId === message.id;
+            const swipeOffset = isSwipingThis ? touchOffset : 0;
 
             return (
               <div
-                key={`group-${index}`}
-                className={`message-group ${isMyMessage ? 'my-message' : ''}`}
+                key={message.id}
+                className={`kakao-message-wrapper ${isMyMessage ? 'my' : 'other'}`}
               >
-                {!isMyMessage && (
-                  <div
-                    className="anonymous-indicator"
-                    style={{ backgroundColor: group.color }}
-                  />
-                )}
+                <div
+                  className="kakao-message-container"
+                  style={{
+                    transform: `translateX(${swipeOffset}px)`,
+                    transition: isSwipingThis ? 'none' : 'transform 0.2s ease',
+                  }}
+                  onTouchStart={(e) => handleTouchStart(e, message)}
+                  onTouchMove={(e) => handleTouchMove(e, message)}
+                  onTouchEnd={() => handleTouchEnd(message)}
+                >
+                  {!isMyMessage && (
+                    <div
+                      className="kakao-avatar"
+                      style={{ backgroundColor: userColor }}
+                    >
+                      {message.user_id % 100}
+                    </div>
+                  )}
 
-                <div className="message-group-content">
-                  {group.messages.map((message, msgIndex) => (
-                    <div key={message.id} className="message-bubble-improved">
-                      <p className="message-text">{message.content}</p>
+                  <div className="kakao-message-content">
+                    {!isMyMessage && (
+                      <div className="kakao-username" style={{ color: userColor }}>
+                        익명 #{message.user_id % 1000}
+                      </div>
+                    )}
 
-                      {/* 마지막 메시지에만 시간 표시 */}
-                      {msgIndex === group.messages.length - 1 && (
-                        <div className="message-meta">
-                          <span className="message-time-improved">
-                            {formatTime(message.created_at)}
-                          </span>
-
-                          {isMyMessage && (
-                            <button
-                              onClick={() => handleDeleteMessage(message.id)}
-                              className="message-delete-btn-improved"
-                              aria-label="메시지 삭제"
-                            >
-                              삭제
-                            </button>
-                          )}
+                    <div className={`kakao-bubble ${isMyMessage ? 'my' : 'other'}`}>
+                      {message.reply_to && (
+                        <div className="kakao-reply-preview">
+                          <div className="kakao-reply-bar"></div>
+                          <div className="kakao-reply-text">
+                            답장: {messages.find(m => m.id === message.reply_to)?.content?.substring(0, 30) || '삭제된 메시지'}
+                          </div>
                         </div>
                       )}
+                      <div className="kakao-text">{message.content}</div>
                     </div>
-                  ))}
+
+                    <div className="kakao-message-footer">
+                      <span className="kakao-time">{formatTime(message.created_at)}</span>
+                      {isMyMessage && (
+                        <button
+                          onClick={() => handleDeleteMessage(message.id)}
+                          className="kakao-delete"
+                        >
+                          삭제
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
+
+                {/* 스와이프 답장 아이콘 */}
+                {isSwipingThis && Math.abs(swipeOffset) > 20 && (
+                  <div className={`kakao-reply-icon ${isMyMessage ? 'left' : 'right'}`}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+                    </svg>
+                  </div>
+                )}
               </div>
             );
           })
@@ -359,66 +384,64 @@ function LinePage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Scroll to Bottom Button */}
+      {/* 하단으로 스크롤 버튼 */}
       {showScrollButton && (
         <button
-          className="scroll-to-bottom"
+          className="kakao-scroll-down"
           onClick={() => scrollToBottom(true)}
-          aria-label="최신 메시지로 이동"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 5v14M19 12l-7 7-7-7"/>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
           </svg>
         </button>
       )}
 
-      {/* Composer (Input Area) */}
-      <div className="chat-composer">
-        <form onSubmit={handleSubmit}>
-          <div className="composer-input-wrapper">
-            <textarea
-              ref={textareaRef}
-              value={content}
-              onChange={handleTextareaChange}
-              onFocus={() => setInputFocused(true)}
-              onBlur={() => setInputFocused(false)}
-              placeholder="메시지를 입력하세요"
-              maxLength={1000}
-              disabled={submitting}
-              className="composer-textarea"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
-            />
-
-            <button
-              type="submit"
-              className={`composer-send-btn ${content.trim() ? 'active' : ''}`}
-              disabled={submitting || !content.trim()}
-              aria-label="메시지 전송"
-            >
-              {submitting ? (
-                <svg className="spinner" width="24" height="24" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="3" opacity="0.25"/>
-                  <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                </svg>
-              ) : (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-                </svg>
-              )}
+      {/* 입력 영역 */}
+      <div className="kakao-input-wrapper">
+        {replyTo && (
+          <div className="kakao-reply-bar">
+            <div className="kakao-reply-info">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+              </svg>
+              <span>답장: {replyTo.content.substring(0, 30)}</span>
+            </div>
+            <button onClick={() => setReplyTo(null)} className="kakao-reply-close">
+              ✕
             </button>
           </div>
+        )}
 
-          {/* 하단 정보 (입력 중에만 표시) */}
-          {content.length > 0 && (
-            <div className="composer-footer">
-              <span className="composer-counter">{content.length}/1000</span>
-            </div>
-          )}
+        <form onSubmit={handleSubmit} className="kakao-input-form">
+          <button type="button" className="kakao-plus-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+          </button>
+
+          <textarea
+            ref={textareaRef}
+            value={content}
+            onChange={handleTextareaChange}
+            placeholder="메시지를 입력하세요"
+            maxLength={1000}
+            disabled={submitting}
+            className="kakao-input"
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
+          />
+
+          <button
+            type="submit"
+            className={`kakao-send-btn ${content.trim() ? 'active' : ''}`}
+            disabled={submitting || !content.trim()}
+          >
+            {submitting ? '...' : '전송'}
+          </button>
         </form>
       </div>
     </div>
