@@ -58,8 +58,10 @@ export const AuthProvider = ({ children }) => {
           });
         } else {
           localStorage.removeItem('subway_token');
+          // 토큰 만료 시 게스트 상태 유지 (자동 익명 로그인 안함)
         }
       }
+      // 토큰 없음: 게스트 상태 유지
     } catch (error) {
       console.error('Auth check failed:', error);
       localStorage.removeItem('subway_token');
@@ -70,6 +72,21 @@ export const AuthProvider = ({ children }) => {
 
   // 익명 로그인
   const loginAnonymously = () => {
+    // 이미 토큰이 있는 경우 무시 (이중 로그인 방지)
+    if (localStorage.getItem('subway_token')) return;
+
+    // 이미 익명 ID가 있는지 확인
+    const existingId = localStorage.getItem('anonymous_id');
+    if (existingId) {
+      const nickname = localStorage.getItem('anonymous_nickname');
+      setUser({
+        id: existingId,
+        nickname: nickname,
+        isAnonymous: true,
+      });
+      return;
+    }
+
     const anonymousId = `anon_${uuidv4()}`;
     const nickname = generateRandomNickname();
 

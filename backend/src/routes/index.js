@@ -6,7 +6,9 @@ const subwayLineController = require('../controllers/subwayLineController');
 const postController = require('../controllers/postController');
 const commentController = require('../controllers/commentController');
 const authController = require('../controllers/authController');
+const authController = require('../controllers/authController');
 const { validatePost, validateComment } = require('../middleware/validator');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // 특수 호선 삭제 (1회성 정리용)
 router.post('/admin/cleanup-lines', async (req, res) => {
@@ -34,11 +36,11 @@ router.get('/subway-lines', subwayLineController.getAllLines);
 
 router.get('/posts/line/:lineId', postController.getPostsByLine);
 router.get('/posts/:postId', postController.getPostById);
-router.post('/posts', validatePost, postController.createPost);
-router.delete('/posts/:postId', postController.deletePost);
+router.post('/posts', authMiddleware, validatePost, postController.createPost);
+router.delete('/posts/:postId', authMiddleware, postController.deletePost);
 
 router.get('/posts/:postId/comments', commentController.getCommentsByPost);
-router.post('/posts/:postId/comments', validateComment, commentController.createComment);
-router.delete('/comments/:commentId', commentController.deleteComment);
+router.post('/posts/:postId/comments', authMiddleware, validateComment, commentController.createComment);
+router.delete('/comments/:commentId', authMiddleware, commentController.deleteComment);
 
 module.exports = router;

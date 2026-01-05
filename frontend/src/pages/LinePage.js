@@ -266,15 +266,15 @@ function LinePage() {
       <header className="chat-header">
         <Link to="/" className="chat-back-btn">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
+            <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </Link>
 
         {lineInfo && (
-          <>
+          <div className="chat-title-group">
             <h1 className="chat-title">{lineInfo.line_name}</h1>
             <p className="chat-subtitle">{messages.length}개 메시지 · 매일 9시 리셋</p>
-          </>
+          </div>
         )}
       </header>
 
@@ -328,10 +328,11 @@ function LinePage() {
                   onTouchEnd={() => handleTouchEnd(message)}
                 >
                   <div className="message-content">
+                    {!isMyMessage && <div className="message-username">{message.nickname || '익명'}</div>}
                     <div className={`message-bubble ${isMyMessage ? 'my' : 'other'}`} style={!isMyMessage ? { color: userColor } : {}}>
                       {message.reply_to && (
                         <div className="reply-preview">
-                          답장: {messages.find(m => m.id === message.reply_to)?.content?.substring(0, 30) || '삭제된 메시지'}
+                          <span className="reply-preview-label">답장:</span> {messages.find(m => m.id === message.reply_to)?.content?.substring(0, 30) || '삭제된 메시지'}
                         </div>
                       )}
                       <div className="message-text">{message.content}</div>
@@ -354,7 +355,7 @@ function LinePage() {
                   {isSwipingThis && Math.abs(swipeOffset) > 20 && (
                     <div className={`swipe-reply-icon ${isMyMessage ? 'left' : 'right'}`}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+                        <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" />
                       </svg>
                     </div>
                   )}
@@ -374,7 +375,7 @@ function LinePage() {
           onClick={() => scrollToBottom(true)}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
           </svg>
         </button>
       )}
@@ -416,7 +417,7 @@ function LinePage() {
             disabled={submitting || !content.trim()}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
             </svg>
           </button>
         </form>

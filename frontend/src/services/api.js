@@ -10,6 +10,30 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use(
+  (config) => {
+    // 1. JWT 토큰 확인
+    const token = localStorage.getItem('subway_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // 2. 익명 ID 확인 (JWT가 없거나 만료되었을 때 사용됨, 백엔드에서 우선순위 처리)
+    const anonymousId = localStorage.getItem('anonymous_id');
+    const anonymousNickname = localStorage.getItem('anonymous_nickname');
+
+    if (anonymousId) {
+      config.headers['X-Anonymous-ID'] = anonymousId;
+    }
+    if (anonymousNickname) {
+      config.headers['X-Anonymous-Nickname'] = encodeURIComponent(anonymousNickname); // 한글 처리
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {

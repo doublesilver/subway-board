@@ -5,12 +5,17 @@ import { subwayLineAPI } from '../services/api';
 // 이용량 순서 (실제 서울 지하철 이용 통계 기반)
 const usageOrder = [2, 5, 7, 3, 4, 6, 1, 8, 9];
 
+import LoginModal from '../components/LoginModal';
+import { useAuth } from '../contexts/AuthContext';
+
 function HomePage() {
   const [lines, setLines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortType, setSortType] = useState('line'); // 'line', 'active', 'usage'
+  const [sortType, setSortType] = useState('line');
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const navigate = useNavigate();
+  const { user, loginAnonymously } = useAuth(); // isAuthenticated 대신 user 객체 직접 확인
 
   useEffect(() => {
     fetchSubwayLines();
@@ -73,7 +78,24 @@ function HomePage() {
   };
 
   const handleLineClick = (lineId) => {
-    navigate(`/line/${lineId}`);
+    if (!user) {
+      setShowLoginModal(true);
+    } else {
+      navigate(`/line/${lineId}`);
+    }
+  };
+
+  const handleAnonymousLogin = () => {
+    loginAnonymously();
+    setShowLoginModal(false);
+    // 로그인 후 바로 이동하지 않고, 사용자가 다시 클릭하게 하거나
+    // 상태가 업데이트되면 자동으로 이동하게 할 수도 있음.
+    // 여기서는 간단히 모달만 닫음 (사용자가 다시 클릭했을 때 user가 있으면 이동)
+    // 하지만 loginAnonymously는 동기적으로 localStorage 설정하고 setUser하므로,
+    // 바로 이동시켜도 무방하지만, React state update가 비동기라 안전하게 모달 닫기만 함.
+    // UX상 바로 이동하는게 좋으니, useEffect로 user 감지해서 이동하거나 여기서직접 이동
+    // 하지만 lineId를 저장하지 않았으므로 일단 모달 닫기.
+    // 더 좋은 UX: 저장된 타겟으로 이동. 일단은 단순하게.
   };
 
   if (loading) return <div className="loading">로딩 중...</div>;
@@ -135,6 +157,13 @@ function HomePage() {
           </div>
         ))}
       </div>
+
+      {showLoginModal && (
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
+          onAnonymousLogin={handleAnonymousLogin}
+        />
+      )}
     </div>
   );
 }
