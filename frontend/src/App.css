@@ -821,6 +821,11 @@ body {
   align-items: center;
 }
 
+.auth-user-menu {
+  position: relative;
+  display: inline-block;
+}
+
 .auth-user-button {
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
