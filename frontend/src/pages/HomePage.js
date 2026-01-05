@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subwayLineAPI } from '../services/api';
+import LoginModal from '../components/LoginModal';
+import { useAuth } from '../contexts/AuthContext';
 
 // 이용량 순서 (실제 서울 지하철 이용 통계 기반)
 const usageOrder = [2, 5, 7, 3, 4, 6, 1, 8, 9];
-
-import LoginModal from '../components/LoginModal';
-import { useAuth } from '../contexts/AuthContext';
 
 function HomePage() {
   const [lines, setLines] = useState([]);
