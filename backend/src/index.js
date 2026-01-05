@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const rateLimit = require('express-rate-limit');
 const globalErrorHandler = require('./middleware/errorMiddleware');
 const AppError = require('./utils/AppError');
 require('dotenv').config();
