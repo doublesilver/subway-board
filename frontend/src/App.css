@@ -46,6 +46,49 @@
   /* rounded-2xl */
   --radius-md: 12px;
   --header-height: 60px;
+
+  /* ========================================
+     💬 채팅 입력창 커스텀 변수 (Chat Composer)
+     ======================================== */
+
+  /* 입력창 전체 영역 */
+  --composer-padding: 12px 16px;
+  --composer-gap: 8px;
+  --composer-bg: rgba(255, 255, 255, 0.9);
+
+  /* 입력 폼 (이모지 + 텍스트 + 이미지 + 전송 버튼 영역) */
+  --composer-form-height: 52px;           /* 폼 전체 높이 */
+  --composer-form-padding: 8px 12px;      /* 폼 내부 여백 */
+  --composer-form-gap: 8px;               /* 버튼들 사이 간격 */
+  --composer-form-bg: #f1f3f5;            /* 기본 배경색 */
+  --composer-form-bg-focus: white;        /* 포커스 시 배경색 */
+  --composer-form-radius: 24px;           /* 모서리 둥글기 */
+  --composer-form-border-focus: #A855F7;  /* 포커스 시 테두리 색 */
+
+  /* Textarea (텍스트 입력 영역) */
+  --composer-input-padding: 4px 8px;      /* 입력창 내부 여백 */
+  --composer-input-min-height: 36px;      /* 입력창 최소 높이 */
+  --composer-input-max-height: 100px;     /* 입력창 최대 높이 */
+  --composer-input-font-size: 16px;       /* 글자 크기 */
+  --composer-input-line-height: 1.4;      /* 줄 간격 */
+
+  /* 버튼 (이모지, 이미지, 전송) */
+  --composer-btn-size: 36px;              /* 버튼 크기 */
+  --composer-btn-icon-color: #9ca3af;     /* 아이콘 기본 색상 */
+  --composer-btn-hover-bg: rgba(168, 85, 247, 0.1);  /* 호버 시 배경 */
+  --composer-btn-hover-color: #A855F7;    /* 호버 시 아이콘 색 */
+
+  /* 전송 버튼 */
+  --composer-send-bg: #dee2e6;            /* 비활성 배경색 */
+  --composer-send-bg-active: #A855F7;     /* 활성 배경색 */
+
+  /* 이모지 피커 */
+  --emoji-picker-bg: white;
+  --emoji-picker-radius: 16px;
+  --emoji-picker-padding: 12px;
+  --emoji-picker-gap: 8px;
+  --emoji-item-size: 36px;
+  --emoji-item-hover-bg: #F3E8FF;
 }
 
 * {
@@ -625,50 +668,56 @@ body {
   color: var(--text-secondary);
 }
 
-/* Composer (Input) */
+/* ========================================
+   💬 채팅 입력창 (Chat Composer)
+   수정 시 상단 :root의 --composer-* 변수를 변경하세요
+   ======================================== */
+
+/* 입력창 전체 컨테이너 */
 .chat-composer {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--composer-bg);
   backdrop-filter: blur(20px);
   border-top: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 12px 16px;
+  padding: var(--composer-padding);
   padding-bottom: max(12px, env(safe-area-inset-bottom));
   z-index: 100;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--composer-gap);
 }
 
+/* 입력 폼 (이모지 + textarea + 이미지 + 전송 버튼) */
 .composer-form {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #f1f3f5;
-  padding: 8px 12px;
-  border-radius: 24px;
+  gap: var(--composer-form-gap);
+  background: var(--composer-form-bg);
+  padding: var(--composer-form-padding);
+  border-radius: var(--composer-form-radius);
   border: 1px solid transparent;
   transition: all 0.2s;
-  min-height: 52px;
+  min-height: var(--composer-form-height);
 }
 
 .composer-form:focus-within {
-  background: white;
-  border-color: #A855F7;
+  background: var(--composer-form-bg-focus);
+  border-color: var(--composer-form-border-focus);
   box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15);
 }
 
-/* 이모지 버튼 */
+/* 이모지 버튼 (왼쪽) */
 .composer-emoji-btn {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: var(--composer-btn-size);
+  height: var(--composer-btn-size);
+  min-width: var(--composer-btn-size);
   border-radius: 50%;
   border: none;
   background: transparent;
-  color: var(--text-tertiary);
+  color: var(--composer-btn-icon-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -678,37 +727,38 @@ body {
 }
 
 .composer-emoji-btn:hover {
-  background: rgba(168, 85, 247, 0.1);
-  color: #A855F7;
+  background: var(--composer-btn-hover-bg);
+  color: var(--composer-btn-hover-color);
 }
 
 .composer-emoji-btn:active {
   transform: scale(0.95);
 }
 
+/* Textarea (텍스트 입력창) */
 .composer-input {
   flex: 1;
   background: transparent;
   border: none;
   resize: none;
-  padding: 4px 8px;
-  max-height: 100px;
-  min-height: 36px;
-  font-size: 16px;
-  line-height: 1.4;
+  padding: var(--composer-input-padding);
+  max-height: var(--composer-input-max-height);
+  min-height: var(--composer-input-min-height);
+  font-size: var(--composer-input-font-size);
+  line-height: var(--composer-input-line-height);
   outline: none;
   font-family: inherit;
 }
 
-/* 이미지 첨부 버튼 */
+/* 이미지 첨부 버튼 (오른쪽) */
 .composer-image-btn {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: var(--composer-btn-size);
+  height: var(--composer-btn-size);
+  min-width: var(--composer-btn-size);
   border-radius: 50%;
   border: none;
   background: transparent;
-  color: var(--text-tertiary);
+  color: var(--composer-btn-icon-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -718,21 +768,22 @@ body {
 }
 
 .composer-image-btn:hover {
-  background: rgba(168, 85, 247, 0.1);
-  color: #A855F7;
+  background: var(--composer-btn-hover-bg);
+  color: var(--composer-btn-hover-color);
 }
 
 .composer-image-btn:active {
   transform: scale(0.95);
 }
 
+/* 전송 버튼 (맨 오른쪽) */
 .composer-send {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: var(--composer-btn-size);
+  height: var(--composer-btn-size);
+  min-width: var(--composer-btn-size);
   border-radius: 50%;
   border: none;
-  background: #dee2e6;
+  background: var(--composer-send-bg);
   color: white;
   display: flex;
   align-items: center;
@@ -743,31 +794,31 @@ body {
 }
 
 .composer-send.active {
-  background: #A855F7;
+  background: var(--composer-send-bg-active);
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(168, 85, 247, 0.3);
 }
 
-/* 이모지 피커 */
+/* 이모지 피커 (드롭다운) */
 .emoji-picker-simple {
   position: absolute;
   bottom: 100%;
   left: 16px;
   margin-bottom: 8px;
-  background: white;
-  border-radius: 16px;
-  padding: 12px;
+  background: var(--emoji-picker-bg);
+  border-radius: var(--emoji-picker-radius);
+  padding: var(--emoji-picker-padding);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 8px;
+  gap: var(--emoji-picker-gap);
   z-index: 1000;
   animation: slideUp 0.2s ease;
 }
 
 .emoji-item {
-  width: 36px;
-  height: 36px;
+  width: var(--emoji-item-size);
+  height: var(--emoji-item-size);
   border: none;
   background: transparent;
   border-radius: 8px;
@@ -781,7 +832,7 @@ body {
 }
 
 .emoji-item:hover {
-  background: #F3E8FF;
+  background: var(--emoji-item-hover-bg);
   transform: scale(1.1);
 }
 
