@@ -54,6 +54,7 @@ function LinePage() {
   const [swipedMessageId, setSwipedMessageId] = useState(null);
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
   const [touchOffset, setTouchOffset] = useState(0);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
@@ -405,11 +406,25 @@ function LinePage() {
         )}
 
         <form onSubmit={handleSubmit} className="composer-form">
+          {/* 이모지 버튼 */}
+          <button
+            type="button"
+            className="composer-emoji-btn"
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/>
+              <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+          </button>
+
           <textarea
             ref={textareaRef}
             value={content}
             onChange={handleTextareaChange}
-            placeholder="메시지를 입력하세요"
+            placeholder="메시지를 입력하세요..."
             maxLength={1000}
             disabled={submitting}
             className="composer-input"
@@ -421,6 +436,20 @@ function LinePage() {
             }}
           />
 
+          {/* 이미지 첨부 버튼 */}
+          <button
+            type="button"
+            className="composer-image-btn"
+            onClick={() => alert('이미지 업로드 기능은 곧 추가될 예정입니다!')}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          </button>
+
+          {/* 전송 버튼 */}
           <button
             type="submit"
             className={`composer-send ${content.trim() ? 'active' : ''}`}
@@ -431,6 +460,25 @@ function LinePage() {
             </svg>
           </button>
         </form>
+
+        {/* 간단한 이모지 피커 */}
+        {showEmojiPicker && (
+          <div className="emoji-picker-simple">
+            {['😊', '😂', '❤️', '👍', '🎉', '🔥', '💯', '✨', '🙏', '👏', '😍', '🤔', '😅', '🥺', '🚇', '🚉'].map((emoji) => (
+              <button
+                key={emoji}
+                type="button"
+                className="emoji-item"
+                onClick={() => {
+                  setContent(content + emoji);
+                  setShowEmojiPicker(false);
+                }}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
