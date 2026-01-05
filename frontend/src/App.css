@@ -6,10 +6,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Brand Colors (Vibrant Gradients) */
+  /* Brand Colors (Vibrant Gradients) - Updated */
   --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
   --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%);
   --surface-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%);
+
+  /* Kakao Brand */
+  --kakao-yellow: #FEE500;
+  --kakao-gradient: linear-gradient(135deg, #FEE500 0%, #FFEB3B 100%);
 
   /* Subway Lines (Modernized Palette) */
   --line-1: #0052A4;
@@ -23,21 +27,24 @@
   --line-9: #BDB092;
 
   /* Glassmorphism Variables */
-  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-  --glass-blur: blur(12px);
+  --glass-blur: blur(20px);
   --glass-saturation: 180%;
 
   /* Text Colors */
-  --text-primary: #1f2937;
+  --text-primary: #030213;
+  /* Darker, sharper black */
   --text-secondary: #4b5563;
   --text-tertiary: #9ca3af;
 
   /* Layout */
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 12px;
+  --radius-xl: 24px;
+  /* rounded-3xl */
+  --radius-lg: 16px;
+  /* rounded-2xl */
+  --radius-md: 12px;
   --header-height: 60px;
 }
 
@@ -49,14 +56,98 @@
 body {
   margin: 0;
   font-family: 'Pretendard', sans-serif;
-  background: #f0f2f5;
-  background-image:
-    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.03) 0%, transparent 50%);
+  background: #f8fafc;
+  /* Fallback */
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
-  /* Prevent horizontal scroll */
+}
+
+/* Animated Background Container */
+.animated-bg-container {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  background: linear-gradient(to bottom right, #f9fafb, #ffffff, #f3f4f6);
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.4;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.orb-1 {
+  width: 24rem;
+  /* 384px */
+  height: 24rem;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  top: 10%;
+  left: 10%;
+  animation-name: float-1;
+  animation-duration: 20s;
+}
+
+.orb-2 {
+  width: 20rem;
+  /* 320px */
+  height: 20rem;
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  top: 60%;
+  right: 5%;
+  animation-name: float-2;
+  animation-duration: 15s;
+}
+
+.orb-3 {
+  width: 18rem;
+  /* 288px */
+  height: 18rem;
+  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+  bottom: 5%;
+  left: 30%;
+  animation-name: float-3;
+  animation-duration: 18s;
+}
+
+@keyframes float-1 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(100px, 50px) scale(1.1);
+  }
+}
+
+@keyframes float-2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-80px, -60px) scale(1.2);
+  }
+}
+
+@keyframes float-3 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-50px, 40px) scale(1.15);
+  }
 }
 
 /* Animations */
@@ -111,29 +202,47 @@ body {
 /* ========================================
    Home Page Branding (Glassmorphism)
    ======================================== */
+/* ========================================
+   Home Page Branding (Glassmorphism)
+   ======================================== */
 .home-header {
-  padding: 40px 24px 24px;
+  padding: 60px 24px 40px;
   background: transparent;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .home-title {
-  font-size: 28px;
+  font-size: 36px;
   font-weight: 800;
   line-height: 1.2;
-  margin-bottom: 8px;
-  background: linear-gradient(to right, #111, #555);
+  margin: 0 0 12px;
+  background: var(--primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
 }
 
+.home-description {
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  font-weight: 500;
+}
+
 .home-subtitle {
-  font-size: 15px;
+  font-size: 13px;
   color: var(--text-secondary);
   font-weight: 500;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 4px 12px;
+  border-radius: 100px;
+  backdrop-filter: blur(4px);
 }
 
 /* Floating Tabs */
@@ -175,22 +284,44 @@ body {
 .subway-lines-list {
   padding: 0 20px 100px;
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .subway-line-item {
   display: flex;
   align-items: center;
-  padding: 16px 20px;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  padding: 20px 24px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-xl);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: fadeInUp 0.5s ease backwards;
-  /* Stagger animation based on child index is done in JS or advanced CSS nth-child, here simple fadein */
+  position: relative;
+  overflow: hidden;
+}
+
+.subway-line-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.subway-line-item:hover {
+  transform: translateY(-4px) scale(1.01);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.subway-line-item:hover::before {
+  opacity: 1;
+}
+
+.subway-line-item:active {
+  transform: scale(0.98);
 }
 
 /* Stagger delay up to 10 items */
@@ -230,62 +361,59 @@ body {
   animation-delay: 0.45s;
 }
 
-.subway-line-item:active {
-  transform: scale(0.98);
-  background: rgba(255, 255, 255, 0.8);
-}
-
 .line-indicator {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 18px;
+  font-size: 20px;
   color: white;
-  margin-right: 16px;
+  margin-right: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1;
 }
 
 .line-info {
   flex: 1;
+  z-index: 1;
 }
 
 .line-name {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
-  margin: 0 0 4px;
+  margin: 0 0 6px;
   color: var(--text-primary);
 }
 
-.active-users-badge {
-  display: inline-flex;
+.active-users-group {
+  display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+}
+
+.active-users-text {
+  font-size: 14px;
   font-weight: 600;
-  color: #10b981;
-  /* Emerald 500 */
+  color: var(--text-secondary);
 }
 
 .pulse-dot {
   width: 8px;
   height: 8px;
   background: #10b981;
+  /* Emerald 500 */
   border-radius: 50%;
   animation: pulse-glow 2s infinite;
 }
 
 .inactive-users {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-tertiary);
-}
-
-.line-arrow {
-  color: #d1d5db;
-  font-size: 20px;
+  font-weight: 500;
 }
 
 /* ========================================

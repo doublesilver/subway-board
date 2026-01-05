@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import KakaoCallback from './pages/KakaoCallback';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthButton from './components/AuthButton';
+import AnimatedBackground from './components/AnimatedBackground';
 
 // 로그인 필요한 페이지 보호
 function ProtectedRoute({ children }) {
@@ -22,6 +23,7 @@ function ProtectedRoute({ children }) {
 function App() {
   return (
     <AuthProvider>
+      <AnimatedBackground />
       <Router>
         <AppContent />
       </Router>

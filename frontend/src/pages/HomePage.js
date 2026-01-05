@@ -104,11 +104,14 @@ function HomePage() {
 
   return (
     <div>
-      {/* 메인 헤더 */}
+      {/* 메인 헤더 (Centered & Gradient) */}
       <div className="home-header">
-        <h2 className="home-title">
-          출퇴근하는 노선의<br />채팅방에 참여하세요
-        </h2>
+        <h1 className="home-title">
+          Subway Board
+        </h1>
+        <p className="home-description">
+          출퇴근하는 노선의 채팅방에 참여하세요
+        </p>
         <p className="home-subtitle">
           🔒 익명 · ⏰ 매일 오전 9시 초기화
         </p>
@@ -135,7 +138,10 @@ function HomePage() {
           <div
             key={line.id}
             className="subway-line-item"
-            style={{ '--line-color': line.color }}
+            style={{
+              '--line-color': line.color,
+              boxShadow: `0 8px 32px rgba(${parseInt(line.color.slice(1, 3), 16)}, ${parseInt(line.color.slice(3, 5), 16)}, ${parseInt(line.color.slice(5, 7), 16)}, 0.15)`
+            }}
             onClick={() => handleLineClick(line.id)}
           >
             <div className="line-indicator" style={{ backgroundColor: line.color }}>
@@ -144,15 +150,14 @@ function HomePage() {
             <div className="line-info">
               <h3 className="line-name">{line.line_name}</h3>
               {line.activeUsers > 0 ? (
-                <span className="active-users-badge">
-                  <span className="pulse-dot"></span>
-                  {line.activeUsers}명 이야기 중
-                </span>
+                <div className="active-users-group">
+                  <div className="pulse-dot"></div>
+                  <span className="active-users-text">{line.activeUsers}명 참여중</span>
+                </div>
               ) : (
-                <span className="inactive-users">대화가 시작되길 기다리고 있어요</span>
+                <span className="inactive-users">대화 시작하기</span>
               )}
             </div>
-            <div className="line-arrow">›</div>
           </div>
         ))}
       </div>
