@@ -149,7 +149,9 @@ function LinePage() {
       });
       setContent('');
       setReplyTo(null);
-      fetchMessages();
+
+      // 메시지 전송 후 즉시 목록 새로고침
+      await fetchMessages();
 
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
@@ -167,7 +169,7 @@ function LinePage() {
 
     try {
       await postAPI.delete(messageId);
-      fetchMessages();
+      await fetchMessages();
     } catch (err) {
       const errorMsg = err.response?.data?.error || '메시지 삭제에 실패했습니다.';
       alert(errorMsg);
