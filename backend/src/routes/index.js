@@ -6,7 +6,6 @@ const subwayLineController = require('../controllers/subwayLineController');
 const postController = require('../controllers/postController');
 const commentController = require('../controllers/commentController');
 const authController = require('../controllers/authController');
-const authController = require('../controllers/authController');
 const { validatePost, validateComment } = require('../middleware/validator');
 const authMiddleware = require('../middleware/authMiddleware');
 
