@@ -15,8 +15,16 @@ function AuthButton() {
     }
   };
 
-  if (loading || !user) {
+  if (loading) {
     return null;
+  }
+
+  if (!user) {
+    return (
+      <button className="auth-login-btn" onClick={() => navigate('/login')}>
+        로그인
+      </button>
+    );
   }
 
   return (
