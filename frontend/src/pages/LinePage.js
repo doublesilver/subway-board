@@ -263,6 +263,7 @@ function LinePage() {
   return (
     <div className="chat-container">
       {/* 헤더 */}
+      {/* 헤더 */}
       <header className="chat-header">
         <Link to="/" className="chat-back-btn">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -271,10 +272,18 @@ function LinePage() {
         </Link>
 
         {lineInfo && (
-          <div className="chat-title-group">
-            <h1 className="chat-title">{lineInfo.line_name}</h1>
-            <p className="chat-subtitle">{messages.length}개 메시지 · 매일 9시 리셋</p>
-          </div>
+          <>
+            <div className="chat-line-badge" style={{ backgroundColor: lineInfo.color }}>
+              {lineInfo.line_number}
+            </div>
+            <div className="chat-title-group">
+              <h1 className="chat-title">{lineInfo.line_name}</h1>
+              <div className="chat-meta">
+                <div className="pulse-dot-small"></div>
+                <span>{lineInfo.activeUsers || 0}명 참여중</span>
+              </div>
+            </div>
+          </>
         )}
       </header>
 

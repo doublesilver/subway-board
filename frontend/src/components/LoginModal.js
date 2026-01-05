@@ -36,28 +36,34 @@ function LoginModal({ onClose, onAnonymousLogin }) {
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <button className="modal-close" onClick={onClose}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+
                 <div className="modal-header">
                     <h3 className="modal-title">대화에 참여하세요</h3>
-                    <button className="modal-close" onClick={onClose}>×</button>
-                </div>
-                <div className="modal-body">
                     <p className="modal-desc">
-                        로그인이 필요한 서비스입니다.<br />
-                        익명으로 가볍게 시작하거나,<br />
-                        카카오로 내 기록을 관리하세요.
+                        출퇴근 노선의 익명 채팅에 참여하여<br />
+                        소통하고 정보를 나누세요
                     </p>
-
-                    <div className="login-buttons">
-                        <button className="login-btn anonymous" onClick={onAnonymousLogin}>
-                            <span className="icon">👤</span>
-                            <span className="text">익명으로 시작하기</span>
-                        </button>
-                        <button className="login-btn kakao" onClick={handleKakaoLogin}>
-                            <span className="icon">💬</span>
-                            <span className="text">카카오로 시작하기</span>
-                        </button>
-                    </div>
                 </div>
+
+                <div className="login-buttons">
+                    <button className="login-btn anonymous" onClick={onAnonymousLogin}>
+                        <div className="btn-icon">👤</div>
+                        <span className="btn-text">익명으로 시작하기</span>
+                    </button>
+                    <button className="login-btn kakao" onClick={handleKakaoLogin}>
+                        <div className="btn-icon">💬</div>
+                        <span className="btn-text">카카오로 시작하기</span>
+                    </button>
+                </div>
+
+                <p className="modal-footer">
+                    🔒 익명 · ⏰ 매일 오전 9시 초기화
+                </p>
             </div>
         </div>
     );
