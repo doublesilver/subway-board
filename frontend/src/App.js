@@ -40,9 +40,7 @@ function AppContent() {
           path="/line/:lineId"
           element={
             <ProtectedRoute>
-              <MainLayout>
-                <LinePage />
-              </MainLayout>
+              <LinePage />
             </ProtectedRoute>
           }
         />
