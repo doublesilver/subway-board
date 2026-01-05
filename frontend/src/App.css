@@ -545,6 +545,86 @@ body {
   transition: opacity 0.2s;
 }
 
-.auth-login-btn:hover {
-  opacity: 0.9;
+/* Auth Button Styles */
+.auth-button-container {
+  display: flex;
+  align-items: center;
+}
+
+.auth-user-button {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.auth-user-button:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.auth-user-button:active {
+  transform: scale(0.98);
+}
+
+.auth-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 180px;
+  z-index: 1000;
+  animation: slideUp 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.auth-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.auth-dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.auth-user-info {
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 4px;
+  cursor: default;
+}
+
+.auth-user-info:hover {
+  background: transparent;
+}
+
+.auth-logout-btn {
+  color: #ef4444;
+  /* Red color for logout */
+  font-weight: 500;
 }
