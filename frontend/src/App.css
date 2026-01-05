@@ -690,12 +690,13 @@ body {
   background: transparent;
   border: none;
   resize: none;
-  padding: 8px 4px;
+  padding: 0 4px;
   max-height: 100px;
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 36px;
   outline: none;
   font-family: inherit;
+  align-self: center;
 }
 
 /* 이미지 첨부 버튼 */
