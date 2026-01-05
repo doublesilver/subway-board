@@ -241,11 +241,13 @@ function LinePage() {
     setSwipedMessageId(null);
   };
 
-  // 날짜별로 메시지 구분
+  // 날짜별로 메시지 구분 (먼저 날짜순 정렬)
+  const sortedMessages = [...messages].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
   const messagesWithDates = [];
   let lastDate = null;
 
-  messages.forEach((message) => {
+  sortedMessages.forEach((message) => {
     const currentDate = getDateLabel(message.created_at);
 
     if (currentDate !== lastDate) {
@@ -262,7 +264,6 @@ function LinePage() {
 
   return (
     <div className="chat-container">
-      {/* 헤더 */}
       {/* 헤더 */}
       <header className="chat-header">
         <Link to="/" className="chat-back-btn">
@@ -312,7 +313,7 @@ function LinePage() {
             }
 
             const message = item.data;
-            const isMyMessage = user && !user.isAnonymous && message.user_id === user.id;
+            const isMyMessage = user && message.user_id === user.id;
             const userColor = getAnonymousColor(message.user_id);
             const isSwipingThis = swipedMessageId === message.id;
             const swipeOffset = isSwipingThis ? touchOffset : 0;
