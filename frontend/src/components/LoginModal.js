@@ -2,6 +2,9 @@ import React from 'react';
 import { getKakaoAuthURL } from '../services/authAPI';
 
 function LoginModal({ onClose, onAnonymousLogin }) {
+    // Check if Kakao login is enabled via environment variable
+    const isKakaoLoginEnabled = process.env.REACT_APP_ENABLE_KAKAO_LOGIN === 'true';
+
     const handleKakaoLogin = async () => {
         try {
             const response = await getKakaoAuthURL();
@@ -53,10 +56,12 @@ function LoginModal({ onClose, onAnonymousLogin }) {
                 </div>
 
                 <div className="login-buttons-new">
-                    <button className="login-btn-kakao" onClick={handleKakaoLogin}>
-                        <span className="btn-icon-kakao">💬</span>
-                        <span className="btn-text-kakao">카카오로 3초 만에 시작하기</span>
-                    </button>
+                    {isKakaoLoginEnabled && (
+                        <button className="login-btn-kakao" onClick={handleKakaoLogin}>
+                            <span className="btn-icon-kakao">💬</span>
+                            <span className="btn-text-kakao">카카오로 3초 만에 시작하기</span>
+                        </button>
+                    )}
                     <button className="login-btn-anonymous" onClick={onAnonymousLogin}>
                         <span className="btn-icon-anonymous">👤</span>
                         <span className="btn-text-anonymous">익명으로 바로 입장</span>

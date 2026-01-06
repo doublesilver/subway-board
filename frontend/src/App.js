@@ -1,24 +1,12 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import HomePage from './pages/HomePage';
 import LinePage from './pages/LinePage';
-import LoginPage from './pages/LoginPage';
 import KakaoCallback from './pages/KakaoCallback';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 import AuthButton from './components/AuthButton';
 import AnimatedBackground from './components/AnimatedBackground';
-
-// 로그인 필요한 페이지 보호
-function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
-
-  if (loading) {
-    return <div className="loading">로딩 중...</div>;
-  }
-
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
-}
 
 function App() {
   return (
@@ -35,17 +23,9 @@ function AppContent() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
         <Route path="/auth/kakao/success" element={<KakaoCallback />} />
         <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
-        <Route
-          path="/line/:lineId"
-          element={
-            <ProtectedRoute>
-              <LinePage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/line/:lineId" element={<LinePage />} />
       </Routes>
     </div>
   );

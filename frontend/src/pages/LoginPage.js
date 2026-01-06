@@ -8,6 +8,9 @@ function LoginPage() {
   const { loginAnonymously } = useAuth();
   const [loading, setLoading] = useState(false);
 
+  // Check if Kakao login is enabled via environment variable
+  const isKakaoLoginEnabled = process.env.REACT_APP_ENABLE_KAKAO_LOGIN === 'true';
+
   const handleAnonymousLogin = () => {
     setLoading(true);
     loginAnonymously();
@@ -54,22 +57,26 @@ function LoginPage() {
             </div>
           </button>
 
-          <button
-            className="login-btn login-btn-kakao"
-            onClick={handleKakaoLogin}
-            disabled={loading}
-          >
-            <span className="login-btn-icon">💬</span>
-            <div className="login-btn-text">
-              <div className="login-btn-title">카카오로 시작하기</div>
-              <div className="login-btn-desc">내 메시지 관리 가능</div>
-            </div>
-          </button>
+          {isKakaoLoginEnabled && (
+            <button
+              className="login-btn login-btn-kakao"
+              onClick={handleKakaoLogin}
+              disabled={loading}
+            >
+              <span className="login-btn-icon">💬</span>
+              <div className="login-btn-text">
+                <div className="login-btn-title">카카오로 시작하기</div>
+                <div className="login-btn-desc">내 메시지 관리 가능</div>
+              </div>
+            </button>
+          )}
         </div>
 
         <div className="login-footer">
           <p>💡 익명 사용자는 본인 메시지 삭제가 불가능합니다</p>
-          <p>🎯 카카오 로그인 시에도 메시지는 익명으로 표시됩니다</p>
+          {isKakaoLoginEnabled && (
+            <p>🎯 카카오 로그인 시에도 메시지는 익명으로 표시됩니다</p>
+          )}
         </div>
       </div>
     </div>

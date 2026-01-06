@@ -56,15 +56,41 @@ export const AuthProvider = ({ children }) => {
             ...userData,
             isAnonymous: false,
           });
+          setLoading(false);
+          return;
         } else {
           localStorage.removeItem('subway_token');
-          // 토큰 만료 시 게스트 상태 유지 (자동 익명 로그인 안함)
         }
       }
-      // 토큰 없음: 게스트 상태 유지
+
+      // 3. 로그인 정보가 없으면 자동으로 익명 로그인 생성
+      const newAnonymousId = `anon_${uuidv4()}`;
+      const newNickname = generateRandomNickname();
+
+      localStorage.setItem('anonymous_id', newAnonymousId);
+      localStorage.setItem('anonymous_nickname', newNickname);
+
+      setUser({
+        id: newAnonymousId,
+        nickname: newNickname,
+        isAnonymous: true,
+      });
     } catch (error) {
       console.error('Auth check failed:', error);
       localStorage.removeItem('subway_token');
+
+      // 에러 발생 시에도 익명 로그인 생성
+      const newAnonymousId = `anon_${uuidv4()}`;
+      const newNickname = generateRandomNickname();
+
+      localStorage.setItem('anonymous_id', newAnonymousId);
+      localStorage.setItem('anonymous_nickname', newNickname);
+
+      setUser({
+        id: newAnonymousId,
+        nickname: newNickname,
+        isAnonymous: true,
+      });
     } finally {
       setLoading(false);
     }

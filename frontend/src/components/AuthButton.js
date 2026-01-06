@@ -8,10 +8,14 @@ function AuthButton() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    if (window.confirm('로그아웃하시겠습니까?')) {
+    if (window.confirm('로그아웃하시겠습니까? 새로운 익명 계정으로 전환됩니다.')) {
       logout();
       setShowMenu(false);
-      navigate('/login');
+      // 로그아웃 후 AuthContext에서 자동으로 새 익명 사용자 생성
+      // 홈으로 이동
+      navigate('/');
+      // 페이지 새로고침으로 새 익명 사용자 생성 트리거
+      window.location.reload();
     }
   };
 
@@ -19,12 +23,9 @@ function AuthButton() {
     return null;
   }
 
+  // 자동 익명 로그인이 활성화되어 있으므로 user는 항상 존재
   if (!user) {
-    return (
-      <button className="auth-login-btn" onClick={() => navigate('/login')}>
-        로그인
-      </button>
-    );
+    return null;
   }
 
   return (

@@ -27,8 +27,11 @@ router.post('/admin/cleanup-lines', async (req, res) => {
 });
 
 // Auth routes
-router.get('/auth/kakao', authController.getKakaoAuthURL);
-router.get('/auth/kakao/callback', authController.kakaoCallback);
+// Kakao login routes (controlled by ENABLE_KAKAO_LOGIN env variable)
+if (process.env.ENABLE_KAKAO_LOGIN === 'true') {
+  router.get('/auth/kakao', authController.getKakaoAuthURL);
+  router.get('/auth/kakao/callback', authController.kakaoCallback);
+}
 router.get('/auth/me', authController.getCurrentUser);
 
 router.get('/subway-lines', subwayLineController.getAllLines);
