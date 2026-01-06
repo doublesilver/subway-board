@@ -247,7 +247,7 @@ function LinePage() {
   };
 
   const handleTouchEnd = (message) => {
-    const isMyMessage = user && !user.isAnonymous && message.user_id === user.id;
+    const isMyMessage = currentUser && message.anonymous_id === currentUser.sessionId;
 
     if (isMyMessage && touchOffset < -40) {
       setReplyTo(message);
