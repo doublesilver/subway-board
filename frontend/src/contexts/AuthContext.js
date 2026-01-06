@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { getCurrentUser } from '../services/authAPI';
-import { v4 as uuidv4 } from 'uuid';
 
 const AuthContext = createContext();
 
@@ -12,144 +11,38 @@ export const useAuth = () => {
   return context;
 };
 
-// 랜덤 닉네임 생성 (형용사 + 명사)
-const adjectives = ['활기찬', '즐거운', '행복한', '평온한', '차분한', '용감한', '씩씩한', '당당한', '멋진', '훌륭한'];
-const nouns = ['통근러', '출퇴근러', '직장인', '샐러리맨', '워커', '러너', '라이더', '여행자', '모험가', '탐험가'];
-
-const generateRandomNickname = () => {
-  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
-  const noun = nouns[Math.floor(Math.random() * nouns.length)];
-  const num = Math.floor(Math.random() * 1000);
-  return `${adj} ${noun}${num}`;
-};
-
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [lineUsers, setLineUsers] = useState({}); // 호선별 사용자 정보 { lineId: { sessionId, nickname } }
+  const [loading, setLoading] = useState(false);
 
-  // 앱 시작 시 로그인 상태 확인
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  const checkAuthStatus = async () => {
-    try {
-      // 1. 익명 사용자 확인
-      const anonymousId = localStorage.getItem('anonymous_id');
-      if (anonymousId) {
-        const nickname = localStorage.getItem('anonymous_nickname');
-        setUser({
-          id: anonymousId,
-          nickname: nickname,
-          isAnonymous: true,
-        });
-        setLoading(false);
-        return;
-      }
-
-      // 2. 카카오 로그인 사용자 확인
-      const token = localStorage.getItem('subway_token');
-      if (token) {
-        const userData = await getCurrentUser();
-        if (userData) {
-          setUser({
-            ...userData,
-            isAnonymous: false,
-          });
-          setLoading(false);
-          return;
-        } else {
-          localStorage.removeItem('subway_token');
-        }
-      }
-
-      // 3. 로그인 정보가 없으면 자동으로 익명 로그인 생성
-      const newAnonymousId = `anon_${uuidv4()}`;
-      const newNickname = generateRandomNickname();
-
-      localStorage.setItem('anonymous_id', newAnonymousId);
-      localStorage.setItem('anonymous_nickname', newNickname);
-
-      setUser({
-        id: newAnonymousId,
-        nickname: newNickname,
-        isAnonymous: true,
-      });
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      localStorage.removeItem('subway_token');
-
-      // 에러 발생 시에도 익명 로그인 생성
-      const newAnonymousId = `anon_${uuidv4()}`;
-      const newNickname = generateRandomNickname();
-
-      localStorage.setItem('anonymous_id', newAnonymousId);
-      localStorage.setItem('anonymous_nickname', newNickname);
-
-      setUser({
-        id: newAnonymousId,
-        nickname: newNickname,
-        isAnonymous: true,
-      });
-    } finally {
-      setLoading(false);
-    }
+  // 호선별 임시 사용자 설정
+  const setLineUser = (lineId, userData) => {
+    setLineUsers(prev => ({
+      ...prev,
+      [lineId]: userData
+    }));
   };
 
-  // 익명 로그인
-  const loginAnonymously = () => {
-    // 이미 토큰이 있는 경우 무시 (이중 로그인 방지)
-    if (localStorage.getItem('subway_token')) return;
-
-    // 이미 익명 ID가 있는지 확인
-    const existingId = localStorage.getItem('anonymous_id');
-    if (existingId) {
-      const nickname = localStorage.getItem('anonymous_nickname');
-      setUser({
-        id: existingId,
-        nickname: nickname,
-        isAnonymous: true,
-      });
-      return;
-    }
-
-    const anonymousId = `anon_${uuidv4()}`;
-    const nickname = generateRandomNickname();
-
-    localStorage.setItem('anonymous_id', anonymousId);
-    localStorage.setItem('anonymous_nickname', nickname);
-
-    setUser({
-      id: anonymousId,
-      nickname: nickname,
-      isAnonymous: true,
+  // 호선별 임시 사용자 제거
+  const removeLineUser = (lineId) => {
+    setLineUsers(prev => {
+      const newUsers = { ...prev };
+      delete newUsers[lineId];
+      return newUsers;
     });
   };
 
-  // 카카오 로그인 (JWT 토큰 저장)
-  const login = (token) => {
-    // 익명 로그인 정보 제거
-    localStorage.removeItem('anonymous_id');
-    localStorage.removeItem('anonymous_nickname');
-
-    localStorage.setItem('subway_token', token);
-    checkAuthStatus();
-  };
-
-  const logout = () => {
-    localStorage.removeItem('subway_token');
-    localStorage.removeItem('anonymous_id');
-    localStorage.removeItem('anonymous_nickname');
-    setUser(null);
+  // 특정 호선의 사용자 정보 가져오기
+  const getLineUser = (lineId) => {
+    return lineUsers[lineId] || null;
   };
 
   const value = {
-    user,
+    lineUsers,
+    setLineUser,
+    removeLineUser,
+    getLineUser,
     loading,
-    login,
-    loginAnonymously,
-    logout,
-    isAuthenticated: !!user,
   };
 
   return (

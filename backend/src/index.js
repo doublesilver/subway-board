@@ -63,8 +63,31 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+app.get('/health', async (req, res) => {
+  const health = {
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    database: 'unknown'
+  };
+
+  try {
+    const pool = require('./db/connection');
+    const startTime = Date.now();
+    const result = await pool.query('SELECT NOW()');
+    const queryTime = Date.now() - startTime;
+
+    health.database = 'connected';
+    health.dbResponseTime = `${queryTime}ms`;
+  } catch (error) {
+    health.status = 'DEGRADED';
+    health.database = 'disconnected';
+    health.dbError = error.message;
+    console.error('Health check database error:', error);
+  }
+
+  const statusCode = health.status === 'OK' ? 200 : 503;
+  res.status(statusCode).json(health);
 });
 
 // 404 Handler

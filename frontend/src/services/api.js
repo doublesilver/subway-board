@@ -12,21 +12,24 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // 1. JWT 토큰 확인
-    const token = localStorage.getItem('subway_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // 호선별 임시 사용자 정보 확인 (sessionStorage)
+    // URL에서 lineId 추출 시도
+    const urlMatch = config.url?.match(/\/line\/(\d+)/);
+    const lineId = urlMatch ? urlMatch[1] : null;
 
-    // 2. 익명 ID 확인 (JWT가 없거나 만료되었을 때 사용됨, 백엔드에서 우선순위 처리)
-    const anonymousId = localStorage.getItem('anonymous_id');
-    const anonymousNickname = localStorage.getItem('anonymous_nickname');
+    if (lineId) {
+      const sessionKey = `line_${lineId}_session`;
+      const nicknameKey = `line_${lineId}_nickname`;
 
-    if (anonymousId) {
-      config.headers['X-Anonymous-ID'] = anonymousId;
-    }
-    if (anonymousNickname) {
-      config.headers['X-Anonymous-Nickname'] = encodeURIComponent(anonymousNickname); // 한글 처리
+      const sessionId = sessionStorage.getItem(sessionKey);
+      const nickname = sessionStorage.getItem(nicknameKey);
+
+      if (sessionId) {
+        config.headers['X-Anonymous-ID'] = sessionId;
+      }
+      if (nickname) {
+        config.headers['X-Anonymous-Nickname'] = encodeURIComponent(nickname);
+      }
     }
 
     return config;

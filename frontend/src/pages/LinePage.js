@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { postAPI, subwayLineAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { enterChatRoom, leaveChatRoom, getCurrentLineUser } from '../utils/temporaryUser';
 
 // 호선 데이터 캐싱
 let cachedLines = null;
@@ -42,7 +43,8 @@ const getDateLabel = (dateString) => {
 
 function LinePage() {
   const { lineId } = useParams();
-  const { user } = useAuth();
+  const { getLineUser, setLineUser, removeLineUser } = useAuth();
+  const [currentUser, setCurrentUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [lineInfo, setLineInfo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -60,6 +62,19 @@ function LinePage() {
   const messagesContainerRef = useRef(null);
   const isInitialLoad = useRef(true);
   const textareaRef = useRef(null);
+
+  // 채팅방 입장 - 임시 사용자 생성
+  useEffect(() => {
+    const userData = enterChatRoom(lineId);
+    setCurrentUser(userData);
+    setLineUser(lineId, userData);
+
+    // 채팅방 퇴장 - cleanup
+    return () => {
+      leaveChatRoom(lineId);
+      removeLineUser(lineId);
+    };
+  }, [lineId]);
 
   const scrollToBottom = (smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
@@ -217,7 +232,7 @@ function LinePage() {
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
       e.preventDefault();
 
-      const isMyMessage = user && !user.isAnonymous && message.user_id === user.id;
+      const isMyMessage = currentUser && message.anonymous_id === currentUser.sessionId;
 
       if (isMyMessage) {
         if (deltaX < 0 && deltaX > -80) {
@@ -285,6 +300,11 @@ function LinePage() {
               <div className="chat-meta">
                 <div className="pulse-dot-small"></div>
                 <span>{lineInfo.activeUsers || 0}명 참여중</span>
+                {currentUser && (
+                  <span style={{ marginLeft: '8px', opacity: 0.7, fontSize: '0.85rem' }}>
+                    · {currentUser.nickname}
+                  </span>
+                )}
               </div>
             </div>
           </>
@@ -316,8 +336,8 @@ function LinePage() {
             }
 
             const message = item.data;
-            const isMyMessage = user && message.user_id === user.id;
-            const userColor = getAnonymousColor(message.user_id);
+            const isMyMessage = currentUser && message.anonymous_id === currentUser.sessionId;
+            const userColor = getAnonymousColor(message.anonymous_id || message.user_id);
             const isSwipingThis = swipedMessageId === message.id;
             const swipeOffset = isSwipingThis ? touchOffset : 0;
 
