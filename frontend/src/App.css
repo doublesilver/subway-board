@@ -620,6 +620,18 @@ body {
   color: var(--text-secondary);
 }
 
+.message-nickname {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+}
+
+.message-wrapper.my-message .message-nickname {
+  text-align: right;
+  color: #A855F7;
+}
+
 .message-meta {
   display: flex;
   align-items: center;
@@ -892,6 +904,38 @@ body {
   border: none;
   color: var(--text-tertiary);
   padding: 4px;
+}
+
+/* Scroll to Bottom Button */
+.scroll-to-bottom {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(168, 85, 247, 0.95);
+  backdrop-filter: blur(10px);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  animation: fadeInUp 0.3s ease;
+}
+
+.scroll-to-bottom:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+  background: rgba(168, 85, 247, 1);
+}
+
+.scroll-to-bottom:active {
+  transform: scale(0.95);
 }
 
 .auth-login-btn {
