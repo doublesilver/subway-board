@@ -314,7 +314,12 @@ function LinePage() {
   });
 
   if (loading && messages.length === 0 && !lineInfo) {
-    return <div className="loading">로딩 중...</div>;
+    return (
+      <div className="loading">
+        <div className="spinner"></div>
+        <p>채팅방을 불러오는 중...</p>
+      </div>
+    );
   }
 
   return (
