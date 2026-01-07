@@ -29,7 +29,9 @@
       "Bash(pkill:*)",
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(git revert:*)",
+      "Bash(npx knex:*)"
     ]
   }
 }

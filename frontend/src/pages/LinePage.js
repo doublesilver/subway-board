@@ -174,7 +174,11 @@ function LinePage() {
 
   const fetchMessages = async () => {
     try {
-      setLoading(true);
+      // 최초 로딩 시에만 로딩 인디케이터 표시
+      if (isInitialLoad.current) {
+        setLoading(true);
+      }
+
       const response = await postAPI.getByLine(lineId, 1, 100);
 
       // 입장 시점 이후 메시지만 필터링
@@ -196,7 +200,10 @@ function LinePage() {
       setError('메시지를 불러오는데 실패했습니다.');
       console.error(err);
     } finally {
-      setLoading(false);
+      // 최초 로딩 시에만 로딩 상태 해제
+      if (isInitialLoad.current) {
+        setLoading(false);
+      }
     }
   };
 
