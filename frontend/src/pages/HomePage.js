@@ -123,14 +123,12 @@ function HomePage() {
             </div>
             <div className="line-info">
               <h3 className="line-name">{line.line_name}</h3>
-              {line.activeUsers > 0 ? (
-                <div className="active-users-group">
-                  <div className="pulse-dot"></div>
-                  <span className="active-users-text">{line.activeUsers}명 참여중</span>
-                </div>
-              ) : (
-                <span className="inactive-users">대화 시작하기</span>
-              )}
+              <div className="active-users-group">
+                {line.activeUsers > 0 && <div className="pulse-dot"></div>}
+                <span className={line.activeUsers > 0 ? "active-users-text" : "inactive-users"}>
+                  {line.activeUsers > 0 ? `${line.activeUsers}명 참여중` : '대화가 시작되길 기다리고 있어요'}
+                </span>
+              </div>
             </div>
           </div>
         ))}

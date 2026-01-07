@@ -333,7 +333,8 @@ body {
 .subway-line-item {
   display: flex;
   align-items: center;
-  padding: 20px 24px;
+  justify-content: space-between;
+  padding: 14px 24px;
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -421,14 +422,17 @@ body {
 }
 
 .line-info {
+  display: flex;
+  align-items: center;
   flex: 1;
   z-index: 1;
+  gap: 12px;
 }
 
 .line-name {
   font-size: 18px;
   font-weight: 700;
-  margin: 0 0 6px;
+  margin: 0;
   color: var(--text-primary);
 }
 
@@ -436,6 +440,8 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .active-users-text {
@@ -457,6 +463,8 @@ body {
   font-size: 13px;
   color: var(--text-tertiary);
   font-weight: 500;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 /* ========================================
