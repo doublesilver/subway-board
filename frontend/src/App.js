@@ -52,7 +52,7 @@ function Header() {
     <header className="header">
       <div className="container">
         <div className="header-content">
-          <h1 onClick={() => navigate('/')}>출퇴근길 익명 채팅</h1>
+          <h1 onClick={() => navigate('/')}>어차피 같은 방향, 어쩌면 같은 호선</h1>
           <AuthButton />
         </div>
       </div>
