@@ -73,22 +73,26 @@ function LinePage() {
     const joinMessageKey = `line_${lineId}_joined`;
     const hasJoined = sessionStorage.getItem(joinMessageKey);
 
-    if (!hasJoined) {
-      // 입장 시간 저장
-      const joinTime = new Date().toISOString();
-      sessionStorage.setItem(joinTimestampKey, joinTime);
+    const initChat = async () => {
+      if (!hasJoined) {
+        // 입장 시간 저장
+        const joinTime = new Date().toISOString();
+        sessionStorage.setItem(joinTimestampKey, joinTime);
 
-      const sendJoinMessage = async () => {
         try {
           await postAPI.createJoinMessage(parseInt(lineId));
           sessionStorage.setItem(joinMessageKey, 'true');
         } catch (err) {
           console.error('Failed to send join message:', err);
         }
-      };
+      }
 
-      sendJoinMessage();
-    }
+      // 입장 메시지 전송 후 메시지 목록 로드
+      fetchLineInfo();
+      fetchMessages();
+    };
+
+    initChat();
 
     // 채팅방 퇴장 - cleanup 및 퇴장 메시지 전송
     return () => {
@@ -120,11 +124,6 @@ function LinePage() {
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 200;
     setShowScrollButton(!isNearBottom);
   };
-
-  useEffect(() => {
-    fetchLineInfo();
-    fetchMessages();
-  }, [lineId]);
 
   useEffect(() => {
     if (messages.length > 0) {
