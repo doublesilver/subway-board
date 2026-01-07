@@ -257,6 +257,22 @@ body {
   }
 }
 
+/* 인라인 로딩 (메시지 영역 내부) */
+.loading-inline {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  gap: 16px;
+}
+
+.loading-inline p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
 .auth-check-loading {
   position: fixed;
   inset: 0;

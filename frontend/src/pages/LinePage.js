@@ -361,7 +361,12 @@ function LinePage() {
       >
         {error && <div className="error-message">{error}</div>}
 
-        {messages.length === 0 ? (
+        {loading ? (
+          <div className="loading-inline">
+            <div className="spinner"></div>
+            <p>채팅방을 불러오는 중...</p>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">💬</div>
             <p className="empty-title">첫 메시지를 남겨보세요</p>
