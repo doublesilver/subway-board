@@ -439,7 +439,7 @@ function LinePage() {
           })
         )}
 
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} style={{ height: '1px', minHeight: '1px' }} />
       </div>
 
       {/* 하단으로 스크롤 버튼 */}

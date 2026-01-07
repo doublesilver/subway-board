@@ -475,6 +475,8 @@ body {
   flex-direction: column;
   height: 100vh;
   background: #f8fafc;
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 /* Glass Header */
@@ -560,12 +562,17 @@ body {
 
 /* Messages Area */
 .chat-messages {
-  flex: 1;
   padding: 20px 16px;
+  padding-bottom: 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-sizing: border-box;
+  /* 헤더(60px) + 입력창(100px) 제외한 높이 - fixed 입력창과 완전히 분리 */
+  height: calc(100vh - 160px);
+  max-height: calc(100vh - 160px);
+  flex-shrink: 0;
 }
 
 /* Message Bubbles */
