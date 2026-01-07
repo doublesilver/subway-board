@@ -86,12 +86,6 @@ function HomePage() {
     <div>
       {/* 메인 헤더 (Centered & Gradient) */}
       <div className="home-header">
-        <h1 className="home-title">
-          Subway Board
-        </h1>
-        <p className="home-description">
-          출퇴근하는 노선의 채팅방에 참여하세요
-        </p>
         <p className="home-subtitle">
           🔒 익명 · ⏰ 매일 오전 9시 초기화
         </p>
