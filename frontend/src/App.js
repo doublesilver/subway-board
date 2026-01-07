@@ -61,14 +61,7 @@ function Header() {
 }
 
 function Footer() {
-  return (
-    <footer>
-      <div className="container">
-        <p>모든 메시지는 매일 오전 9시에 자동 삭제됩니다.</p>
-        <p>익명으로 가볍게 출퇴근길 이야기를 나눠보세요.</p>
-      </div>
-    </footer>
-  );
+  return null;
 }
 
 export default App;
