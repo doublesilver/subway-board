@@ -147,14 +147,15 @@ function LinePage() {
 
   useEffect(() => {
     if (messages.length > 0) {
-      if (isInitialLoad.current) {
+      // 최초 로딩 시 즉시 스크롤, 이후엔 스크롤 버튼 상태에 따라
+      const isFirstLoad = loading;
+      if (isFirstLoad) {
         scrollToBottom(false);
-        isInitialLoad.current = false;
       } else if (!showScrollButton) {
         scrollToBottom(true);
       }
     }
-  }, [messages]);
+  }, [messages, loading, showScrollButton]);
 
   const fetchLineInfo = async () => {
     try {
@@ -200,9 +201,10 @@ function LinePage() {
       setError('메시지를 불러오는데 실패했습니다.');
       console.error(err);
     } finally {
-      // 최초 로딩 시에만 로딩 상태 해제
+      // 최초 로딩 완료 후 로딩 상태 해제 및 플래그 변경
       if (isInitialLoad.current) {
         setLoading(false);
+        isInitialLoad.current = false;
       }
     }
   };
