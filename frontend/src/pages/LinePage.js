@@ -68,21 +68,28 @@ function LinePage() {
     setCurrentUser(userData);
     setLineUser(lineId, userData);
 
-    // 입장 메시지 생성
-    const sendJoinMessage = async () => {
-      try {
-        await postAPI.createJoinMessage(parseInt(lineId));
-      } catch (err) {
-        console.error('Failed to send join message:', err);
-      }
-    };
+    // 입장 메시지 생성 (이미 입장 메시지를 보낸 적이 없을 때만)
+    const joinMessageKey = `line_${lineId}_joined`;
+    const hasJoined = sessionStorage.getItem(joinMessageKey);
 
-    sendJoinMessage();
+    if (!hasJoined) {
+      const sendJoinMessage = async () => {
+        try {
+          await postAPI.createJoinMessage(parseInt(lineId));
+          sessionStorage.setItem(joinMessageKey, 'true');
+        } catch (err) {
+          console.error('Failed to send join message:', err);
+        }
+      };
+
+      sendJoinMessage();
+    }
 
     // 채팅방 퇴장 - cleanup
     return () => {
       leaveChatRoom(lineId);
       removeLineUser(lineId);
+      sessionStorage.removeItem(joinMessageKey);
     };
   }, [lineId]);
 
@@ -358,14 +365,15 @@ function LinePage() {
 
             const isMyMessage = currentUser && message.anonymous_id === currentUser.sessionId;
 
-            // 디버깅용 로그
-            if (index === 339) {
-              console.log('Message debug:', {
+            // 디버깅용 로그 (첫 5개 메시지만)
+            if (index < 5) {
+              console.log(`Message ${index}:`, {
                 messageId: message.id,
                 messageAnonymousId: message.anonymous_id,
                 currentUserSessionId: currentUser?.sessionId,
                 isMyMessage,
-                nickname: message.nickname
+                nickname: message.nickname,
+                content: message.content?.substring(0, 30)
               });
             }
 
