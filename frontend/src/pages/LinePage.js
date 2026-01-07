@@ -129,7 +129,7 @@ function LinePage() {
       if (!document.hidden) {
         fetchMessages();
       }
-    }, 5000);
+    }, 3000);
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
@@ -392,7 +392,7 @@ function LinePage() {
                   {isMyJoinMessage && (
                     <div className="system-notice">
                       <span>이 방을 나가면 이전 대화는 다시 볼 수 없어요.</span>
-                      <span>오늘 얘기는 오늘로 끝이에요</span>
+                      <span>오늘 이야기는 오늘로 끝이에요</span>
                     </div>
                   )}
                 </div>
