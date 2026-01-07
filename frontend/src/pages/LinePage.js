@@ -356,6 +356,7 @@ function LinePage() {
 
             // 시스템 메시지 처리
             if (message.message_type === 'system') {
+              console.log('System message detected:', message);
               return (
                 <div key={message.id} className="system-message">
                   <span>{message.content}</span>
