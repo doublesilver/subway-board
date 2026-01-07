@@ -124,25 +124,6 @@ function LinePage() {
   useEffect(() => {
     fetchLineInfo();
     fetchMessages();
-
-    const interval = setInterval(() => {
-      if (!document.hidden) {
-        fetchMessages();
-      }
-    }, 3000);
-
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchMessages();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
   }, [lineId]);
 
   useEffect(() => {
