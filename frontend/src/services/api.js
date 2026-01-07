@@ -13,9 +13,17 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // 호선별 임시 사용자 정보 확인 (sessionStorage)
-    // URL에서 lineId 추출 시도
+    // 1. URL에서 lineId 추출 시도
+    let lineId = null;
     const urlMatch = config.url?.match(/\/line\/(\d+)/);
-    const lineId = urlMatch ? urlMatch[1] : null;
+    if (urlMatch) {
+      lineId = urlMatch[1];
+    }
+
+    // 2. POST body에서 subway_line_id 확인
+    if (!lineId && config.data && config.data.subway_line_id) {
+      lineId = config.data.subway_line_id;
+    }
 
     if (lineId) {
       const sessionKey = `line_${lineId}_session`;
