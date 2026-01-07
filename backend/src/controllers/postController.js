@@ -22,7 +22,7 @@ const getPostsByLine = asyncHandler(async (req, res) => {
       JOIN subway_lines sl ON p.subway_line_id = sl.id
       LEFT JOIN users u ON p.user_id = u.id
       WHERE p.subway_line_id = $1 AND p.deleted_at IS NULL
-      ORDER BY p.created_at DESC
+      ORDER BY p.created_at ASC
       LIMIT $2 OFFSET $3`,
     [lineId, limit, offset]
   );
