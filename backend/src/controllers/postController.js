@@ -16,9 +16,11 @@ const getPostsByLine = asyncHandler(async (req, res) => {
 
   const result = await pool.query(
     `SELECT p.*, sl.line_name, sl.line_number, sl.color,
+            u.nickname, u.anonymous_id,
             (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND deleted_at IS NULL) as comment_count
       FROM posts p
       JOIN subway_lines sl ON p.subway_line_id = sl.id
+      LEFT JOIN users u ON p.user_id = u.id
       WHERE p.subway_line_id = $1 AND p.deleted_at IS NULL
       ORDER BY p.created_at DESC
       LIMIT $2 OFFSET $3`,

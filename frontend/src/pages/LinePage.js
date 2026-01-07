@@ -357,6 +357,18 @@ function LinePage() {
             }
 
             const isMyMessage = currentUser && message.anonymous_id === currentUser.sessionId;
+
+            // 디버깅용 로그
+            if (index === 339) {
+              console.log('Message debug:', {
+                messageId: message.id,
+                messageAnonymousId: message.anonymous_id,
+                currentUserSessionId: currentUser?.sessionId,
+                isMyMessage,
+                nickname: message.nickname
+              });
+            }
+
             const userColor = getAnonymousColor(message.anonymous_id || message.user_id);
             const isSwipingThis = swipedMessageId === message.id;
             const swipeOffset = isSwipingThis ? touchOffset : 0;
