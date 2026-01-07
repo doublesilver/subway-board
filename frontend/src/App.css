@@ -1311,6 +1311,8 @@ body {
    ======================================== */
 .header {
   position: relative;
+  margin: 0;
+  padding: 16px 0 0 0;
 }
 
 .header-content {
@@ -1324,6 +1326,7 @@ body {
 .header h1 {
   cursor: pointer;
   transition: opacity 0.2s;
+  margin: 0;
 }
 
 .header h1:hover {
