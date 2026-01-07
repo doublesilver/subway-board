@@ -249,7 +249,7 @@ body {
    Home Page Branding (Glassmorphism)
    ======================================== */
 .home-header {
-  padding: 20px 24px 20px;
+  padding: 0px 24px 20px;
   background: transparent;
   text-align: center;
   display: flex;
