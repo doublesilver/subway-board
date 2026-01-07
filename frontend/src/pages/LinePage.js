@@ -196,18 +196,6 @@ function LinePage() {
     }
   };
 
-  const handleDeleteMessage = async (messageId) => {
-    if (!window.confirm('메시지를 삭제하시겠습니까?')) return;
-
-    try {
-      await postAPI.delete(messageId);
-      await fetchMessages();
-    } catch (err) {
-      const errorMsg = err.response?.data?.error || '메시지 삭제에 실패했습니다.';
-      alert(errorMsg);
-    }
-  };
-
   const handleTextareaChange = (e) => {
     setContent(e.target.value);
 
@@ -414,14 +402,6 @@ function LinePage() {
 
                     <div className="message-meta">
                       <span className="message-time">{formatTime(message.created_at)}</span>
-                      {isMyMessage && (
-                        <button
-                          onClick={() => handleDeleteMessage(message.id)}
-                          className="message-delete-btn"
-                        >
-                          삭제
-                        </button>
-                      )}
                     </div>
                   </div>
 
