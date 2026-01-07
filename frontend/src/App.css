@@ -325,7 +325,7 @@ body {
 
 /* Line Lists */
 .subway-lines-list {
-  padding: 0 20px 100px;
+  padding: 0 20px 24px;
   display: grid;
   gap: 16px;
 }
