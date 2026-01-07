@@ -39,6 +39,7 @@ router.get('/subway-lines', subwayLineController.getAllLines);
 router.get('/posts/line/:lineId', postController.getPostsByLine);
 router.get('/posts/:postId', postController.getPostById);
 router.post('/posts', authMiddleware, validatePost, postController.createPost);
+router.post('/posts/join', authMiddleware, postController.createJoinMessage);
 router.delete('/posts/:postId', authMiddleware, postController.deletePost);
 
 router.get('/posts/:postId/comments', commentController.getCommentsByPost);

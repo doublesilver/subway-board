@@ -63,6 +63,7 @@ export const postAPI = {
     api.get(`/api/posts/line/${lineId}`, { params: { page, limit } }),
   getById: (postId) => api.get(`/api/posts/${postId}`),
   create: (data) => api.post('/api/posts', data),
+  createJoinMessage: (subway_line_id) => api.post('/api/posts/join', { subway_line_id }),
   delete: (postId) => api.delete(`/api/posts/${postId}`),
 };
 

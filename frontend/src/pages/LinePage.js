@@ -62,11 +62,22 @@ function LinePage() {
   const isInitialLoad = useRef(true);
   const textareaRef = useRef(null);
 
-  // 채팅방 입장 - 임시 사용자 생성
+  // 채팅방 입장 - 임시 사용자 생성 및 입장 메시지 전송
   useEffect(() => {
     const userData = enterChatRoom(lineId);
     setCurrentUser(userData);
     setLineUser(lineId, userData);
+
+    // 입장 메시지 생성
+    const sendJoinMessage = async () => {
+      try {
+        await postAPI.createJoinMessage(parseInt(lineId));
+      } catch (err) {
+        console.error('Failed to send join message:', err);
+      }
+    };
+
+    sendJoinMessage();
 
     // 채팅방 퇴장 - cleanup
     return () => {
@@ -335,6 +346,16 @@ function LinePage() {
             }
 
             const message = item.data;
+
+            // 시스템 메시지 처리
+            if (message.message_type === 'system') {
+              return (
+                <div key={message.id} className="system-message">
+                  <span>{message.content}</span>
+                </div>
+              );
+            }
+
             const isMyMessage = currentUser && message.anonymous_id === currentUser.sessionId;
             const userColor = getAnonymousColor(message.anonymous_id || message.user_id);
             const isSwipingThis = swipedMessageId === message.id;

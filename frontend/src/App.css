@@ -672,6 +672,23 @@ body {
   transform: scale(0.95);
 }
 
+/* System Message */
+.system-message {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+  animation: fadeInUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.system-message span {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  background: rgba(168, 85, 247, 0.1);
+  padding: 6px 16px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
 /* Date Divider */
 .date-divider {
   display: flex;
