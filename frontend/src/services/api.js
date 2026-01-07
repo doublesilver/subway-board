@@ -64,6 +64,7 @@ export const postAPI = {
   getById: (postId) => api.get(`/api/posts/${postId}`),
   create: (data) => api.post('/api/posts', data),
   createJoinMessage: (subway_line_id) => api.post('/api/posts/join', { subway_line_id }),
+  createLeaveMessage: (subway_line_id) => api.post('/api/posts/leave', { subway_line_id }),
   delete: (postId) => api.delete(`/api/posts/${postId}`),
 };
 

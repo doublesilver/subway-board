@@ -137,11 +137,35 @@ const createJoinMessage = asyncHandler(async (req, res, next) => {
   res.status(201).json(result.rows[0]);
 });
 
+// 퇴장 메시지 생성
+const createLeaveMessage = asyncHandler(async (req, res, next) => {
+  const { subway_line_id } = req.body;
+
+  if (!req.user) {
+    return next(new AppError('You must be logged in', 401));
+  }
+
+  const user = await getOrCreateUser(req.user);
+
+  // 퇴장 시스템 메시지 생성
+  const content = `${user.nickname} 님이 나갔어요`;
+
+  const result = await pool.query(
+    `INSERT INTO posts (content, subway_line_id, user_id, message_type)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *`,
+    [content, subway_line_id, user.id, 'system']
+  );
+
+  res.status(201).json(result.rows[0]);
+});
+
 module.exports = {
   getPostsByLine,
   getPostById,
   createPost,
   deletePost,
   createJoinMessage,
+  createLeaveMessage,
 };
 

@@ -68,11 +68,16 @@ function LinePage() {
     setCurrentUser(userData);
     setLineUser(lineId, userData);
 
-    // 입장 메시지 생성 (이미 입장 메시지를 보낸 적이 없을 때만)
+    // 입장 시간 기록 (이 시점 이후 메시지만 로드)
+    const joinTimestampKey = `line_${lineId}_join_time`;
     const joinMessageKey = `line_${lineId}_joined`;
     const hasJoined = sessionStorage.getItem(joinMessageKey);
 
     if (!hasJoined) {
+      // 입장 시간 저장
+      const joinTime = new Date().toISOString();
+      sessionStorage.setItem(joinTimestampKey, joinTime);
+
       const sendJoinMessage = async () => {
         try {
           await postAPI.createJoinMessage(parseInt(lineId));
@@ -85,11 +90,23 @@ function LinePage() {
       sendJoinMessage();
     }
 
-    // 채팅방 퇴장 - cleanup
+    // 채팅방 퇴장 - cleanup 및 퇴장 메시지 전송
     return () => {
+      // 퇴장 메시지 전송
+      const sendLeaveMessage = async () => {
+        try {
+          await postAPI.createLeaveMessage(parseInt(lineId));
+        } catch (err) {
+          console.error('Failed to send leave message:', err);
+        }
+      };
+
+      sendLeaveMessage();
+
       leaveChatRoom(lineId);
       removeLineUser(lineId);
       sessionStorage.removeItem(joinMessageKey);
+      sessionStorage.removeItem(joinTimestampKey);
     };
   }, [lineId]);
 
@@ -159,7 +176,22 @@ function LinePage() {
     try {
       setLoading(true);
       const response = await postAPI.getByLine(lineId, 1, 100);
-      setMessages(response.data.posts);
+
+      // 입장 시점 이후 메시지만 필터링
+      const joinTimestampKey = `line_${lineId}_join_time`;
+      const joinTime = sessionStorage.getItem(joinTimestampKey);
+
+      if (joinTime) {
+        const joinDate = new Date(joinTime);
+        const filteredMessages = response.data.posts.filter(msg => {
+          const msgDate = new Date(msg.created_at);
+          return msgDate >= joinDate;
+        });
+        setMessages(filteredMessages);
+      } else {
+        // joinTime이 없으면 모든 메시지 표시 (재입장 케이스)
+        setMessages(response.data.posts);
+      }
     } catch (err) {
       setError('메시지를 불러오는데 실패했습니다.');
       console.error(err);
@@ -345,9 +377,24 @@ function LinePage() {
             // 시스템 메시지 처리
             if (message.message_type === 'system') {
               console.log('System message detected:', message);
+
+              // 내가 입장한 메시지인지 확인
+              const isMyJoinMessage = currentUser &&
+                message.content.includes(currentUser.nickname) &&
+                message.content.includes('들어왔어요');
+
               return (
-                <div key={message.id} className="system-message">
-                  <span>{message.content}</span>
+                <div key={message.id}>
+                  <div className="system-message">
+                    <span>{message.content}</span>
+                  </div>
+                  {/* 내 입장 메시지 아래에 안내 문구 표시 */}
+                  {isMyJoinMessage && (
+                    <div className="system-notice">
+                      <span>이 방을 나가면 이전 대화는 다시 볼 수 없어요.</span>
+                      <span>오늘 얘기는 오늘로 끝이에요</span>
+                    </div>
+                  )}
                 </div>
               );
             }
