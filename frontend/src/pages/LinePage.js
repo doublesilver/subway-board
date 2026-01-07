@@ -90,12 +90,28 @@ function LinePage() {
       // 입장 메시지 전송 후 메시지 목록 로드
       fetchLineInfo();
       fetchMessages();
+
+      // 3초마다 메시지 폴링
+      const interval = setInterval(() => {
+        if (!document.hidden) {
+          fetchMessages();
+        }
+      }, 3000);
+
+      return interval;
     };
 
-    initChat();
+    const intervalId = initChat();
 
     // 채팅방 퇴장 - cleanup 및 퇴장 메시지 전송
     return () => {
+      // 폴링 중단
+      if (intervalId instanceof Promise) {
+        intervalId.then(clearInterval);
+      } else if (intervalId) {
+        clearInterval(intervalId);
+      }
+
       // 퇴장 메시지 전송
       const sendLeaveMessage = async () => {
         try {
