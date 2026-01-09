@@ -1,5 +1,5 @@
 const pool = require('../db/connection');
-const { recordActivity } = require('../utils/activeUsers');
+const { recordActivity, removeActivity } = require('../utils/activeUsers');
 const { getOrCreateUser } = require('../utils/userHelper');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
@@ -146,6 +146,10 @@ const createLeaveMessage = asyncHandler(async (req, res, next) => {
   }
 
   const user = await getOrCreateUser(req.user);
+
+  // 세션 ID 기반으로 활성 사용자에서 제거
+  const sessionId = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  removeActivity(subway_line_id, sessionId);
 
   // 퇴장 시스템 메시지 생성
   const content = `${user.nickname} 님이 나갔어요`;
