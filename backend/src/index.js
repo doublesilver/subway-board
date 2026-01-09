@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
 const globalErrorHandler = require('./middleware/errorMiddleware');
 const AppError = require('./utils/AppError');
 require('dotenv').config();
@@ -10,6 +12,7 @@ const routes = require('./routes');
 const { startScheduler } = require('./utils/scheduler');
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
 
 app.use(helmet());
@@ -34,6 +37,18 @@ app.use(cors({
   },
   credentials: true
 }));
+
+// Socket.io 설정
+const io = new Server(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
+// Socket.io를 activeUsers에서 사용할 수 있도록 글로벌로 설정
+global.io = io;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -98,7 +113,12 @@ app.all('*', (req, res, next) => {
 // Global Error Handler
 app.use(globalErrorHandler);
 
-app.listen(PORT, () => {
+// Socket.io 이벤트 핸들러
+const { handleSocketConnection } = require('./utils/activeUsers');
+io.on('connection', handleSocketConnection);
+
+httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`WebSocket server is ready`);
   startScheduler();
 });

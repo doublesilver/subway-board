@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { postAPI, subwayLineAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { enterChatRoom, leaveChatRoom, getCurrentLineUser } from '../utils/temporaryUser';
+import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate } from '../utils/socket';
 
 // 호선 데이터 캐싱
 let cachedLines = null;
@@ -69,6 +70,9 @@ function LinePage() {
     setCurrentUser(userData);
     setLineUser(lineId, userData);
 
+    // WebSocket으로 채팅방 입장
+    joinLine(parseInt(lineId), userData.sessionId);
+
     // 입장 시간 기록 (이 시점 이후 메시지만 로드)
     const joinTimestampKey = `line_${lineId}_join_time`;
     const joinMessageKey = `line_${lineId}_joined`;
@@ -92,11 +96,10 @@ function LinePage() {
       fetchLineInfo();
       fetchMessages();
 
-      // 3초마다 메시지 및 참여자 수 폴링
+      // 3초마다 메시지 폴링 (참여자 수는 WebSocket으로 실시간 업데이트)
       const interval = setInterval(() => {
         if (!document.hidden) {
           fetchMessages();
-          fetchLineInfo();
         }
       }, 3000);
 
@@ -104,6 +107,15 @@ function LinePage() {
     };
 
     const intervalId = initChat();
+
+    // WebSocket 활성 사용자 수 업데이트 리스너
+    const handleActiveUsersUpdate = (data) => {
+      if (data.lineId === parseInt(lineId)) {
+        setLineInfo(prev => prev ? { ...prev, activeUsers: data.count } : null);
+      }
+    };
+
+    onActiveUsersUpdate(handleActiveUsersUpdate);
 
     // 채팅방 퇴장 - cleanup
     return () => {
@@ -113,6 +125,10 @@ function LinePage() {
       } else if (intervalId) {
         clearInterval(intervalId);
       }
+
+      // WebSocket 퇴장
+      leaveLine(parseInt(lineId));
+      offActiveUsersUpdate(handleActiveUsersUpdate);
 
       leaveChatRoom(lineId);
       removeLineUser(lineId);

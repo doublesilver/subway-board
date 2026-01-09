@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subwayLineAPI } from '../services/api';
+import { initSocket, onLineUsersUpdate, offLineUsersUpdate } from '../utils/socket';
 
 // 이용량 순서 (실제 서울 지하철 이용 통계 기반)
 const usageOrder = [2, 5, 7, 3, 4, 6, 1, 8, 9];
@@ -13,9 +14,25 @@ function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // WebSocket 초기화
+    initSocket();
+
     fetchSubwayLines();
 
-    // 3초마다 갱신 (백그라운드 시에는 중지)
+    // WebSocket으로 실시간 참여자 수 업데이트
+    const handleLineUsersUpdate = (data) => {
+      setLines(prevLines =>
+        prevLines.map(line =>
+          line.id === data.lineId
+            ? { ...line, activeUsers: data.count }
+            : line
+        )
+      );
+    };
+
+    onLineUsersUpdate(handleLineUsersUpdate);
+
+    // 3초마다 갱신 (백그라운드 시에는 중지) - 폴백용
     let interval = setInterval(() => {
       if (!document.hidden) {
         fetchSubwayLines();
@@ -34,6 +51,7 @@ function HomePage() {
     return () => {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      offLineUsersUpdate(handleLineUsersUpdate);
     };
   }, []);
 
