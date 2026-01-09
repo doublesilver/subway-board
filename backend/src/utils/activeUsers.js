@@ -1,4 +1,5 @@
 const { WEBSOCKET, SUBWAY_LINE } = require('../config/constants');
+const { ErrorCodes } = require('./errorCodes');
 
 // 각 호선별 활성 사용자 추적 (WebSocket 기반)
 // Map<lineId, Set<socketId>>
@@ -21,19 +22,28 @@ function handleSocketConnection(socket) {
 
       // 입력 검증
       if (!lineId || !sessionId) {
-        socket.emit('error', { message: '잘못된 요청입니다.' });
+        socket.emit('error', {
+          code: ErrorCodes.WS_INVALID_REQUEST,
+          message: '잘못된 요청입니다.'
+        });
         return;
       }
 
       const parsedLineId = parseInt(lineId);
       if (isNaN(parsedLineId) || parsedLineId < SUBWAY_LINE.MIN_ID || parsedLineId > SUBWAY_LINE.MAX_ID) {
-        socket.emit('error', { message: '유효하지 않은 호선입니다.' });
+        socket.emit('error', {
+          code: ErrorCodes.WS_INVALID_LINE,
+          message: '유효하지 않은 호선입니다.'
+        });
         return;
       }
 
       // 방 개수 제한
       if (roomCount >= WEBSOCKET.MAX_ROOMS_PER_CLIENT) {
-        socket.emit('error', { message: `동시에 ${WEBSOCKET.MAX_ROOMS_PER_CLIENT}개 이상의 채팅방에 참여할 수 없습니다.` });
+        socket.emit('error', {
+          code: ErrorCodes.WS_MAX_ROOMS_EXCEEDED,
+          message: `동시에 ${WEBSOCKET.MAX_ROOMS_PER_CLIENT}개 이상의 채팅방에 참여할 수 없습니다.`
+        });
         return;
       }
 
@@ -63,7 +73,10 @@ function handleSocketConnection(socket) {
       console.log(`[WebSocket] Line ${parsedLineId} now has ${activeUsers.get(parsedLineId).size} users`);
     } catch (error) {
       console.error('[WebSocket] join_line error:', error);
-      socket.emit('error', { message: '채팅방 입장에 실패했습니다.' });
+      socket.emit('error', {
+        code: ErrorCodes.WS_JOIN_FAILED,
+        message: '채팅방 입장에 실패했습니다.'
+      });
     }
   });
 
@@ -73,13 +86,19 @@ function handleSocketConnection(socket) {
       const { lineId } = data;
 
       if (!lineId) {
-        socket.emit('error', { message: '잘못된 요청입니다.' });
+        socket.emit('error', {
+          code: ErrorCodes.WS_INVALID_REQUEST,
+          message: '잘못된 요청입니다.'
+        });
         return;
       }
 
       const parsedLineId = parseInt(lineId);
       if (isNaN(parsedLineId) || parsedLineId < SUBWAY_LINE.MIN_ID || parsedLineId > SUBWAY_LINE.MAX_ID) {
-        socket.emit('error', { message: '유효하지 않은 호선입니다.' });
+        socket.emit('error', {
+          code: ErrorCodes.WS_INVALID_LINE,
+          message: '유효하지 않은 호선입니다.'
+        });
         return;
       }
 

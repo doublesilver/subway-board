@@ -4,6 +4,7 @@ const { getOrCreateUser } = require('../utils/userHelper');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
 const { PAGINATION } = require('../config/constants');
+const { ErrorCodes } = require('../utils/errorCodes');
 
 const getPostsByLine = asyncHandler(async (req, res) => {
   const { lineId } = req.params;
@@ -55,7 +56,7 @@ const getPostById = asyncHandler(async (req, res, next) => {
   );
 
   if (result.rows.length === 0) {
-    return next(new AppError('No post found with that ID', 404));
+    return next(AppError.fromErrorCode(ErrorCodes.RESOURCE_POST_NOT_FOUND, 404));
   }
 
   res.json(result.rows[0]);
@@ -65,11 +66,11 @@ const createPost = asyncHandler(async (req, res, next) => {
   const { content, subway_line_id } = req.body;
 
   if (!content) {
-    return next(new AppError('Content cannot be empty', 400));
+    return next(AppError.fromErrorCode(ErrorCodes.VALIDATION_EMPTY_CONTENT, 400));
   }
 
   if (!req.user) {
-    return next(new AppError('You must be logged in to post', 401));
+    return next(AppError.fromErrorCode(ErrorCodes.AUTH_REQUIRED, 401));
   }
 
   const user = await getOrCreateUser(req.user);
@@ -98,7 +99,7 @@ const deletePost = asyncHandler(async (req, res, next) => {
   const { postId } = req.params;
 
   if (!req.user) {
-    return next(new AppError('You must be logged in to delete', 401));
+    return next(AppError.fromErrorCode(ErrorCodes.AUTH_REQUIRED, 401));
   }
 
   const user = await getOrCreateUser(req.user);
@@ -110,14 +111,14 @@ const deletePost = asyncHandler(async (req, res, next) => {
   );
 
   if (postResult.rows.length === 0) {
-    return next(new AppError('No post found with that ID', 404));
+    return next(AppError.fromErrorCode(ErrorCodes.RESOURCE_POST_NOT_FOUND, 404));
   }
 
   const post = postResult.rows[0];
 
   // 작성자 본인 확인
   if (post.user_id !== user.id) {
-    return next(new AppError('You do not have permission to delete this post', 403));
+    return next(AppError.fromErrorCode(ErrorCodes.PERMISSION_NOT_OWNER, 403));
   }
 
   const result = await pool.query(
@@ -132,7 +133,7 @@ const createJoinMessage = asyncHandler(async (req, res, next) => {
   const { subway_line_id } = req.body;
 
   if (!req.user) {
-    return next(new AppError('You must be logged in', 401));
+    return next(AppError.fromErrorCode(ErrorCodes.AUTH_REQUIRED, 401));
   }
 
   const user = await getOrCreateUser(req.user);
@@ -165,7 +166,7 @@ const createLeaveMessage = asyncHandler(async (req, res, next) => {
   const { subway_line_id } = req.body;
 
   if (!req.user) {
-    return next(new AppError('You must be logged in', 401));
+    return next(AppError.fromErrorCode(ErrorCodes.AUTH_REQUIRED, 401));
   }
 
   const user = await getOrCreateUser(req.user);
