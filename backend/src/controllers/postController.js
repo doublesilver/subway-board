@@ -3,10 +3,11 @@ const { recordActivity, removeActivity, broadcastNewMessage } = require('../util
 const { getOrCreateUser } = require('../utils/userHelper');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
+const { PAGINATION } = require('../config/constants');
 
 const getPostsByLine = asyncHandler(async (req, res) => {
   const { lineId } = req.params;
-  const { page = 1, limit = 20 } = req.query;
+  const { page = 1, limit = PAGINATION.DEFAULT_LIMIT } = req.query;
 
   // 프론트엔드에서 전달한 세션 ID 사용
   const sessionId = req.headers['x-anonymous-id'];

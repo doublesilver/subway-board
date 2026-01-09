@@ -1,9 +1,10 @@
 const { Pool } = require('pg');
+const { DATABASE } = require('../config/constants');
 require('dotenv').config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: 20,
+  max: DATABASE.POOL_MAX,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 30000, // Increased from 2s to 30s for cloud databases
   statement_timeout: 30000, // Query timeout

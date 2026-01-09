@@ -10,6 +10,7 @@ require('dotenv').config();
 
 const routes = require('./routes');
 const { startScheduler } = require('./utils/scheduler');
+const { RATE_LIMIT, SECURITY } = require('./config/constants');
 
 const app = express();
 const httpServer = createServer(app);
@@ -31,7 +32,7 @@ app.use(helmet({
     },
   },
   hsts: {
-    maxAge: 31536000, // 1년
+    maxAge: SECURITY.HSTS_MAX_AGE,
     includeSubDomains: true,
     preload: true
   },
@@ -79,16 +80,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // POST/DELETE 요청 Rate Limit
 const writeLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15분
-  max: 50, // 15분에 50개 쓰기 요청
+  windowMs: RATE_LIMIT.WRITE.WINDOW_MS,
+  max: RATE_LIMIT.WRITE.MAX,
   message: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
   skip: (req) => req.method === 'GET',
 });
 
 // GET 요청 Rate Limit (DDoS 방어)
 const readLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1분
-  max: 100, // 1분에 100회
+  windowMs: RATE_LIMIT.READ.WINDOW_MS,
+  max: RATE_LIMIT.READ.MAX,
   message: '너무 많은 조회 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
   skip: (req) => req.method !== 'GET',
   standardHeaders: true,

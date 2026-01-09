@@ -1,3 +1,5 @@
+const { WEBSOCKET, SUBWAY_LINE } = require('../config/constants');
+
 // 각 호선별 활성 사용자 추적 (WebSocket 기반)
 // Map<lineId, Set<socketId>>
 const activeUsers = new Map();
@@ -24,14 +26,14 @@ function handleSocketConnection(socket) {
       }
 
       const parsedLineId = parseInt(lineId);
-      if (isNaN(parsedLineId) || parsedLineId < 1 || parsedLineId > 9) {
+      if (isNaN(parsedLineId) || parsedLineId < SUBWAY_LINE.MIN_ID || parsedLineId > SUBWAY_LINE.MAX_ID) {
         socket.emit('error', { message: '유효하지 않은 호선입니다.' });
         return;
       }
 
       // 방 개수 제한
-      if (roomCount >= 3) {
-        socket.emit('error', { message: '동시에 3개 이상의 채팅방에 참여할 수 없습니다.' });
+      if (roomCount >= WEBSOCKET.MAX_ROOMS_PER_CLIENT) {
+        socket.emit('error', { message: `동시에 ${WEBSOCKET.MAX_ROOMS_PER_CLIENT}개 이상의 채팅방에 참여할 수 없습니다.` });
         return;
       }
 
@@ -76,7 +78,7 @@ function handleSocketConnection(socket) {
       }
 
       const parsedLineId = parseInt(lineId);
-      if (isNaN(parsedLineId) || parsedLineId < 1 || parsedLineId > 9) {
+      if (isNaN(parsedLineId) || parsedLineId < SUBWAY_LINE.MIN_ID || parsedLineId > SUBWAY_LINE.MAX_ID) {
         socket.emit('error', { message: '유효하지 않은 호선입니다.' });
         return;
       }

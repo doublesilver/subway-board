@@ -1,4 +1,5 @@
 const ProfanityFilter = require('../utils/profanityFilter');
+const { CONTENT, SUBWAY_LINE } = require('../config/constants');
 
 const validatePost = (req, res, next) => {
   const { content, subway_line_id } = req.body;
@@ -8,8 +9,8 @@ const validatePost = (req, res, next) => {
     return res.status(400).json({ error: '내용을 입력해주세요.' });
   }
 
-  if (content.length > 1000) {
-    return res.status(400).json({ error: '내용은 1000자를 초과할 수 없습니다.' });
+  if (content.length > CONTENT.POST_MAX_LENGTH) {
+    return res.status(400).json({ error: `내용은 ${CONTENT.POST_MAX_LENGTH}자를 초과할 수 없습니다.` });
   }
 
   // Subway line validation
@@ -18,8 +19,8 @@ const validatePost = (req, res, next) => {
   }
 
   const lineId = parseInt(subway_line_id);
-  if (isNaN(lineId) || lineId < 1 || lineId > 9) {
-    return res.status(400).json({ error: '유효하지 않은 호선입니다. (1-9호선만 가능)' });
+  if (isNaN(lineId) || lineId < SUBWAY_LINE.MIN_ID || lineId > SUBWAY_LINE.MAX_ID) {
+    return res.status(400).json({ error: `유효하지 않은 호선입니다. (${SUBWAY_LINE.MIN_ID}-${SUBWAY_LINE.MAX_ID}호선만 가능)` });
   }
 
   // XSS prevention - check for script tags
@@ -50,8 +51,8 @@ const validateComment = (req, res, next) => {
     return res.status(400).json({ error: '댓글 내용을 입력해주세요.' });
   }
 
-  if (content.length > 500) {
-    return res.status(400).json({ error: '댓글은 500자를 초과할 수 없습니다.' });
+  if (content.length > CONTENT.COMMENT_MAX_LENGTH) {
+    return res.status(400).json({ error: `댓글은 ${CONTENT.COMMENT_MAX_LENGTH}자를 초과할 수 없습니다.` });
   }
 
   // XSS prevention
