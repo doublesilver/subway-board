@@ -7,11 +7,13 @@ import KakaoCallback from './pages/KakaoCallback';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthButton from './components/AuthButton';
 import AnimatedBackground from './components/AnimatedBackground';
+import DevControl from './components/DevControl';
 
 function App() {
   return (
     <AuthProvider>
       <AnimatedBackground />
+      <DevControl />
       <Router>
         <AppContent />
       </Router>

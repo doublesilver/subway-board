@@ -1,17 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { subwayLineAPI } from '../services/api';
 import { initSocket, onLineUsersUpdate, offLineUsersUpdate } from '../utils/socket';
+import ClosedAlertModal from '../components/ClosedAlertModal';
+import { checkIsOperatingHours } from '../utils/operatingHours';
 
 // 이용량 순서 (실제 서울 지하철 이용 통계 기반)
 const usageOrder = [2, 5, 7, 3, 4, 6, 1, 8, 9];
 
 function HomePage() {
+  const navigate = useNavigate();
   const [lines, setLines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortType, setSortType] = useState('line');
-  const navigate = useNavigate();
+  const [sortType, setSortType] = useState('line'); // Renamed from activeTab to sortType to match existing logic
+  const [isOperatingHours, setIsOperatingHours] = useState(true);
+
+  useEffect(() => {
+    // 운영 시간 체크
+    const checkTime = () => {
+      const isOpen = checkIsOperatingHours();
+      setIsOperatingHours(isOpen);
+    };
+    checkTime();
+    // 1분마다 체크 (홈 화면에 오래 켜두는 경우 대비)
+    const interval = setInterval(checkTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     // WebSocket 초기화
@@ -101,7 +118,9 @@ function HomePage() {
   const sortedLines = getSortedLines();
 
   return (
-    <div>
+    <div className="home-container">
+      {!isOperatingHours && <ClosedAlertModal />}
+
       {/* 메인 헤더 (Centered & Gradient) */}
       <div className="home-header">
         <p className="home-subtitle">
