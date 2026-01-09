@@ -9,17 +9,25 @@ function recordActivity(lineId, sessionId) {
 
   const lineUsers = activeUsers.get(lineId);
   lineUsers.add(sessionId);
+  console.log(`[Active Users] Added to line ${lineId}: ${sessionId}, total: ${lineUsers.size}`);
 }
 
 // 사용자 활동 제거 (채팅방 나갈 때)
 function removeActivity(lineId, sessionId) {
-  if (!activeUsers.has(lineId)) return;
+  console.log(`[Active Users] Removing from line ${lineId}: ${sessionId}`);
+  if (!activeUsers.has(lineId)) {
+    console.log(`[Active Users] Line ${lineId} not found in activeUsers`);
+    return;
+  }
 
   const lineUsers = activeUsers.get(lineId);
+  const hadSession = lineUsers.has(sessionId);
   lineUsers.delete(sessionId);
+  console.log(`[Active Users] Removed from line ${lineId}: ${sessionId} (existed: ${hadSession}), remaining: ${lineUsers.size}`);
 
   if (lineUsers.size === 0) {
     activeUsers.delete(lineId);
+    console.log(`[Active Users] Line ${lineId} removed from activeUsers (no users left)`);
   }
 }
 
