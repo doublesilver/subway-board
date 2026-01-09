@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const { DATABASE } = require('../config/constants');
+const logger = require('../utils/logger');
 require('dotenv').config();
 
 const pool = new Pool({
@@ -12,7 +13,11 @@ const pool = new Pool({
 });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
+  logger.error('Unexpected error on idle database client', {
+    error: err.message,
+    stack: err.stack,
+    code: err.code
+  });
   process.exit(-1);
 });
 
@@ -26,7 +31,7 @@ const queryWithRetry = async (text, params, maxRetries = 3) => {
 
       // Log success on retry
       if (attempt > 1) {
-        console.log(`Query succeeded on attempt ${attempt}`);
+        logger.info('Database query succeeded after retry', { attempt });
       }
 
       return result;
@@ -47,7 +52,13 @@ const queryWithRetry = async (text, params, maxRetries = 3) => {
 
       // Exponential backoff: 100ms, 200ms, 400ms
       const delay = 100 * Math.pow(2, attempt - 1);
-      console.warn(`Query attempt ${attempt} failed, retrying in ${delay}ms...`, error.message);
+      logger.warn(`Database query retry`, {
+        attempt,
+        maxRetries,
+        delayMs: delay,
+        error: error.message,
+        code: error.code
+      });
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }

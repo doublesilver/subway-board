@@ -4,6 +4,8 @@ import { postAPI, subwayLineAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { enterChatRoom, leaveChatRoom, getCurrentLineUser } from '../utils/temporaryUser';
 import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate, onNewMessage, offNewMessage } from '../utils/socket';
+import { useToast } from '../hooks/useToast';
+import Toast from '../components/Toast';
 
 // 호선 데이터 캐싱
 let cachedLines = null;
@@ -46,6 +48,7 @@ function LinePage() {
   const { lineId } = useParams();
   const navigate = useNavigate();
   const { getLineUser, setLineUser, removeLineUser } = useAuth();
+  const { toasts, error: showError, success: showSuccess, hideToast } = useToast();
   const [currentUser, setCurrentUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [lineInfo, setLineInfo] = useState(null);
@@ -88,7 +91,9 @@ function LinePage() {
           await postAPI.createJoinMessage(parseInt(lineId));
           sessionStorage.setItem(joinMessageKey, 'true');
         } catch (err) {
-          console.error('Failed to send join message:', err);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Failed to send join message:', err);
+          }
         }
       }
 
@@ -109,7 +114,9 @@ function LinePage() {
     // WebSocket 새 메시지 수신 리스너
     const handleNewMessage = (data) => {
       if (data.lineId === parseInt(lineId)) {
-        console.log('[WebSocket] New message received:', data.message);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[WebSocket] New message received:', data.message);
+        }
 
         // 입장 시점 이후 메시지만 추가
         const joinTime = sessionStorage.getItem(joinTimestampKey);
@@ -245,8 +252,8 @@ function LinePage() {
         textareaRef.current.style.height = 'auto';
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.error || '메시지 작성에 실패했습니다.';
-      alert(errorMsg);
+      const errorMsg = err.response?.data?.error?.message || err.response?.data?.error || '메시지 작성에 실패했습니다.';
+      showError(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -350,9 +357,13 @@ function LinePage() {
     try {
       // 퇴장 메시지 전송
       await postAPI.createLeaveMessage(parseInt(lineId));
-      console.log('✅ Leave message sent successfully');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Leave message sent successfully');
+      }
     } catch (err) {
-      console.error('❌ Failed to send leave message:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ Failed to send leave message:', err);
+      }
     } finally {
       // 항상 메인 화면으로 이동
       navigate('/');
@@ -361,6 +372,17 @@ function LinePage() {
 
   return (
     <div className="chat-container">
+      {/* Toast 알림 */}
+      {toasts.map(toast => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          duration={toast.duration}
+          onClose={() => hideToast(toast.id)}
+        />
+      ))}
+
       {/* 헤더 */}
       <header className="chat-header">
         <button onClick={handleBackClick} className="chat-back-btn">
@@ -423,7 +445,9 @@ function LinePage() {
 
             // 시스템 메시지 처리
             if (message.message_type === 'system') {
-              console.log('System message detected:', message);
+              if (process.env.NODE_ENV === 'development') {
+                console.log('System message detected:', message);
+              }
 
               // 내가 입장한 메시지인지 확인
               const isMyJoinMessage = currentUser &&
@@ -448,8 +472,8 @@ function LinePage() {
 
             const isMyMessage = currentUser && message.anonymous_id === currentUser.sessionId;
 
-            // 디버깅용 로그 (첫 5개 메시지만)
-            if (index < 5) {
+            // 디버깅용 로그 (개발 환경에서만)
+            if (process.env.NODE_ENV === 'development' && index < 5) {
               console.log(`Message ${index}:`, {
                 messageId: message.id,
                 messageAnonymousId: message.anonymous_id,
