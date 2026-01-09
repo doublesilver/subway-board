@@ -18,6 +18,9 @@ const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy (Railway, Heroku 등 클라우드 플랫폼용)
+app.set('trust proxy', 1);
+
 // 보안 헤더 강화
 app.use(helmet({
   contentSecurityPolicy: {
