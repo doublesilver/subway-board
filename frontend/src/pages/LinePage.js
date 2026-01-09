@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { postAPI, subwayLineAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { enterChatRoom, leaveChatRoom, getCurrentLineUser } from '../utils/temporaryUser';
@@ -43,6 +43,7 @@ const getDateLabel = (dateString) => {
 
 function LinePage() {
   const { lineId } = useParams();
+  const navigate = useNavigate();
   const { getLineUser, setLineUser, removeLineUser } = useAuth();
   const [currentUser, setCurrentUser] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -111,28 +112,6 @@ function LinePage() {
         intervalId.then(clearInterval);
       } else if (intervalId) {
         clearInterval(intervalId);
-      }
-
-      // 퇴장 메시지 전송 (sendBeacon 사용으로 페이지 이탈 시에도 전송 보장)
-      const leaveUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/posts/leave`;
-      const token = localStorage.getItem('token');
-
-      if (token && navigator.sendBeacon) {
-        const blob = new Blob(
-          [JSON.stringify({ subway_line_id: parseInt(lineId) })],
-          { type: 'application/json' }
-        );
-
-        // sendBeacon은 헤더를 직접 설정할 수 없으므로, fetch keepalive 사용
-        fetch(leaveUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ subway_line_id: parseInt(lineId) }),
-          keepalive: true, // 페이지 이탈 후에도 요청 유지
-        }).catch(err => console.error('Failed to send leave message:', err));
       }
 
       leaveChatRoom(lineId);
@@ -334,15 +313,28 @@ function LinePage() {
     );
   }
 
+  const handleBackClick = async () => {
+    try {
+      // 퇴장 메시지 전송
+      await postAPI.createLeaveMessage(parseInt(lineId));
+      console.log('✅ Leave message sent successfully');
+    } catch (err) {
+      console.error('❌ Failed to send leave message:', err);
+    } finally {
+      // 항상 메인 화면으로 이동
+      navigate('/');
+    }
+  };
+
   return (
     <div className="chat-container">
       {/* 헤더 */}
       <header className="chat-header">
-        <Link to="/" className="chat-back-btn">
+        <button onClick={handleBackClick} className="chat-back-btn">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-        </Link>
+        </button>
 
         {lineInfo && (
           <>
