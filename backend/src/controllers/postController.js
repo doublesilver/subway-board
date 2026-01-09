@@ -1,5 +1,5 @@
 const pool = require('../db/connection');
-const { recordActivity, removeActivity } = require('../utils/activeUsers');
+const { recordActivity, removeActivity, broadcastNewMessage } = require('../utils/activeUsers');
 const { getOrCreateUser } = require('../utils/userHelper');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
@@ -80,7 +80,17 @@ const createPost = asyncHandler(async (req, res, next) => {
     [content, subway_line_id, user.id]
   );
 
-  res.status(201).json(result.rows[0]);
+  const newMessage = result.rows[0];
+
+  // WebSocket으로 새 메시지 브로드캐스트
+  const enrichedMessage = {
+    ...newMessage,
+    nickname: user.nickname,
+    anonymous_id: user.anonymous_id
+  };
+  broadcastNewMessage(subway_line_id, enrichedMessage);
+
+  res.status(201).json(newMessage);
 });
 
 const deletePost = asyncHandler(async (req, res, next) => {
@@ -136,7 +146,17 @@ const createJoinMessage = asyncHandler(async (req, res, next) => {
     [content, subway_line_id, user.id, 'system']
   );
 
-  res.status(201).json(result.rows[0]);
+  const newMessage = result.rows[0];
+
+  // WebSocket으로 입장 메시지 브로드캐스트
+  const enrichedMessage = {
+    ...newMessage,
+    nickname: user.nickname,
+    anonymous_id: user.anonymous_id
+  };
+  broadcastNewMessage(subway_line_id, enrichedMessage);
+
+  res.status(201).json(newMessage);
 });
 
 // 퇴장 메시지 생성
@@ -165,7 +185,17 @@ const createLeaveMessage = asyncHandler(async (req, res, next) => {
     [content, subway_line_id, user.id, 'system']
   );
 
-  res.status(201).json(result.rows[0]);
+  const newMessage = result.rows[0];
+
+  // WebSocket으로 퇴장 메시지 브로드캐스트
+  const enrichedMessage = {
+    ...newMessage,
+    nickname: user.nickname,
+    anonymous_id: user.anonymous_id
+  };
+  broadcastNewMessage(subway_line_id, enrichedMessage);
+
+  res.status(201).json(newMessage);
 });
 
 module.exports = {

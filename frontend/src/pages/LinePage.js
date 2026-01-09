@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { postAPI, subwayLineAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { enterChatRoom, leaveChatRoom, getCurrentLineUser } from '../utils/temporaryUser';
-import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate } from '../utils/socket';
+import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate, onNewMessage, offNewMessage } from '../utils/socket';
 
 // 호선 데이터 캐싱
 let cachedLines = null;
@@ -95,18 +95,9 @@ function LinePage() {
       // 입장 메시지 전송 후 메시지 목록 로드
       fetchLineInfo();
       fetchMessages();
-
-      // 3초마다 메시지 폴링 (참여자 수는 WebSocket으로 실시간 업데이트)
-      const interval = setInterval(() => {
-        if (!document.hidden) {
-          fetchMessages();
-        }
-      }, 3000);
-
-      return interval;
     };
 
-    const intervalId = initChat();
+    initChat();
 
     // WebSocket 활성 사용자 수 업데이트 리스너
     const handleActiveUsersUpdate = (data) => {
@@ -115,20 +106,47 @@ function LinePage() {
       }
     };
 
+    // WebSocket 새 메시지 수신 리스너
+    const handleNewMessage = (data) => {
+      if (data.lineId === parseInt(lineId)) {
+        console.log('[WebSocket] New message received:', data.message);
+
+        // 입장 시점 이후 메시지만 추가
+        const joinTime = sessionStorage.getItem(joinTimestampKey);
+        if (joinTime) {
+          const joinDate = new Date(joinTime);
+          const msgDate = new Date(data.message.created_at);
+
+          if (msgDate >= joinDate) {
+            setMessages(prev => {
+              // 중복 메시지 방지
+              if (prev.find(m => m.id === data.message.id)) {
+                return prev;
+              }
+              return [...prev, data.message];
+            });
+          }
+        } else {
+          // joinTime이 없으면 메시지 추가
+          setMessages(prev => {
+            if (prev.find(m => m.id === data.message.id)) {
+              return prev;
+            }
+            return [...prev, data.message];
+          });
+        }
+      }
+    };
+
     onActiveUsersUpdate(handleActiveUsersUpdate);
+    onNewMessage(handleNewMessage);
 
     // 채팅방 퇴장 - cleanup
     return () => {
-      // 폴링 중단
-      if (intervalId instanceof Promise) {
-        intervalId.then(clearInterval);
-      } else if (intervalId) {
-        clearInterval(intervalId);
-      }
-
       // WebSocket 퇴장
       leaveLine(parseInt(lineId));
       offActiveUsersUpdate(handleActiveUsersUpdate);
+      offNewMessage(handleNewMessage);
 
       leaveChatRoom(lineId);
       removeLineUser(lineId);
@@ -221,8 +239,7 @@ function LinePage() {
       setContent('');
       setReplyTo(null);
 
-      // 메시지 전송 후 즉시 목록 새로고침
-      await fetchMessages();
+      // WebSocket으로 자동 업데이트되므로 fetchMessages 불필요
 
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';

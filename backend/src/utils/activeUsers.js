@@ -151,6 +151,17 @@ function getAllActiveUserCounts() {
   return counts;
 }
 
+// 새 메시지를 특정 호선의 모든 사용자에게 브로드캐스트
+function broadcastNewMessage(lineId, message) {
+  if (global.io) {
+    global.io.to(`line_${lineId}`).emit('new_message', {
+      lineId,
+      message
+    });
+    console.log(`[WebSocket] New message broadcasted to line ${lineId}`);
+  }
+}
+
 // 레거시 함수들 (API 호출용 - 필요시 사용)
 function recordActivity(lineId, sessionId) {
   // WebSocket 방식으로 전환했으므로 사용하지 않음
@@ -168,5 +179,6 @@ module.exports = {
   removeActivity,
   getActiveUserCount,
   getAllActiveUserCounts,
-  broadcastActiveUsers
+  broadcastActiveUsers,
+  broadcastNewMessage
 };

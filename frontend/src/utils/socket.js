@@ -69,6 +69,12 @@ export const onLineUsersUpdate = (callback) => {
   sock.on('line_users_update', callback);
 };
 
+// 새 메시지 수신 리스너 등록
+export const onNewMessage = (callback) => {
+  const sock = getSocket();
+  sock.on('new_message', callback);
+};
+
 // 리스너 제거
 export const offActiveUsersUpdate = (callback) => {
   const sock = getSocket();
@@ -81,5 +87,12 @@ export const offLineUsersUpdate = (callback) => {
   const sock = getSocket();
   if (callback) {
     sock.off('line_users_update', callback);
+  }
+};
+
+export const offNewMessage = (callback) => {
+  const sock = getSocket();
+  if (callback) {
+    sock.off('new_message', callback);
   }
 };
