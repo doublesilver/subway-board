@@ -15,7 +15,31 @@ const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
 
-app.use(helmet());
+// 보안 헤더 강화
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", process.env.FRONTEND_URL || "http://localhost:3000"],
+      fontSrc: ["'self'", "https:", "data:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000, // 1년
+    includeSubDomains: true,
+    preload: true
+  },
+  referrerPolicy: { policy: 'same-origin' },
+  noSniff: true,
+  xssFilter: true,
+  hidePoweredBy: true
+}));
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -53,15 +77,26 @@ global.io = io;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// POST/DELETE 요청에만 Rate Limit 적용 (GET 조회는 제외)
+// POST/DELETE 요청 Rate Limit
 const writeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15분
   max: 50, // 15분에 50개 쓰기 요청
   message: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
-  skip: (req) => req.method === 'GET', // GET 요청은 제한 제외
+  skip: (req) => req.method === 'GET',
+});
+
+// GET 요청 Rate Limit (DDoS 방어)
+const readLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1분
+  max: 100, // 1분에 100회
+  message: '너무 많은 조회 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
+  skip: (req) => req.method !== 'GET',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.use('/api', writeLimiter);
+app.use('/api', readLimiter);
 
 app.use('/api', routes);
 

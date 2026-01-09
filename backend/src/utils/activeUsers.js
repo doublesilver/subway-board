@@ -9,37 +9,83 @@ const socketToLine = new Map();
 function handleSocketConnection(socket) {
   console.log(`[WebSocket] Client connected: ${socket.id}`);
 
+  // 연결 제한 (한 소켓당 최대 3개 방까지)
+  let roomCount = 0;
+
   // 채팅방 입장
   socket.on('join_line', (data) => {
-    const { lineId, sessionId } = data;
-    console.log(`[WebSocket] ${sessionId} joining line ${lineId}`);
+    try {
+      const { lineId, sessionId } = data;
 
-    // 이전 방에서 나가기
-    const previousLine = socketToLine.get(socket.id);
-    if (previousLine) {
-      leaveRoom(socket, previousLine);
+      // 입력 검증
+      if (!lineId || !sessionId) {
+        socket.emit('error', { message: '잘못된 요청입니다.' });
+        return;
+      }
+
+      const parsedLineId = parseInt(lineId);
+      if (isNaN(parsedLineId) || parsedLineId < 1 || parsedLineId > 9) {
+        socket.emit('error', { message: '유효하지 않은 호선입니다.' });
+        return;
+      }
+
+      // 방 개수 제한
+      if (roomCount >= 3) {
+        socket.emit('error', { message: '동시에 3개 이상의 채팅방에 참여할 수 없습니다.' });
+        return;
+      }
+
+      console.log(`[WebSocket] ${sessionId} joining line ${parsedLineId}`);
+
+      // 이전 방에서 나가기
+      const previousLine = socketToLine.get(socket.id);
+      if (previousLine) {
+        leaveRoom(socket, previousLine);
+        roomCount--;
+      }
+
+      // 새 방 입장
+      socket.join(`line_${parsedLineId}`);
+      socketToLine.set(socket.id, parsedLineId);
+      roomCount++;
+
+      // 활성 사용자 추가
+      if (!activeUsers.has(parsedLineId)) {
+        activeUsers.set(parsedLineId, new Set());
+      }
+      activeUsers.get(parsedLineId).add(socket.id);
+
+      // 해당 호선의 모든 사용자에게 업데이트 브로드캐스트
+      broadcastActiveUsers(parsedLineId);
+
+      console.log(`[WebSocket] Line ${parsedLineId} now has ${activeUsers.get(parsedLineId).size} users`);
+    } catch (error) {
+      console.error('[WebSocket] join_line error:', error);
+      socket.emit('error', { message: '채팅방 입장에 실패했습니다.' });
     }
-
-    // 새 방 입장
-    socket.join(`line_${lineId}`);
-    socketToLine.set(socket.id, lineId);
-
-    // 활성 사용자 추가
-    if (!activeUsers.has(lineId)) {
-      activeUsers.set(lineId, new Set());
-    }
-    activeUsers.get(lineId).add(socket.id);
-
-    // 해당 호선의 모든 사용자에게 업데이트 브로드캐스트
-    broadcastActiveUsers(lineId);
-
-    console.log(`[WebSocket] Line ${lineId} now has ${activeUsers.get(lineId).size} users`);
   });
 
   // 채팅방 퇴장
   socket.on('leave_line', (data) => {
-    const { lineId } = data;
-    leaveRoom(socket, lineId);
+    try {
+      const { lineId } = data;
+
+      if (!lineId) {
+        socket.emit('error', { message: '잘못된 요청입니다.' });
+        return;
+      }
+
+      const parsedLineId = parseInt(lineId);
+      if (isNaN(parsedLineId) || parsedLineId < 1 || parsedLineId > 9) {
+        socket.emit('error', { message: '유효하지 않은 호선입니다.' });
+        return;
+      }
+
+      leaveRoom(socket, parsedLineId);
+      roomCount = Math.max(0, roomCount - 1);
+    } catch (error) {
+      console.error('[WebSocket] leave_line error:', error);
+    }
   });
 
   // 연결 해제
