@@ -7,9 +7,10 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: DATABASE.POOL_MAX,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 30000, // Increased from 2s to 30s for cloud databases
-  statement_timeout: 30000, // Query timeout
-  query_timeout: 30000, // Additional query timeout
+  connectionTimeoutMillis: 60000, // Increased to 60s for Railway migrations
+  statement_timeout: 60000, // Query timeout
+  query_timeout: 60000, // Additional query timeout
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
 });
 
 pool.on('error', (err) => {
