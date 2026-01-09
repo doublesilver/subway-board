@@ -104,7 +104,7 @@ function LinePage() {
 
     const intervalId = initChat();
 
-    // 채팅방 퇴장 - cleanup 및 퇴장 메시지 전송
+    // 채팅방 퇴장 - cleanup
     return () => {
       // 폴링 중단
       if (intervalId instanceof Promise) {
@@ -113,16 +113,27 @@ function LinePage() {
         clearInterval(intervalId);
       }
 
-      // 퇴장 메시지 전송
-      const sendLeaveMessage = async () => {
-        try {
-          await postAPI.createLeaveMessage(parseInt(lineId));
-        } catch (err) {
-          console.error('Failed to send leave message:', err);
-        }
-      };
+      // 퇴장 메시지 전송 (sendBeacon 사용으로 페이지 이탈 시에도 전송 보장)
+      const leaveUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/posts/leave`;
+      const token = localStorage.getItem('token');
 
-      sendLeaveMessage();
+      if (token && navigator.sendBeacon) {
+        const blob = new Blob(
+          [JSON.stringify({ subway_line_id: parseInt(lineId) })],
+          { type: 'application/json' }
+        );
+
+        // sendBeacon은 헤더를 직접 설정할 수 없으므로, fetch keepalive 사용
+        fetch(leaveUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ subway_line_id: parseInt(lineId) }),
+          keepalive: true, // 페이지 이탈 후에도 요청 유지
+        }).catch(err => console.error('Failed to send leave message:', err));
+      }
 
       leaveChatRoom(lineId);
       removeLineUser(lineId);
