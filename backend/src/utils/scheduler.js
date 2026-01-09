@@ -25,8 +25,12 @@ const deleteOldData = async () => {
 };
 
 const startScheduler = () => {
-  cron.schedule('0 0 * * *', deleteOldData);
-  console.log('Daily cleanup scheduler started (runs at midnight)');
+  // 매일 오전 9시 (Asia/Seoul 기준)에 실행
+  cron.schedule('0 9 * * *', deleteOldData, {
+    scheduled: true,
+    timezone: "Asia/Seoul"
+  });
+  console.log('Daily cleanup scheduler started (runs at 09:00 KST)');
 };
 
 module.exports = {

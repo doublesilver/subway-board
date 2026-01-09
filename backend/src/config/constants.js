@@ -42,6 +42,12 @@ const SECURITY = {
   HSTS_MAX_AGE: 31536000, // 1년 (보안상 하드코딩 권장)
 };
 
+// 운영 시간 설정 (07:00 ~ 09:00)
+const OPERATING_HOURS = {
+  START: 7,
+  END: 9,
+};
+
 module.exports = {
   RATE_LIMIT,
   DATABASE,
@@ -50,4 +56,5 @@ module.exports = {
   CONTENT,
   SUBWAY_LINE,
   SECURITY,
+  OPERATING_HOURS,
 };
