@@ -91,10 +91,11 @@ function LinePage() {
       fetchLineInfo();
       fetchMessages();
 
-      // 3초마다 메시지 폴링
+      // 3초마다 메시지 및 참여자 수 폴링
       const interval = setInterval(() => {
         if (!document.hidden) {
           fetchMessages();
+          fetchLineInfo();
         }
       }, 3000);
 
@@ -155,15 +156,10 @@ function LinePage() {
 
   const fetchLineInfo = async () => {
     try {
-      if (cachedLines) {
-        const line = cachedLines.find((l) => l.id === parseInt(lineId));
-        setLineInfo(line);
-      } else {
-        const response = await subwayLineAPI.getAll();
-        cachedLines = response.data;
-        const line = response.data.find((l) => l.id === parseInt(lineId));
-        setLineInfo(line);
-      }
+      // 항상 최신 데이터 가져오기 (참여자 수 업데이트)
+      const response = await subwayLineAPI.getAll();
+      const line = response.data.find((l) => l.id === parseInt(lineId));
+      setLineInfo(line);
     } catch (err) {
       console.error(err);
     }
