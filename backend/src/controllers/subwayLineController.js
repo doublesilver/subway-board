@@ -6,10 +6,6 @@ const getAllLines = async (req, res) => {
   const startTime = Date.now();
 
   try {
-    // 홈 화면 활동 기록
-    const sessionId = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    recordActivity('home', sessionId);
-
     // Use retry logic for better reliability
     const result = await queryWithRetry(
       'SELECT * FROM subway_lines ORDER BY id'

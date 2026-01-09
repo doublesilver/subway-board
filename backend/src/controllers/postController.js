@@ -8,9 +8,11 @@ const getPostsByLine = asyncHandler(async (req, res) => {
   const { lineId } = req.params;
   const { page = 1, limit = 20 } = req.query;
 
-  // 세션 ID 생성 또는 가져오기 (IP + User-Agent 기반)
-  const sessionId = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  recordActivity(lineId, sessionId);
+  // 프론트엔드에서 전달한 세션 ID 사용
+  const sessionId = req.headers['x-anonymous-id'];
+  if (sessionId) {
+    recordActivity(lineId, sessionId);
+  }
 
   const offset = (page - 1) * limit;
 
@@ -147,9 +149,11 @@ const createLeaveMessage = asyncHandler(async (req, res, next) => {
 
   const user = await getOrCreateUser(req.user);
 
-  // 세션 ID 기반으로 활성 사용자에서 제거
-  const sessionId = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  removeActivity(subway_line_id, sessionId);
+  // 프론트엔드에서 전달한 세션 ID 사용
+  const sessionId = req.headers['x-anonymous-id'];
+  if (sessionId) {
+    removeActivity(subway_line_id, sessionId);
+  }
 
   // 퇴장 시스템 메시지 생성
   const content = `${user.nickname} 님이 나갔어요`;
