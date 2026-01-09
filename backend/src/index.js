@@ -2,10 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const globalErrorHandler = require('./middleware/errorMiddleware');
 const AppError = require('./utils/AppError');
+const logger = require('./utils/logger');
 require('dotenv').config();
 
 const routes = require('./routes');
@@ -48,15 +50,15 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-console.log('Allowed CORS origins:', allowedOrigins);
+logger.info('Allowed CORS origins:', { origins: allowedOrigins });
 
 app.use(cors({
   origin: function (origin, callback) {
-    console.log('CORS request from origin:', origin);
+    logger.http('CORS request from origin:', { origin });
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.log('CORS blocked for origin:', origin);
+      logger.warn('CORS blocked for origin:', { origin });
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -77,6 +79,9 @@ global.io = io;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// HTTP 요청 로깅
+app.use(morgan('combined', { stream: logger.stream }));
 
 // POST/DELETE 요청 Rate Limit
 const writeLimiter = rateLimit({
@@ -134,7 +139,7 @@ app.get('/health', async (req, res) => {
     health.status = 'DEGRADED';
     health.database = 'disconnected';
     health.dbError = error.message;
-    console.error('Health check database error:', error);
+    logger.error('Health check database error:', { error: error.message, stack: error.stack });
   }
 
   const statusCode = health.status === 'OK' ? 200 : 503;
@@ -154,7 +159,7 @@ const { handleSocketConnection } = require('./utils/activeUsers');
 io.on('connection', handleSocketConnection);
 
 httpServer.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`WebSocket server is ready`);
+  logger.info(`Server is running on port ${PORT}`);
+  logger.info('WebSocket server is ready');
   startScheduler();
 });

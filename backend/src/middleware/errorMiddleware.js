@@ -1,5 +1,6 @@
 const AppError = require('../utils/AppError');
 const { ErrorCodes } = require('../utils/errorCodes');
+const logger = require('../utils/logger');
 
 const globalErrorHandler = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
@@ -28,9 +29,20 @@ const globalErrorHandler = (err, req, res, next) => {
     } else {
         // 프로덕션: trusted error vs unknown error
         if (err.isOperational) {
+            // 운영 가능한 에러는 info 레벨로 로깅
+            logger.info('Operational error', {
+                code: err.errorCode,
+                message: err.message,
+                statusCode: err.statusCode
+            });
             res.status(err.statusCode).json(errorResponse);
         } else {
-            console.error('ERROR 💥', err);
+            // 예상치 못한 에러는 error 레벨로 로깅
+            logger.error('Unexpected error', {
+                error: err.message,
+                stack: err.stack,
+                statusCode: err.statusCode
+            });
             res.status(500).json({
                 status: 'error',
                 error: {

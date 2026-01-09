@@ -1,5 +1,6 @@
 const { WEBSOCKET, SUBWAY_LINE } = require('../config/constants');
 const { ErrorCodes } = require('./errorCodes');
+const logger = require('./logger');
 
 // 각 호선별 활성 사용자 추적 (WebSocket 기반)
 // Map<lineId, Set<socketId>>
@@ -10,7 +11,7 @@ const socketToLine = new Map();
 
 // Socket.io 연결 핸들러
 function handleSocketConnection(socket) {
-  console.log(`[WebSocket] Client connected: ${socket.id}`);
+  logger.info('WebSocket client connected', { socketId: socket.id });
 
   // 연결 제한 (한 소켓당 최대 3개 방까지)
   let roomCount = 0;
@@ -47,7 +48,7 @@ function handleSocketConnection(socket) {
         return;
       }
 
-      console.log(`[WebSocket] ${sessionId} joining line ${parsedLineId}`);
+      logger.debug('User joining line', { sessionId, lineId: parsedLineId, socketId: socket.id });
 
       // 이전 방에서 나가기
       const previousLine = socketToLine.get(socket.id);
@@ -70,9 +71,12 @@ function handleSocketConnection(socket) {
       // 해당 호선의 모든 사용자에게 업데이트 브로드캐스트
       broadcastActiveUsers(parsedLineId);
 
-      console.log(`[WebSocket] Line ${parsedLineId} now has ${activeUsers.get(parsedLineId).size} users`);
+      logger.debug('Line user count updated', {
+        lineId: parsedLineId,
+        userCount: activeUsers.get(parsedLineId).size
+      });
     } catch (error) {
-      console.error('[WebSocket] join_line error:', error);
+      logger.error('WebSocket join_line error', { error: error.message, stack: error.stack });
       socket.emit('error', {
         code: ErrorCodes.WS_JOIN_FAILED,
         message: '채팅방 입장에 실패했습니다.'
@@ -105,13 +109,13 @@ function handleSocketConnection(socket) {
       leaveRoom(socket, parsedLineId);
       roomCount = Math.max(0, roomCount - 1);
     } catch (error) {
-      console.error('[WebSocket] leave_line error:', error);
+      logger.error('WebSocket leave_line error', { error: error.message, stack: error.stack });
     }
   });
 
   // 연결 해제
   socket.on('disconnect', () => {
-    console.log(`[WebSocket] Client disconnected: ${socket.id}`);
+    logger.info('WebSocket client disconnected', { socketId: socket.id });
     const lineId = socketToLine.get(socket.id);
     if (lineId) {
       leaveRoom(socket, lineId);
@@ -132,7 +136,10 @@ function leaveRoom(socket, lineId) {
     }
 
     broadcastActiveUsers(lineId);
-    console.log(`[WebSocket] Line ${lineId} now has ${activeUsers.get(lineId)?.size || 0} users`);
+    logger.debug('Line user count updated after leave', {
+      lineId,
+      userCount: activeUsers.get(lineId)?.size || 0
+    });
   }
 }
 
@@ -179,19 +186,19 @@ function broadcastNewMessage(lineId, message) {
       lineId,
       message
     });
-    console.log(`[WebSocket] New message broadcasted to line ${lineId}`);
+    logger.debug('New message broadcasted', { lineId, messageId: message.id });
   }
 }
 
 // 레거시 함수들 (API 호출용 - 필요시 사용)
 function recordActivity(lineId, sessionId) {
   // WebSocket 방식으로 전환했으므로 사용하지 않음
-  console.log(`[Legacy] recordActivity called for line ${lineId}`);
+  logger.debug('Legacy recordActivity called', { lineId, sessionId });
 }
 
 function removeActivity(lineId, sessionId) {
   // WebSocket 방식으로 전환했으므로 사용하지 않음
-  console.log(`[Legacy] removeActivity called for line ${lineId}`);
+  logger.debug('Legacy removeActivity called', { lineId, sessionId });
 }
 
 module.exports = {

@@ -15,6 +15,9 @@ frontend/.env
 # Build output
 dist/
 build/
+
+# Logs
+logs/
 *.log
 
 # IDE
