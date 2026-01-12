@@ -7,6 +7,7 @@ import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate, onNewMe
 import { useToast } from '../hooks/useToast';
 import Toast from '../components/Toast';
 import { checkIsOperatingHours } from '../utils/operatingHours';
+import ClosedAlertModal from '../components/ClosedAlertModal';
 
 // 호선 데이터 캐싱
 let cachedLines = null;
@@ -438,16 +439,8 @@ function LinePage() {
         )}
       </header>
 
-      {/* 운영 시간 안내 배너 */}
-      {!isOperatingHours && (
-        <div className="operating-hours-banner">
-          <div className="banner-icon">🌙</div>
-          <div className="banner-text">
-            <strong>지금은 운영 시간이 아니에요</strong>
-            <span>운영 시간: 오전 7시 ~ 오전 9시</span>
-          </div>
-        </div>
-      )}
+      {/* 운영 시간 안내 모달 */}
+      {!isOperatingHours && <ClosedAlertModal />}
 
       {/* 메시지 영역 */}
       <div
