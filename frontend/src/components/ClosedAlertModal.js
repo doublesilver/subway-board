@@ -1,9 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getDailyTrivia } from '../utils/trivia';
 
 const ClosedAlertModal = () => {
     const [showAnswer, setShowAnswer] = useState(false);
     const trivia = getDailyTrivia();
+
+    // 모달이 열릴 때 body 스크롤 막기
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
 
     // 다음 운영 시간 계산 (평일 07:00 ~ 09:00)
     const getNextOperatingTime = () => {
