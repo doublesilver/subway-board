@@ -78,17 +78,26 @@ function LinePage() {
 
     // 입장 시간 기록 (이 시점 이후 메시지만 로드)
     const joinTimestampKey = `line_${lineId}_join_time`;
+    const hasJoinedKey = `line_${lineId}_has_joined`;
 
     const initChat = async () => {
+      // 이미 입장한 적이 있는지 확인 (새로고침 구분)
+      const hasJoined = sessionStorage.getItem(hasJoinedKey);
+      const isFirstJoin = !hasJoined;
+
       // 입장 시간 저장
       const joinTime = new Date().toISOString();
       sessionStorage.setItem(joinTimestampKey, joinTime);
 
-      // 입장 메시지 전송 (다른 사람들에게 보임)
-      try {
-        await postAPI.createJoinMessage(parseInt(lineId));
-      } catch (error) {
-        console.error('Failed to send join message:', error);
+      // 처음 입장할 때만 입장 메시지 전송
+      if (isFirstJoin) {
+        sessionStorage.setItem(hasJoinedKey, 'true');
+
+        try {
+          await postAPI.createJoinMessage(parseInt(lineId));
+        } catch (error) {
+          console.error('Failed to send join message:', error);
+        }
       }
 
       // 메시지 목록 로드
@@ -144,6 +153,9 @@ function LinePage() {
 
     // 페이지 이탈 시 퇴장 메시지 전송 (새로고침, 탭 닫기)
     const handleBeforeUnload = (e) => {
+      // 입장 플래그 제거 (다음 입장 시 입장 메시지 보내도록)
+      sessionStorage.removeItem(hasJoinedKey);
+
       // sendBeacon으로 페이지 종료 시에도 전송 보장
       const url = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/posts/leave`;
       const data = JSON.stringify({ subway_line_id: parseInt(lineId) });
@@ -177,6 +189,7 @@ function LinePage() {
       leaveChatRoom(lineId);
       removeLineUser(lineId);
       sessionStorage.removeItem(joinTimestampKey);
+      sessionStorage.removeItem(hasJoinedKey);
 
       // Note: 퇴장 메시지는 handleBackClick에서 명시적으로 전송됨
     };
