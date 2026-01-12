@@ -241,19 +241,26 @@ function LinePage() {
 
       const response = await postAPI.getByLine(lineId, 1, 100);
 
-      // 입장 시점 이후 메시지만 필터링
+      // 입장 시점 이후 메시지만 필터링 (첫 입장 시에만)
       const joinTimestampKey = `line_${lineId}_join_time`;
+      const hasJoinedKey = `line_${lineId}_has_joined`;
       const joinTime = sessionStorage.getItem(joinTimestampKey);
+      const hasJoined = sessionStorage.getItem(hasJoinedKey);
 
-      if (joinTime) {
+      // 새로고침인 경우 (hasJoined가 있음) - 모든 메시지 표시
+      // 첫 입장인 경우 - joinTime 이후 메시지만 표시
+      if (hasJoined && joinTime) {
+        // 새로고침: 기존 대화 내용 유지를 위해 모든 메시지 표시하되,
+        // joinTime 이전 메시지는 제외 (입장 전 메시지는 안 보이게)
         const joinDate = new Date(joinTime);
         const filteredMessages = response.data.posts.filter(msg => {
           const msgDate = new Date(msg.created_at);
           return msgDate >= joinDate;
         });
         setMessages(filteredMessages);
+        console.log('🔄 [fetchMessages] 새로고침 - 입장 이후 모든 메시지 표시:', filteredMessages.length);
       } else {
-        // joinTime이 없으면 모든 메시지 표시 (재입장 케이스)
+        // 처음 입장 또는 joinTime 없음 - 모든 메시지 표시
         setMessages(response.data.posts);
       }
     } catch (err) {
