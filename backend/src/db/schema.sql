@@ -25,11 +25,22 @@ CREATE TABLE IF NOT EXISTS comments (
   deleted_at TIMESTAMP DEFAULT NULL
 );
 
+-- 피드백 테이블
+CREATE TABLE IF NOT EXISTS feedback (
+  id SERIAL PRIMARY KEY,
+  content TEXT NOT NULL,
+  user_session_id VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  ip_address VARCHAR(45),
+  user_agent TEXT
+);
+
 -- 인덱스 생성
 CREATE INDEX IF NOT EXISTS idx_posts_subway_line ON posts(subway_line_id);
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at);
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
 CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at);
+CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at DESC);
 
 -- 서울 지하철 호선 데이터 삽입 (1-9호선만)
 INSERT INTO subway_lines (line_number, line_name, color) VALUES
