@@ -91,6 +91,7 @@ function LinePage() {
 
       // 처음 입장할 때만 입장 메시지 전송
       if (isFirstJoin) {
+        console.log('✅ [LinePage] 첫 입장 - 입장 메시지 전송');
         sessionStorage.setItem(hasJoinedKey, 'true');
 
         try {
@@ -98,6 +99,8 @@ function LinePage() {
         } catch (error) {
           console.error('Failed to send join message:', error);
         }
+      } else {
+        console.log('🔄 [LinePage] 새로고침 감지 - 입장 메시지 스킵');
       }
 
       // 메시지 목록 로드
