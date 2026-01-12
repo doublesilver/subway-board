@@ -6,6 +6,7 @@ const subwayLineController = require('../controllers/subwayLineController');
 const postController = require('../controllers/postController');
 const commentController = require('../controllers/commentController');
 const authController = require('../controllers/authController');
+const feedbackController = require('../controllers/feedbackController');
 const { validatePost, validateComment } = require('../middleware/validator');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -46,5 +47,9 @@ router.delete('/posts/:postId', authMiddleware, postController.deletePost);
 router.get('/posts/:postId/comments', commentController.getCommentsByPost);
 router.post('/posts/:postId/comments', authMiddleware, validateComment, commentController.createComment);
 router.delete('/comments/:commentId', authMiddleware, commentController.deleteComment);
+
+// Feedback routes
+router.post('/feedback', authMiddleware, feedbackController.submitFeedback);
+router.get('/admin/feedback', feedbackController.getAllFeedback);
 
 module.exports = router;

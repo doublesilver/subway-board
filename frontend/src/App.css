@@ -1928,3 +1928,281 @@ body {
   margin: 0;
   line-height: 1.6;
 }
+
+/* ========================================
+   📝 Feedback Button & Modal Styles
+   ======================================== */
+
+/* Header buttons wrapper */
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Feedback button (icon style matching share button) */
+.feedback-button-icon {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.feedback-button-icon:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 6px 24px rgba(168, 85, 247, 0.2);
+  transform: translateY(-2px);
+}
+
+.feedback-button-icon:active {
+  transform: scale(0.95);
+}
+
+.feedback-button-icon svg {
+  color: #6366f1;
+  transition: color 0.3s ease;
+}
+
+.feedback-button-icon:hover svg {
+  color: #a855f7;
+}
+
+/* Feedback modal overlay */
+.feedback-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Feedback modal */
+.feedback-modal {
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 100%;
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Feedback modal header */
+.feedback-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.feedback-modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.feedback-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.feedback-modal-close:hover {
+  background: #f3f4f6;
+  color: var(--text-primary);
+}
+
+.feedback-modal-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Feedback modal body */
+.feedback-modal-body {
+  padding: 24px;
+}
+
+.feedback-modal-description {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Feedback textarea */
+.feedback-textarea {
+  width: 100%;
+  min-height: 150px;
+  max-height: 300px;
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  color: var(--text-primary);
+  resize: vertical;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+}
+
+.feedback-textarea:focus {
+  outline: none;
+  border-color: #a855f7;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
+}
+
+.feedback-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.feedback-textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Character count */
+.feedback-char-count {
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+}
+
+/* Error message */
+.feedback-error {
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #fee2e2;
+  border-radius: 8px;
+  border-left: 3px solid #ef4444;
+}
+
+/* Feedback modal footer */
+.feedback-modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Feedback buttons */
+.feedback-button {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Pretendard', -apple-system, sans-serif;
+}
+
+.feedback-button-cancel {
+  background: white;
+  color: var(--text-secondary);
+  border: 1px solid #e5e7eb;
+}
+
+.feedback-button-cancel:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.feedback-button-submit {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3);
+}
+
+.feedback-button-submit:hover:not(:disabled) {
+  box-shadow: 0 6px 24px rgba(168, 85, 247, 0.4);
+  transform: translateY(-2px);
+}
+
+.feedback-button-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.feedback-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .feedback-modal {
+    max-width: calc(100vw - 32px);
+    margin: 0 16px;
+  }
+
+  .feedback-modal-header {
+    padding: 16px 20px;
+  }
+
+  .feedback-modal-body {
+    padding: 20px;
+  }
+
+  .feedback-modal-footer {
+    padding: 12px 20px;
+  }
+
+  .feedback-textarea {
+    min-height: 120px;
+  }
+}

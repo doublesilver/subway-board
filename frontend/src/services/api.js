@@ -74,4 +74,9 @@ export const commentAPI = {
   delete: (commentId) => api.delete(`/api/comments/${commentId}`),
 };
 
+export const feedbackAPI = {
+  submit: (content) => api.post('/api/feedback', { content }),
+  getAll: (limit, offset) => api.get('/api/admin/feedback', { params: { limit, offset } }),
+};
+
 export default api;
