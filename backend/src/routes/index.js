@@ -8,7 +8,6 @@ const commentController = require('../controllers/commentController');
 const authController = require('../controllers/authController');
 const { validatePost, validateComment } = require('../middleware/validator');
 const authMiddleware = require('../middleware/authMiddleware');
-const checkOperatingHours = require('../middleware/checkOperatingHours');
 
 // 특수 호선 삭제 (1회성 정리용)
 router.post('/admin/cleanup-lines', async (req, res) => {
@@ -39,13 +38,13 @@ router.get('/subway-lines', subwayLineController.getAllLines);
 
 router.get('/posts/line/:lineId', postController.getPostsByLine);
 router.get('/posts/:postId', postController.getPostById);
-router.post('/posts', authMiddleware, checkOperatingHours, validatePost, postController.createPost);
-router.post('/posts/join', authMiddleware, checkOperatingHours, postController.createJoinMessage);
-router.post('/posts/leave', authMiddleware, postController.createLeaveMessage); // 퇴장은 운영 시간 외에도 가능하게 할지? -> 일반적으로 퇴장은 가능해야 함, or 운영 종료 시 자동 퇴장? -> 일단 제한 둠
-router.delete('/posts/:postId', authMiddleware, checkOperatingHours, postController.deletePost);
+router.post('/posts', authMiddleware, validatePost, postController.createPost);
+router.post('/posts/join', authMiddleware, postController.createJoinMessage);
+router.post('/posts/leave', authMiddleware, postController.createLeaveMessage);
+router.delete('/posts/:postId', authMiddleware, postController.deletePost);
 
 router.get('/posts/:postId/comments', commentController.getCommentsByPost);
-router.post('/posts/:postId/comments', authMiddleware, checkOperatingHours, validateComment, commentController.createComment);
+router.post('/posts/:postId/comments', authMiddleware, validateComment, commentController.createComment);
 router.delete('/comments/:commentId', authMiddleware, commentController.deleteComment);
 
 module.exports = router;
