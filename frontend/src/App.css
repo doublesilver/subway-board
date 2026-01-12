@@ -1886,30 +1886,17 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-/* 퀴즈 카드 */
+/* 오늘의 상식 카드 */
 .trivia-card {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
   border: 1px solid rgba(99, 102, 241, 0.2);
   border-radius: 16px;
   padding: 16px;
   margin: 0 0 20px;
-  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.trivia-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
-}
-
-.trivia-card:active {
-  transform: translateY(0);
-}
-
 .trivia-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 12px;
 }
 
@@ -1920,54 +1907,24 @@ body {
   background: rgba(99, 102, 241, 0.15);
   padding: 4px 10px;
   border-radius: 12px;
-}
-
-.trivia-hint {
-  font-size: 11px;
-  color: var(--text-tertiary);
-  font-weight: 500;
+  display: inline-block;
 }
 
 .trivia-content {
   text-align: left;
 }
 
-.trivia-question {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 1.5;
-}
-
-.trivia-answer-box {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(99, 102, 241, 0.2);
-  animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.trivia-answer {
-  font-size: 14px;
+.trivia-title {
+  font-size: 15px;
   font-weight: 700;
-  color: #6366f1;
+  color: var(--text-primary);
   margin: 0 0 8px;
+  line-height: 1.4;
 }
 
-.trivia-explanation {
+.trivia-text {
   font-size: 13px;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.6;
 }
