@@ -6,8 +6,6 @@ import { enterChatRoom, leaveChatRoom, getCurrentLineUser } from '../utils/tempo
 import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate, onNewMessage, offNewMessage } from '../utils/socket';
 import { useToast } from '../hooks/useToast';
 import Toast from '../components/Toast';
-import { checkIsOperatingHours } from '../utils/operatingHours';
-import ClosedAlertModal from '../components/ClosedAlertModal';
 
 // 호선 데이터 캐싱
 let cachedLines = null;
@@ -59,7 +57,6 @@ function LinePage() {
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [isOperatingHours, setIsOperatingHours] = useState(true); // 운영 시간 상태
   const [replyTo, setReplyTo] = useState(null);
   const [swipedMessageId, setSwipedMessageId] = useState(null);
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
@@ -151,29 +148,8 @@ function LinePage() {
     };
   }, [lineId]);
 
-  // 운영 시간 체크 로직
-  useEffect(() => {
-    const checkTime = () => {
-      const isOpen = checkIsOperatingHours();
-
-      // 운영 시간이 종료되었을 때 (Open -> Closed)
-      if (isOperatingHours && !isOpen) {
-        showError('운영 시간이 종료되었습니다. 30초 뒤 홈으로 이동합니다.');
-
-        // 30초 후 홈으로 이동
-        setTimeout(() => {
-          navigate('/');
-        }, 30000);
-      }
-
-      setIsOperatingHours(isOpen);
-    };
-
-    checkTime();
-    // 1초마다 체크 (정각에 바로 닫히도록)
-    const interval = setInterval(checkTime, 1000);
-    return () => clearInterval(interval);
-  }, [isOperatingHours, navigate, showError]);
+  // LinePage에서는 운영 시간 체크를 하지 않음
+  // HomePage에서 이미 모달로 차단하므로, 채팅방 안에서는 자유롭게 사용 가능
 
   const scrollToBottom = (smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
@@ -413,8 +389,6 @@ function LinePage() {
         )}
       </header>
 
-      {/* 운영 시간 안내 모달 */}
-      {!isOperatingHours && <ClosedAlertModal />}
 
       {/* 메시지 영역 */}
       <div
@@ -575,9 +549,9 @@ function LinePage() {
             ref={textareaRef}
             value={content}
             onChange={handleTextareaChange}
-            placeholder={isOperatingHours ? "메시지 보내기" : "운영 시간이 아닙니다 (07:00 ~ 09:00)"}
+            placeholder="메시지 보내기"
             maxLength={1000}
-            disabled={submitting || !isOperatingHours}
+            disabled={submitting}
             className="composer-input"
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -591,7 +565,7 @@ function LinePage() {
           <button
             type="submit"
             className={`composer-send ${content.trim() ? 'active' : ''}`}
-            disabled={submitting || !content.trim() || !isOperatingHours}
+            disabled={submitting || !content.trim()}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
