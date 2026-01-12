@@ -127,6 +127,8 @@ function LinePage() {
           console.log('[WebSocket] New message received:', data.message);
         }
 
+        const messagesKey = `line_${lineId}_messages`;
+
         // 입장 시점 이후 메시지만 추가
         const joinTime = sessionStorage.getItem(joinTimestampKey);
         if (joinTime) {
@@ -139,7 +141,12 @@ function LinePage() {
               if (prev.find(m => m.id === data.message.id)) {
                 return prev;
               }
-              return [...prev, data.message];
+              const newMessages = [...prev, data.message];
+
+              // sessionStorage 업데이트
+              sessionStorage.setItem(messagesKey, JSON.stringify(newMessages));
+
+              return newMessages;
             });
           }
         } else {
@@ -148,7 +155,12 @@ function LinePage() {
             if (prev.find(m => m.id === data.message.id)) {
               return prev;
             }
-            return [...prev, data.message];
+            const newMessages = [...prev, data.message];
+
+            // sessionStorage 업데이트
+            sessionStorage.setItem(messagesKey, JSON.stringify(newMessages));
+
+            return newMessages;
           });
         }
       }
@@ -192,8 +204,12 @@ function LinePage() {
 
       leaveChatRoom(lineId);
       removeLineUser(lineId);
+
+      // sessionStorage 정리
+      const messagesKey = `line_${lineId}_messages`;
       sessionStorage.removeItem(joinTimestampKey);
       sessionStorage.removeItem(hasJoinedKey);
+      sessionStorage.removeItem(messagesKey);
 
       // Note: 퇴장 메시지는 handleBackClick에서 명시적으로 전송됨
     };
@@ -243,40 +259,47 @@ function LinePage() {
         setLoading(true);
       }
 
+      const messagesKey = `line_${lineId}_messages`;
+
+      // 새로고침인 경우: sessionStorage에서 메시지 복원
+      if (!isFirstJoin) {
+        const cachedMessages = sessionStorage.getItem(messagesKey);
+        if (cachedMessages) {
+          try {
+            const parsedMessages = JSON.parse(cachedMessages);
+            setMessages(parsedMessages);
+            console.log(`🔄 [fetchMessages] 새로고침 - sessionStorage에서 ${parsedMessages.length}개 메시지 복원`);
+            return;
+          } catch (e) {
+            console.error('Failed to parse cached messages:', e);
+          }
+        }
+      }
+
+      // 첫 입장: 서버에서 메시지 가져오기
       const response = await postAPI.getByLine(lineId, 1, 100);
-      const totalMessages = response.data.posts.length;
+      const serverMessages = response.data.posts;
 
       // 입장 시점 이후 메시지만 필터링
       const joinTimestampKey = `line_${lineId}_join_time`;
       const joinTime = sessionStorage.getItem(joinTimestampKey);
 
-      console.log(`📥 [fetchMessages] 서버에서 가져온 메시지: ${totalMessages}개, joinTime: ${joinTime}`);
+      let filteredMessages = serverMessages;
 
-      if (isFirstJoin && joinTime) {
-        // 첫 입장: joinTime 이후 메시지만 표시 (입장 전 메시지 숨김)
+      if (joinTime) {
         const joinDate = new Date(joinTime);
-        const filteredMessages = response.data.posts.filter(msg => {
+        filteredMessages = serverMessages.filter(msg => {
           const msgDate = new Date(msg.created_at);
           return msgDate >= joinDate;
         });
-        setMessages(filteredMessages);
-        console.log(`✅ [fetchMessages] 첫 입장 - ${totalMessages}개 중 ${filteredMessages.length}개 표시`);
-      } else if (joinTime) {
-        // 새로고침: joinTime 이후 모든 메시지 표시 (이전 대화 유지)
-        const joinDate = new Date(joinTime);
-        const filteredMessages = response.data.posts.filter(msg => {
-          const msgDate = new Date(msg.created_at);
-          const isAfterJoin = msgDate >= joinDate;
-          console.log(`  - 메시지 ${msg.id}: ${msg.created_at} ${isAfterJoin ? '✓' : '✗'}`);
-          return isAfterJoin;
-        });
-        setMessages(filteredMessages);
-        console.log(`🔄 [fetchMessages] 새로고침 - ${totalMessages}개 중 ${filteredMessages.length}개 표시`);
-      } else {
-        // joinTime 없음 - 모든 메시지 표시
-        setMessages(response.data.posts);
-        console.log(`⚠️ [fetchMessages] joinTime 없음 - 모든 ${totalMessages}개 메시지 표시`);
       }
+
+      setMessages(filteredMessages);
+
+      // sessionStorage에 저장
+      sessionStorage.setItem(messagesKey, JSON.stringify(filteredMessages));
+
+      console.log(`✅ [fetchMessages] 첫 입장 - 서버에서 ${serverMessages.length}개 중 ${filteredMessages.length}개 표시 및 캐싱`);
     } catch (err) {
       setError('메시지를 불러오는데 실패했습니다.');
       console.error(err);
