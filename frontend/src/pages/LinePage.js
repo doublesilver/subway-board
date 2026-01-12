@@ -85,14 +85,13 @@ function LinePage() {
       const hasJoined = sessionStorage.getItem(hasJoinedKey);
       const isFirstJoin = !hasJoined;
 
-      // 입장 시간 저장
-      const joinTime = new Date().toISOString();
-      sessionStorage.setItem(joinTimestampKey, joinTime);
-
-      // 처음 입장할 때만 입장 메시지 전송
+      // 처음 입장할 때만 입장 시간 저장
       if (isFirstJoin) {
-        console.log('✅ [LinePage] 첫 입장 - 입장 메시지 전송');
+        const joinTime = new Date().toISOString();
+        sessionStorage.setItem(joinTimestampKey, joinTime);
         sessionStorage.setItem(hasJoinedKey, 'true');
+
+        console.log('✅ [LinePage] 첫 입장 - 입장 메시지 전송');
 
         try {
           await postAPI.createJoinMessage(parseInt(lineId));
@@ -100,7 +99,7 @@ function LinePage() {
           console.error('Failed to send join message:', error);
         }
       } else {
-        console.log('🔄 [LinePage] 새로고침 감지 - 입장 메시지 스킵');
+        console.log('🔄 [LinePage] 새로고침 감지 - 입장 메시지 스킵, 기존 대화 유지');
       }
 
       // 메시지 목록 로드
