@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
+const compression = require('compression');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const globalErrorHandler = require('./middleware/errorMiddleware');
@@ -20,6 +21,9 @@ const PORT = process.env.PORT || 5000;
 
 // Trust proxy (Railway, Heroku 등 클라우드 플랫폼용)
 app.set('trust proxy', 1);
+
+// 응답 압축 (성능 최적화)
+app.use(compression());
 
 // 보안 헤더 강화
 app.use(helmet({

@@ -1,4 +1,5 @@
 const ProfanityFilter = require('../utils/profanityFilter');
+const xss = require('xss');
 const { CONTENT, SUBWAY_LINE } = require('../config/constants');
 const { createErrorResponse, ErrorCodes } = require('../utils/errorCodes');
 
@@ -32,8 +33,12 @@ const validatePost = (req, res, next) => {
     ));
   }
 
-  // XSS prevention - check for script tags
-  if (/<script[\s\S]*?>[\s\S]*?<\/script>/gi.test(content)) {
+  // XSS prevention using xss library
+  const cleanContent = xss(content);
+  if (cleanContent !== content) {
+    // If sanitization changed the content, it might have contained malicious script
+    // We can either reject it or use the sanitized version.
+    // For now, let's reject to discourage hacking attempts.
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 

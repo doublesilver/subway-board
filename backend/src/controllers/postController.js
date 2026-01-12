@@ -3,11 +3,17 @@ const { recordActivity, removeActivity, broadcastNewMessage } = require('../util
 const { getOrCreateUser } = require('../utils/userHelper');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
-const { PAGINATION } = require('../config/constants');
+const { PAGINATION, SUBWAY_LINE } = require('../config/constants');
 const { ErrorCodes } = require('../utils/errorCodes');
 
 const getPostsByLine = asyncHandler(async (req, res) => {
   const { lineId } = req.params;
+  // Input validation
+  const parsedLineId = parseInt(lineId);
+  if (isNaN(parsedLineId) || parsedLineId < SUBWAY_LINE.MIN_ID || parsedLineId > SUBWAY_LINE.MAX_ID) {
+    return next(AppError.fromErrorCode(ErrorCodes.VALIDATION_INVALID_LINE, 400));
+  }
+
   const { page = 1, limit = PAGINATION.DEFAULT_LIMIT } = req.query;
 
   // 프론트엔드에서 전달한 세션 ID 사용
