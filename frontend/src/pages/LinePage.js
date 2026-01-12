@@ -6,6 +6,7 @@ import { enterChatRoom, leaveChatRoom, getCurrentLineUser } from '../utils/tempo
 import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate, onNewMessage, offNewMessage } from '../utils/socket';
 import { useToast } from '../hooks/useToast';
 import Toast from '../components/Toast';
+import { checkIsOperatingHours } from '../utils/operatingHours';
 
 // 호선 데이터 캐싱
 let cachedLines = null;

@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { subwayLineAPI } from '../services/api';
 import { initSocket, onLineUsersUpdate, offLineUsersUpdate } from '../utils/socket';
 import ClosedAlertModal from '../components/ClosedAlertModal';
