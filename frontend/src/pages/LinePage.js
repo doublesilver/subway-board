@@ -6,6 +6,7 @@ import { enterChatRoom, leaveChatRoom, getCurrentLineUser } from '../utils/tempo
 import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate, onNewMessage, offNewMessage } from '../utils/socket';
 import { useToast } from '../hooks/useToast';
 import Toast from '../components/Toast';
+import { checkIsOperatingHours } from '../utils/operatingHours';
 
 // 호선 데이터 캐싱
 let cachedLines = null;
@@ -66,6 +67,14 @@ function LinePage() {
   const messagesContainerRef = useRef(null);
   const isInitialLoad = useRef(true);
   const textareaRef = useRef(null);
+
+
+  useEffect(() => {
+    const isOpen = checkIsOperatingHours();
+    if (!isOpen) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
 
   // 채팅방 입장 - 임시 사용자 생성 및 입장 메시지 전송
   useEffect(() => {
@@ -522,106 +531,106 @@ function LinePage() {
               </div>
             ) : (
               messagesWithDates.map((item, index) => {
-            if (item.type === 'date') {
-              return (
-                <div key={`date-${index}`} className="date-divider">
-                  <span>{item.label}</span>
-                </div>
-              );
-            }
+                if (item.type === 'date') {
+                  return (
+                    <div key={`date-${index}`} className="date-divider">
+                      <span>{item.label}</span>
+                    </div>
+                  );
+                }
 
-            const message = item.data;
+                const message = item.data;
 
-            // 시스템 메시지 처리
-            if (message.message_type === 'system') {
-              if (process.env.NODE_ENV === 'development') {
-                console.log('System message detected:', message);
-              }
+                // 시스템 메시지 처리
+                if (message.message_type === 'system') {
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log('System message detected:', message);
+                  }
 
-              // 내가 입장한 메시지인지 확인
-              const isMyJoinMessage = currentUser &&
-                message.content.includes(currentUser.nickname) &&
-                message.content.includes('들어왔어요');
+                  // 내가 입장한 메시지인지 확인
+                  const isMyJoinMessage = currentUser &&
+                    message.content.includes(currentUser.nickname) &&
+                    message.content.includes('들어왔어요');
 
-              // 내 입장 메시지는 맨 위 welcome-notice로 표시되므로 여기선 스킵
-              if (isMyJoinMessage) {
-                return null;
-              }
+                  // 내 입장 메시지는 맨 위 welcome-notice로 표시되므로 여기선 스킵
+                  if (isMyJoinMessage) {
+                    return null;
+                  }
 
-              // 다른 사람의 입장/퇴장 메시지만 표시
-              return (
-                <div key={message.id}>
-                  <div className="system-message">
-                    <span>{message.content}</span>
-                  </div>
-                </div>
-              );
-            }
+                  // 다른 사람의 입장/퇴장 메시지만 표시
+                  return (
+                    <div key={message.id}>
+                      <div className="system-message">
+                        <span>{message.content}</span>
+                      </div>
+                    </div>
+                  );
+                }
 
-            const isMyMessage = currentUser && message.anonymous_id === currentUser.sessionId;
+                const isMyMessage = currentUser && message.anonymous_id === currentUser.sessionId;
 
-            // 디버깅용 로그 (개발 환경에서만)
-            if (process.env.NODE_ENV === 'development' && index < 5) {
-              console.log(`Message ${index}:`, {
-                messageId: message.id,
-                messageAnonymousId: message.anonymous_id,
-                currentUserSessionId: currentUser?.sessionId,
-                isMyMessage,
-                nickname: message.nickname,
-                content: message.content?.substring(0, 30)
-              });
-            }
+                // 디버깅용 로그 (개발 환경에서만)
+                if (process.env.NODE_ENV === 'development' && index < 5) {
+                  console.log(`Message ${index}:`, {
+                    messageId: message.id,
+                    messageAnonymousId: message.anonymous_id,
+                    currentUserSessionId: currentUser?.sessionId,
+                    isMyMessage,
+                    nickname: message.nickname,
+                    content: message.content?.substring(0, 30)
+                  });
+                }
 
-            const userColor = getAnonymousColor(message.anonymous_id || message.user_id);
-            const isSwipingThis = swipedMessageId === message.id;
-            const swipeOffset = isSwipingThis ? touchOffset : 0;
+                const userColor = getAnonymousColor(message.anonymous_id || message.user_id);
+                const isSwipingThis = swipedMessageId === message.id;
+                const swipeOffset = isSwipingThis ? touchOffset : 0;
 
-            return (
-              <div
-                key={message.id}
-                className={`message-wrapper ${isMyMessage ? 'my-message' : ''}`}
-              >
-                <div
-                  style={{
-                    transform: `translateX(${swipeOffset}px)`,
-                    transition: isSwipingThis ? 'none' : 'transform 0.2s ease',
-                    position: 'relative',
-                    display: 'flex',
-                    gap: '10px',
-                    alignItems: 'flex-end',
-                    width: '100%',
-                  }}
-                  onTouchStart={(e) => handleTouchStart(e, message)}
-                  onTouchMove={(e) => handleTouchMove(e, message)}
-                  onTouchEnd={() => handleTouchEnd(message)}
-                >
-                  <div className="message-content">
-                    <div className="message-nickname">{message.nickname || '익명'}</div>
-                    <div className={`message-bubble ${isMyMessage ? 'my' : 'other'}`}>
-                      {message.reply_to && (
-                        <div className="reply-preview">
-                          <span className="reply-preview-label">답장:</span> {messages.find(m => m.id === message.reply_to)?.content?.substring(0, 30) || '삭제된 메시지'}
+                return (
+                  <div
+                    key={message.id}
+                    className={`message-wrapper ${isMyMessage ? 'my-message' : ''}`}
+                  >
+                    <div
+                      style={{
+                        transform: `translateX(${swipeOffset}px)`,
+                        transition: isSwipingThis ? 'none' : 'transform 0.2s ease',
+                        position: 'relative',
+                        display: 'flex',
+                        gap: '10px',
+                        alignItems: 'flex-end',
+                        width: '100%',
+                      }}
+                      onTouchStart={(e) => handleTouchStart(e, message)}
+                      onTouchMove={(e) => handleTouchMove(e, message)}
+                      onTouchEnd={() => handleTouchEnd(message)}
+                    >
+                      <div className="message-content">
+                        <div className="message-nickname">{message.nickname || '익명'}</div>
+                        <div className={`message-bubble ${isMyMessage ? 'my' : 'other'}`}>
+                          {message.reply_to && (
+                            <div className="reply-preview">
+                              <span className="reply-preview-label">답장:</span> {messages.find(m => m.id === message.reply_to)?.content?.substring(0, 30) || '삭제된 메시지'}
+                            </div>
+                          )}
+                          <div className="message-text">{message.content}</div>
+                        </div>
+
+                        <div className="message-meta">
+                          <span className="message-time">{formatTime(message.created_at)}</span>
+                        </div>
+                      </div>
+
+                      {/* 스와이프 아이콘 */}
+                      {isSwipingThis && Math.abs(swipeOffset) > 20 && (
+                        <div className={`swipe-reply-icon ${isMyMessage ? 'left' : 'right'}`}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" />
+                          </svg>
                         </div>
                       )}
-                      <div className="message-text">{message.content}</div>
-                    </div>
-
-                    <div className="message-meta">
-                      <span className="message-time">{formatTime(message.created_at)}</span>
                     </div>
                   </div>
-
-                  {/* 스와이프 아이콘 */}
-                  {isSwipingThis && Math.abs(swipeOffset) > 20 && (
-                    <div className={`swipe-reply-icon ${isMyMessage ? 'left' : 'right'}`}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
+                );
               })
             )}
           </>

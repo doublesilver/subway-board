@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subwayLineAPI } from '../services/api';
 import { initSocket, onLineUsersUpdate, offLineUsersUpdate } from '../utils/socket';
-// TEMPORARY: Operating hours feature disabled for development focus
-// import ClosedAlertModal from '../components/ClosedAlertModal';
-// import { checkIsOperatingHours } from '../utils/operatingHours';
+import ClosedAlertModal from '../components/ClosedAlertModal';
+import { checkIsOperatingHours } from '../utils/operatingHours';
 
 // 이용량 순서 (실제 서울 지하철 이용 통계 기반)
 const usageOrder = [2, 5, 7, 3, 4, 6, 1, 8, 9];
@@ -14,22 +13,20 @@ function HomePage() {
   const [lines, setLines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortType, setSortType] = useState('line'); // Renamed from activeTab to sortType to match existing logic
-  // TEMPORARY: Operating hours feature disabled for development focus
-  // const [isOperatingHours, setIsOperatingHours] = useState(true);
+  const [sortType, setSortType] = useState('line');
+  const [isOperatingHours, setIsOperatingHours] = useState(true);
 
-  // TEMPORARY: Operating hours check disabled for development focus
-  // useEffect(() => {
-  //   // 운영 시간 체크
-  //   const checkTime = () => {
-  //     const isOpen = checkIsOperatingHours();
-  //     setIsOperatingHours(isOpen);
-  //   };
-  //   checkTime();
-  //   // 1분마다 체크 (홈 화면에 오래 켜두는 경우 대비)
-  //   const interval = setInterval(checkTime, 60000);
-  //   return () => clearInterval(interval);
-  // }, []);
+  useEffect(() => {
+    // 운영 시간 체크
+    const checkTime = () => {
+      const isOpen = checkIsOperatingHours();
+      setIsOperatingHours(isOpen);
+    };
+    checkTime();
+    // 1분마다 체크 (홈 화면에 오래 켜두는 경우 대비)
+    const interval = setInterval(checkTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     // WebSocket 초기화
@@ -120,8 +117,8 @@ function HomePage() {
 
   return (
     <div className="home-container">
-      {/* TEMPORARY: Operating hours modal disabled for development focus */}
-      {/* {!isOperatingHours && <ClosedAlertModal />} */}
+      {/* 운영 시간이 아닐 때 모달 표시 */}
+      {!isOperatingHours && <ClosedAlertModal />}
 
       {/* 메인 헤더 (Centered & Gradient) */}
       <div className="home-header">

@@ -8,7 +8,9 @@ const commentController = require('../controllers/commentController');
 const authController = require('../controllers/authController');
 const feedbackController = require('../controllers/feedbackController');
 const { validatePost, validateComment } = require('../middleware/validator');
+const { validatePost, validateComment } = require('../middleware/validator');
 const authMiddleware = require('../middleware/authMiddleware');
+const checkOperatingHours = require('../middleware/checkOperatingHours');
 
 // 특수 호선 삭제 (1회성 정리용)
 router.post('/admin/cleanup-lines', async (req, res) => {
@@ -39,8 +41,8 @@ router.get('/subway-lines', subwayLineController.getAllLines);
 
 router.get('/posts/line/:lineId', postController.getPostsByLine);
 router.get('/posts/:postId', postController.getPostById);
-router.post('/posts', authMiddleware, validatePost, postController.createPost);
-router.post('/posts/join', authMiddleware, postController.createJoinMessage);
+router.post('/posts', authMiddleware, checkOperatingHours, validatePost, postController.createPost);
+router.post('/posts/join', authMiddleware, checkOperatingHours, postController.createJoinMessage);
 router.post('/posts/leave', authMiddleware, postController.createLeaveMessage);
 router.delete('/posts/:postId', authMiddleware, postController.deletePost);
 
