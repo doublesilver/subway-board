@@ -403,14 +403,27 @@ function LinePage() {
             <div className="spinner"></div>
             <p>채팅방을 불러오는 중...</p>
           </div>
-        ) : messages.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">💬</div>
-            <p className="empty-title">첫 메시지를 남겨보세요</p>
-            <p className="empty-subtitle">이 대화는 매일 9시에 리셋됩니다</p>
-          </div>
         ) : (
-          messagesWithDates.map((item, index) => {
+          <>
+            {/* 입장 안내 메시지 (항상 맨 위에 고정) */}
+            <div className="welcome-notice">
+              <div className="welcome-date">{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+              <div className="welcome-message">
+                <strong>{currentUser?.nickname || '익명'}</strong> 님이 들어왔어요.
+              </div>
+              <div className="welcome-warning">
+                이 방을 나가면 이전 대화는 다시 볼 수 없어요.<br />
+                오늘 이야기는 오늘로 끝이에요
+              </div>
+            </div>
+
+            {messages.length === 0 ? (
+              <div className="empty-state-inline">
+                <div className="empty-icon-small">💬</div>
+                <p className="empty-text">첫 메시지를 남겨보세요</p>
+              </div>
+            ) : (
+              messagesWithDates.map((item, index) => {
             if (item.type === 'date') {
               return (
                 <div key={`date-${index}`} className="date-divider">
@@ -512,7 +525,9 @@ function LinePage() {
                 </div>
               </div>
             );
-          })
+              })
+            )}
+          </>
         )}
 
         <div ref={messagesEndRef} style={{ height: '1px', minHeight: '1px' }} />

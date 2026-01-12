@@ -291,7 +291,43 @@ body {
   color: var(--text-secondary);
 }
 
-/* Empty state (채팅방에 메시지가 없을 때) */
+/* Welcome notice (입장 안내 메시지) */
+.welcome-notice {
+  padding: 24px 20px;
+  margin: 16px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  text-align: center;
+}
+
+.welcome-date {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.welcome-message {
+  font-size: 16px;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.welcome-message strong {
+  color: #6366f1;
+  font-weight: 700;
+}
+
+.welcome-warning {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+/* Empty state (채팅방에 메시지가 없을 때 - 전체 화면) */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -321,6 +357,27 @@ body {
   color: var(--text-tertiary);
   text-align: center;
   line-height: 1.5;
+}
+
+/* Empty state inline (입장 안내 후 메시지 없을 때) */
+.empty-state-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 8px;
+  opacity: 0.5;
+}
+
+.empty-icon-small {
+  font-size: 32px;
+}
+
+.empty-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-tertiary);
 }
 
 .auth-check-loading {
