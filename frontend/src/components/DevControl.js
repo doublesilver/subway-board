@@ -13,11 +13,33 @@ const DevControl = () => {
         window.location.reload(); // 변경 사항 적용을 위해 새로고침
     };
 
+    useEffect(() => {
+        console.log("DevControl component mounted");
+    }, []);
+
     if (!isOpen) {
         return (
             <button
                 className="dev-control-trigger"
                 onClick={() => setIsOpen(true)}
+                style={{
+                    position: 'fixed',
+                    bottom: '20px',
+                    right: '20px',
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    backgroundColor: '#FF0000', // Red for high visibility debugging
+                    color: 'white',
+                    border: '2px solid white',
+                    fontSize: '24px',
+                    zIndex: 999999,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                }}
             >
                 🔧
             </button>
