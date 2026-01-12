@@ -1,27 +1,44 @@
+// ========================================
+// TEMPORARY: 운영 시간 제한 기능 비활성화
+// ========================================
+// 현재 코어 기능 개발에 집중하기 위해 운영 시간 제한을 임시로 비활성화합니다.
+// 런칭 전 이 기능을 재활성화하여 운영 시간(평일 07:00~09:00)을 적용할 예정입니다.
+//
+// 재활성화 시 필요한 작업:
+// 1. 이 파일의 주석 해제
+// 2. HomePage.js에서 운영 시간 체크 로직 주석 해제
+// 3. backend/src/middleware/checkOperatingHours.js 미들웨어 재적용
+// 4. backend/src/routes/index.js에 checkOperatingHours 미들웨어 추가
+// ========================================
+
 // 운영 시간 체크 유틸리티
 
 export const checkIsOperatingHours = () => {
-    // 1. 개발 모드 강제 설정 확인 (DevControl에서 설정)
-    const devMode = sessionStorage.getItem('app_mode');
+    // TEMPORARY: Always return true (no operating hours restriction)
+    return true;
 
-    if (devMode === 'development') {
-        return true; // 무조건 오픈
-    }
-
-    if (devMode === 'production') {
-        // 강제 운영 모드 (시간 제한 적용)
-        // 아래 로직으로 흐름
-    } else {
-        // 설정이 없으면 기본 환경변수 따름
-        if (process.env.NODE_ENV === 'development') {
-            return true;
-        }
-    }
-
-    // 2. 실제 시간 체크 (07:00 ~ 09:00)
-    const now = new Date();
-    const hours = now.getHours();
-    const isOpen = hours >= 7 && hours < 9;
-
-    return isOpen;
+    // Original logic preserved for future use:
+    // // 1. 개발 모드 강제 설정 확인 (DevControl에서 설정)
+    // const devMode = sessionStorage.getItem('app_mode');
+    //
+    // if (devMode === 'development') {
+    //     return true; // 무조건 오픈
+    // }
+    //
+    // if (devMode === 'production') {
+    //     // 강제 운영 모드 (시간 제한 적용)
+    //     // 아래 로직으로 흐름
+    // } else {
+    //     // 설정이 없으면 기본 환경변수 따름
+    //     if (process.env.NODE_ENV === 'development') {
+    //         return true;
+    //     }
+    // }
+    //
+    // // 2. 실제 시간 체크 (07:00 ~ 09:00)
+    // const now = new Date();
+    // const hours = now.getHours();
+    // const isOpen = hours >= 7 && hours < 9;
+    //
+    // return isOpen;
 };

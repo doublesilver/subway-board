@@ -7,7 +7,6 @@ import KakaoCallback from './pages/KakaoCallback';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthButton from './components/AuthButton';
 import AnimatedBackground from './components/AnimatedBackground';
-import DevControl from './components/DevControl';
 
 function App() {
   console.log("🚀 App Version: Red Button Debug 0.1"); // 배포 버전 확인용 로그
@@ -15,7 +14,6 @@ function App() {
   return (
     <AuthProvider>
       <AnimatedBackground />
-      <DevControl />
       <Router>
         <AppContent />
       </Router>

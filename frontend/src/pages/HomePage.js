@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subwayLineAPI } from '../services/api';
 import { initSocket, onLineUsersUpdate, offLineUsersUpdate } from '../utils/socket';
-import ClosedAlertModal from '../components/ClosedAlertModal';
-import { checkIsOperatingHours } from '../utils/operatingHours';
+// TEMPORARY: Operating hours feature disabled for development focus
+// import ClosedAlertModal from '../components/ClosedAlertModal';
+// import { checkIsOperatingHours } from '../utils/operatingHours';
 
 // 이용량 순서 (실제 서울 지하철 이용 통계 기반)
 const usageOrder = [2, 5, 7, 3, 4, 6, 1, 8, 9];
@@ -14,19 +15,21 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortType, setSortType] = useState('line'); // Renamed from activeTab to sortType to match existing logic
-  const [isOperatingHours, setIsOperatingHours] = useState(true);
+  // TEMPORARY: Operating hours feature disabled for development focus
+  // const [isOperatingHours, setIsOperatingHours] = useState(true);
 
-  useEffect(() => {
-    // 운영 시간 체크
-    const checkTime = () => {
-      const isOpen = checkIsOperatingHours();
-      setIsOperatingHours(isOpen);
-    };
-    checkTime();
-    // 1분마다 체크 (홈 화면에 오래 켜두는 경우 대비)
-    const interval = setInterval(checkTime, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  // TEMPORARY: Operating hours check disabled for development focus
+  // useEffect(() => {
+  //   // 운영 시간 체크
+  //   const checkTime = () => {
+  //     const isOpen = checkIsOperatingHours();
+  //     setIsOperatingHours(isOpen);
+  //   };
+  //   checkTime();
+  //   // 1분마다 체크 (홈 화면에 오래 켜두는 경우 대비)
+  //   const interval = setInterval(checkTime, 60000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   useEffect(() => {
     // WebSocket 초기화
@@ -117,7 +120,8 @@ function HomePage() {
 
   return (
     <div className="home-container">
-      {!isOperatingHours && <ClosedAlertModal />}
+      {/* TEMPORARY: Operating hours modal disabled for development focus */}
+      {/* {!isOperatingHours && <ClosedAlertModal />} */}
 
       {/* 메인 헤더 (Centered & Gradient) */}
       <div className="home-header">
