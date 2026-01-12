@@ -51,11 +51,13 @@ function MainLayout({ children }) {
 function Header() {
   const navigate = useNavigate();
   const [showToast, setShowToast] = React.useState(false);
+  const [toastMessage, setToastMessage] = React.useState('');
   const [showFeedbackModal, setShowFeedbackModal] = React.useState(false);
 
   const handleShare = () => {
     const url = window.location.origin;
     navigator.clipboard.writeText(url).then(() => {
+      setToastMessage('링크가 복사되었습니다!');
       setShowToast(true);
       setTimeout(() => setShowToast(false), 2000);
     });
@@ -64,6 +66,7 @@ function Header() {
   const handleFeedbackClose = (success) => {
     setShowFeedbackModal(false);
     if (success) {
+      setToastMessage('피드백이 전송되었습니다!');
       setShowToast(true);
       setTimeout(() => setShowToast(false), 2000);
     }
@@ -96,7 +99,7 @@ function Header() {
       </div>
       {showToast && (
         <div className="toast-message">
-          {showFeedbackModal ? '피드백이 전송되었습니다!' : '링크가 복사되었습니다!'}
+          {toastMessage}
         </div>
       )}
       {showFeedbackModal && <FeedbackModal onClose={handleFeedbackClose} />}
