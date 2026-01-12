@@ -1847,17 +1847,18 @@ body {
 .modal-icon {
   font-size: 56px;
   margin-bottom: 16px;
-  animation: moonPulse 2s ease-in-out infinite;
+  animation: iconBounce 2s ease-in-out infinite;
 }
 
-@keyframes moonPulse {
+@keyframes iconBounce {
   0%, 100% {
-    transform: scale(1);
-    opacity: 0.9;
+    transform: scale(1) rotate(0deg);
   }
-  50% {
-    transform: scale(1.1);
-    opacity: 1;
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(5deg);
   }
 }
 
