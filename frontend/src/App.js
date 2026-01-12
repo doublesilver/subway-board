@@ -10,6 +10,8 @@ import AnimatedBackground from './components/AnimatedBackground';
 import DevControl from './components/DevControl';
 
 function App() {
+  console.log("🚀 App Version: Red Button Debug 0.1"); // 배포 버전 확인용 로그
+
   return (
     <AuthProvider>
       <AnimatedBackground />
