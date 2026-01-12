@@ -8,7 +8,6 @@ const commentController = require('../controllers/commentController');
 const authController = require('../controllers/authController');
 const feedbackController = require('../controllers/feedbackController');
 const { validatePost, validateComment } = require('../middleware/validator');
-const { validatePost, validateComment } = require('../middleware/validator');
 const authMiddleware = require('../middleware/authMiddleware');
 const checkOperatingHours = require('../middleware/checkOperatingHours');
 
