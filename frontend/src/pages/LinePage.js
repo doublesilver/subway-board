@@ -142,12 +142,32 @@ function LinePage() {
     onActiveUsersUpdate(handleActiveUsersUpdate);
     onNewMessage(handleNewMessage);
 
+    // 페이지 이탈 시 퇴장 메시지 전송 (새로고침, 탭 닫기)
+    const handleBeforeUnload = (e) => {
+      // sendBeacon으로 페이지 종료 시에도 전송 보장
+      const url = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/posts/leave`;
+      const data = JSON.stringify({ subway_line_id: parseInt(lineId) });
+
+      // 세션 스토리지에서 사용자 정보 가져오기
+      const sessionKey = `line_${lineId}_session`;
+      const nicknameKey = `line_${lineId}_nickname`;
+      const sessionId = sessionStorage.getItem(sessionKey);
+      const nickname = sessionStorage.getItem(nicknameKey);
+
+      // FormData로 전송 (헤더 포함 가능)
+      const formData = new FormData();
+      formData.append('subway_line_id', parseInt(lineId));
+      if (sessionId) formData.append('session_id', sessionId);
+      if (nickname) formData.append('nickname', nickname);
+
+      navigator.sendBeacon(url, data);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     // 채팅방 퇴장 - cleanup
     return () => {
-      // 퇴장 메시지 전송 (다른 사람들에게 보임)
-      postAPI.createLeaveMessage(parseInt(lineId)).catch(error => {
-        console.error('Failed to send leave message:', error);
-      });
+      window.removeEventListener('beforeunload', handleBeforeUnload);
 
       // WebSocket 퇴장
       leaveLine(parseInt(lineId));
@@ -157,6 +177,8 @@ function LinePage() {
       leaveChatRoom(lineId);
       removeLineUser(lineId);
       sessionStorage.removeItem(joinTimestampKey);
+
+      // Note: 퇴장 메시지는 handleBackClick에서 명시적으로 전송됨
     };
   }, [lineId]);
 
@@ -354,8 +376,15 @@ function LinePage() {
     );
   }
 
-  const handleBackClick = () => {
-    // 퇴장 메시지 없이 바로 메인 화면으로 이동
+  const handleBackClick = async () => {
+    // 퇴장 메시지 전송
+    try {
+      await postAPI.createLeaveMessage(parseInt(lineId));
+    } catch (error) {
+      console.error('Failed to send leave message:', error);
+    }
+
+    // 메인 화면으로 이동 (cleanup에서 나머지 처리됨)
     navigate('/');
   };
 
