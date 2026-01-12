@@ -98,13 +98,17 @@ function LinePage() {
         } catch (error) {
           console.error('Failed to send join message:', error);
         }
+
+        // 첫 입장: 입장 시점 이후 메시지만 로드
+        fetchLineInfo();
+        fetchMessages(true);
       } else {
         console.log('🔄 [LinePage] 새로고침 감지 - 입장 메시지 스킵, 기존 대화 유지');
-      }
 
-      // 메시지 목록 로드
-      fetchLineInfo();
-      fetchMessages();
+        // 새로고침: 모든 메시지 로드
+        fetchLineInfo();
+        fetchMessages(false);
+      }
     };
 
     initChat();
@@ -232,7 +236,7 @@ function LinePage() {
     }
   };
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (isFirstJoin = false) => {
     try {
       // 최초 로딩 시에만 로딩 인디케이터 표시
       if (isInitialLoad.current) {
@@ -240,28 +244,38 @@ function LinePage() {
       }
 
       const response = await postAPI.getByLine(lineId, 1, 100);
+      const totalMessages = response.data.posts.length;
 
-      // 입장 시점 이후 메시지만 필터링 (첫 입장 시에만)
+      // 입장 시점 이후 메시지만 필터링
       const joinTimestampKey = `line_${lineId}_join_time`;
-      const hasJoinedKey = `line_${lineId}_has_joined`;
       const joinTime = sessionStorage.getItem(joinTimestampKey);
-      const hasJoined = sessionStorage.getItem(hasJoinedKey);
 
-      // 새로고침인 경우 (hasJoined가 있음) - 모든 메시지 표시
-      // 첫 입장인 경우 - joinTime 이후 메시지만 표시
-      if (hasJoined && joinTime) {
-        // 새로고침: 기존 대화 내용 유지를 위해 모든 메시지 표시하되,
-        // joinTime 이전 메시지는 제외 (입장 전 메시지는 안 보이게)
+      console.log(`📥 [fetchMessages] 서버에서 가져온 메시지: ${totalMessages}개, joinTime: ${joinTime}`);
+
+      if (isFirstJoin && joinTime) {
+        // 첫 입장: joinTime 이후 메시지만 표시 (입장 전 메시지 숨김)
         const joinDate = new Date(joinTime);
         const filteredMessages = response.data.posts.filter(msg => {
           const msgDate = new Date(msg.created_at);
           return msgDate >= joinDate;
         });
         setMessages(filteredMessages);
-        console.log('🔄 [fetchMessages] 새로고침 - 입장 이후 모든 메시지 표시:', filteredMessages.length);
+        console.log(`✅ [fetchMessages] 첫 입장 - ${totalMessages}개 중 ${filteredMessages.length}개 표시`);
+      } else if (joinTime) {
+        // 새로고침: joinTime 이후 모든 메시지 표시 (이전 대화 유지)
+        const joinDate = new Date(joinTime);
+        const filteredMessages = response.data.posts.filter(msg => {
+          const msgDate = new Date(msg.created_at);
+          const isAfterJoin = msgDate >= joinDate;
+          console.log(`  - 메시지 ${msg.id}: ${msg.created_at} ${isAfterJoin ? '✓' : '✗'}`);
+          return isAfterJoin;
+        });
+        setMessages(filteredMessages);
+        console.log(`🔄 [fetchMessages] 새로고침 - ${totalMessages}개 중 ${filteredMessages.length}개 표시`);
       } else {
-        // 처음 입장 또는 joinTime 없음 - 모든 메시지 표시
+        // joinTime 없음 - 모든 메시지 표시
         setMessages(response.data.posts);
+        console.log(`⚠️ [fetchMessages] joinTime 없음 - 모든 ${totalMessages}개 메시지 표시`);
       }
     } catch (err) {
       setError('메시지를 불러오는데 실패했습니다.');
