@@ -81,26 +81,13 @@ function LinePage() {
 
     // 입장 시간 기록 (이 시점 이후 메시지만 로드)
     const joinTimestampKey = `line_${lineId}_join_time`;
-    const joinMessageKey = `line_${lineId}_joined`;
-    const hasJoined = sessionStorage.getItem(joinMessageKey);
 
     const initChat = async () => {
-      if (!hasJoined) {
-        // 입장 시간 저장
-        const joinTime = new Date().toISOString();
-        sessionStorage.setItem(joinTimestampKey, joinTime);
+      // 입장 시간 저장 (입장 메시지는 보내지 않음)
+      const joinTime = new Date().toISOString();
+      sessionStorage.setItem(joinTimestampKey, joinTime);
 
-        try {
-          await postAPI.createJoinMessage(parseInt(lineId));
-          sessionStorage.setItem(joinMessageKey, 'true');
-        } catch (err) {
-          if (process.env.NODE_ENV === 'development') {
-            console.error('Failed to send join message:', err);
-          }
-        }
-      }
-
-      // 입장 메시지 전송 후 메시지 목록 로드
+      // 메시지 목록 로드
       fetchLineInfo();
       fetchMessages();
     };
@@ -160,7 +147,6 @@ function LinePage() {
 
       leaveChatRoom(lineId);
       removeLineUser(lineId);
-      sessionStorage.removeItem(joinMessageKey);
       sessionStorage.removeItem(joinTimestampKey);
     };
   }, [lineId]);
@@ -380,21 +366,9 @@ function LinePage() {
     );
   }
 
-  const handleBackClick = async () => {
-    try {
-      // 퇴장 메시지 전송
-      await postAPI.createLeaveMessage(parseInt(lineId));
-      if (process.env.NODE_ENV === 'development') {
-        console.log('✅ Leave message sent successfully');
-      }
-    } catch (err) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('❌ Failed to send leave message:', err);
-      }
-    } finally {
-      // 항상 메인 화면으로 이동
-      navigate('/');
-    }
+  const handleBackClick = () => {
+    // 퇴장 메시지 없이 바로 메인 화면으로 이동
+    navigate('/');
   };
 
   return (
