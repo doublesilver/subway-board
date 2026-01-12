@@ -80,9 +80,16 @@ function LinePage() {
     const joinTimestampKey = `line_${lineId}_join_time`;
 
     const initChat = async () => {
-      // 입장 시간 저장 (입장 메시지는 보내지 않음)
+      // 입장 시간 저장
       const joinTime = new Date().toISOString();
       sessionStorage.setItem(joinTimestampKey, joinTime);
+
+      // 입장 메시지 전송 (다른 사람들에게 보임)
+      try {
+        await postAPI.createJoinMessage(parseInt(lineId));
+      } catch (error) {
+        console.error('Failed to send join message:', error);
+      }
 
       // 메시지 목록 로드
       fetchLineInfo();
@@ -137,6 +144,11 @@ function LinePage() {
 
     // 채팅방 퇴장 - cleanup
     return () => {
+      // 퇴장 메시지 전송 (다른 사람들에게 보임)
+      postAPI.createLeaveMessage(parseInt(lineId)).catch(error => {
+        console.error('Failed to send leave message:', error);
+      });
+
       // WebSocket 퇴장
       leaveLine(parseInt(lineId));
       offActiveUsersUpdate(handleActiveUsersUpdate);
@@ -445,18 +457,17 @@ function LinePage() {
                 message.content.includes(currentUser.nickname) &&
                 message.content.includes('들어왔어요');
 
+              // 내 입장 메시지는 맨 위 welcome-notice로 표시되므로 여기선 스킵
+              if (isMyJoinMessage) {
+                return null;
+              }
+
+              // 다른 사람의 입장/퇴장 메시지만 표시
               return (
                 <div key={message.id}>
                   <div className="system-message">
                     <span>{message.content}</span>
                   </div>
-                  {/* 내 입장 메시지 아래에 안내 문구 표시 */}
-                  {isMyJoinMessage && (
-                    <div className="system-notice">
-                      <span>이 방을 나가면 이전 대화는 다시 볼 수 없어요.</span>
-                      <span>오늘 이야기는 오늘로 끝이에요</span>
-                    </div>
-                  )}
                 </div>
               );
             }
