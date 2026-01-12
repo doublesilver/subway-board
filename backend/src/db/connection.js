@@ -19,7 +19,12 @@ pool.on('error', (err) => {
     stack: err.stack,
     code: err.code
   });
-  process.exit(-1);
+  // Don't exit immediately - let retry logic handle it
+  // Only exit on critical errors
+  if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
+    logger.error('Critical database error - exiting', { code: err.code });
+    process.exit(-1);
+  }
 });
 
 // Helper function to retry database queries with exponential backoff
