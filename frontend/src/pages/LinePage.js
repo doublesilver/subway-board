@@ -154,11 +154,9 @@ function LinePage() {
     onActiveUsersUpdate(handleActiveUsersUpdate);
     onNewMessage(handleNewMessage);
 
-    // 페이지 이탈 시 퇴장 메시지 전송 (새로고침, 탭 닫기)
+    // 페이지 이탈 시 퇴장 메시지 전송 (탭 닫기, 브라우저 종료)
+    // ⚠️ 새로고침 시에는 입장 플래그를 제거하지 않음
     const handleBeforeUnload = (e) => {
-      // 입장 플래그 제거 (다음 입장 시 입장 메시지 보내도록)
-      sessionStorage.removeItem(hasJoinedKey);
-
       // sendBeacon으로 페이지 종료 시에도 전송 보장
       const url = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/posts/leave`;
       const data = JSON.stringify({ subway_line_id: parseInt(lineId) });
