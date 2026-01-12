@@ -291,6 +291,38 @@ body {
   color: var(--text-secondary);
 }
 
+/* Empty state (채팅방에 메시지가 없을 때) */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  gap: 12px;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  opacity: 0.5;
+  margin-bottom: 8px;
+}
+
+.empty-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.empty-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-tertiary);
+  text-align: center;
+  line-height: 1.5;
+}
+
 .auth-check-loading {
   position: fixed;
   inset: 0;
