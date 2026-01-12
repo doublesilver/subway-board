@@ -28,12 +28,11 @@ const checkOperatingHours = (req, res, next) => {
     // process.env.TZ = 'Asia/Seoul' 설정이 되어있다면 new Date().getHours()가 한국시간.
     // Railway 설정에 TZ=Asia/Seoul 권장. 
 
-    // 안전하게 Intl.DateTimeFormat 사용
-    const kstHour = parseInt(new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        hour12: false,
-        timeZone: 'Asia/Seoul'
-    }).format(now));
+    // 한국 시간(KST) 기준 시간 계산 (Manual Calculation)
+    // UTC에 9시간을 더한 Date 객체 생성
+    const kstNow = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+    // getUTCHours()를 호출하면, 위에서 더한 9시간이 반영된 "시간"부만 나옴
+    const kstHour = kstNow.getUTCHours();
 
     if (kstHour < OPERATING_HOURS.START || kstHour >= OPERATING_HOURS.END) {
         return next(new AppError(`서비스 운영 시간(${OPERATING_HOURS.START}:00 ~ ${OPERATING_HOURS.END}:00)이 아닙니다.`, 403));

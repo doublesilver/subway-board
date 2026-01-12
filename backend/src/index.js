@@ -122,6 +122,10 @@ app.get('/', (req, res) => {
   });
 });
 
+app.get('/', (req, res) => {
+  res.status(200).send('Subway Board Backend is Running!');
+});
+
 app.get('/health', async (req, res) => {
   const health = {
     status: 'OK',
@@ -164,5 +168,9 @@ io.on('connection', handleSocketConnection);
 httpServer.listen(PORT, () => {
   logger.info(`Server is running on port ${PORT}`);
   logger.info('WebSocket server is ready');
-  startScheduler();
+  try {
+    startScheduler();
+  } catch (err) {
+    logger.error('Failed to start scheduler:', err);
+  }
 });
