@@ -54,6 +54,8 @@ app.use(helmet({
 const allowedOrigins = [
   'http://localhost:3000',
   'https://subway-board.vercel.app',
+  'https://gagisiro.com',
+  'https://www.gagisiro.com',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
