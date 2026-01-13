@@ -596,7 +596,6 @@ function LinePage() {
 
             {messages.length === 0 ? (
               <div className="empty-state-inline">
-                <div className="empty-icon-small">💬</div>
                 <p className="empty-text">
                   {new Date().getFullYear()}년 {new Date().getMonth() + 1}월 {new Date().getDate()}일
                 </p>
