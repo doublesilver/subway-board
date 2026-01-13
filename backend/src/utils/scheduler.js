@@ -3,20 +3,13 @@ const pool = require('../db/connection');
 
 const deleteOldData = async () => {
   try {
-    console.log('Starting daily cleanup...');
+    console.log('Starting daily cleanup (Full Wipe)...');
 
-    const oneDayAgo = new Date();
-    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-
-    const commentsResult = await pool.query(
-      'DELETE FROM comments WHERE created_at < $1',
-      [oneDayAgo]
-    );
-
-    const postsResult = await pool.query(
-      'DELETE FROM posts WHERE created_at < $1',
-      [oneDayAgo]
-    );
+    // 모든 데이터 삭제 (하루의 시작을 깨끗하게)
+    // 외래 키 제약 조건(ON DELETE CASCADE)이 설정되어 있다면 posts만 삭제해도 되지만,
+    // 명시적으로 둘 다 삭제하여 확실하게 처리
+    const commentsResult = await pool.query('DELETE FROM comments');
+    const postsResult = await pool.query('DELETE FROM posts');
 
     console.log(`Cleanup completed: ${postsResult.rowCount} posts and ${commentsResult.rowCount} comments deleted`);
   } catch (error) {

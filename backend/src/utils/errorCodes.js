@@ -42,6 +42,9 @@ const ErrorCodes = {
   SERVER_ERROR: 'SERVER_ERROR',
   SERVER_DATABASE_ERROR: 'SERVER_DATABASE_ERROR',
   SERVER_UNAVAILABLE: 'SERVER_UNAVAILABLE',
+
+  // 운영 관련 (SERVICE_*)
+  SERVICE_CLOSED: 'SERVICE_CLOSED',
 };
 
 /**
@@ -83,7 +86,9 @@ const ErrorMessages = {
   // 서버
   [ErrorCodes.SERVER_ERROR]: '서버 오류가 발생했습니다.',
   [ErrorCodes.SERVER_DATABASE_ERROR]: '데이터베이스 오류가 발생했습니다.',
+  [ErrorCodes.SERVER_DATABASE_ERROR]: '데이터베이스 오류가 발생했습니다.',
   [ErrorCodes.SERVER_UNAVAILABLE]: '서버를 사용할 수 없습니다.',
+  [ErrorCodes.SERVICE_CLOSED]: '현재 운영 시간이 아닙니다. (평일 07:00 ~ 09:00)',
 };
 
 /**

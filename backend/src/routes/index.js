@@ -41,13 +41,13 @@ router.get('/subway-lines', subwayLineController.getAllLines);
 router.get('/posts/line/:lineId', postController.getPostsByLine);
 router.get('/posts/:postId', postController.getPostById);
 router.post('/posts', authMiddleware, checkOperatingHours, validatePost, postController.createPost);
-router.post('/posts/join', authMiddleware, checkOperatingHours, postController.createJoinMessage);
-router.post('/posts/leave', authMiddleware, postController.createLeaveMessage);
-router.delete('/posts/:postId', authMiddleware, postController.deletePost);
+router.post('/posts/join', authMiddleware, checkOperatingHours, postController.createJoinMessage); // 입장도 제한
+router.post('/posts/leave', authMiddleware, postController.createLeaveMessage); // 퇴장은 허용 (잔류 인원 처리)
+router.delete('/posts/:postId', authMiddleware, checkOperatingHours, postController.deletePost);
 
 router.get('/posts/:postId/comments', commentController.getCommentsByPost);
-router.post('/posts/:postId/comments', authMiddleware, validateComment, commentController.createComment);
-router.delete('/comments/:commentId', authMiddleware, commentController.deleteComment);
+router.post('/posts/:postId/comments', authMiddleware, checkOperatingHours, validateComment, commentController.createComment);
+router.delete('/comments/:commentId', authMiddleware, checkOperatingHours, commentController.deleteComment);
 
 // Feedback routes
 router.post('/feedback', authMiddleware, feedbackController.submitFeedback);

@@ -2,7 +2,7 @@ const { ErrorCodes } = require('../utils/errorCodes');
 const AppError = require('../utils/AppError');
 
 const checkOperatingHours = (req, res, next) => {
-    // 개발 환경이나 관리자 모드인 경우 건너뛰기 가능
+    // 개발 환경이나 관리자 모드인 경우 건너뛰기 가능 (필요시 구현)
     if (process.env.NODE_ENV === 'development' && process.env.IGNORE_OPERATING_HOURS === 'true') {
         return next();
     }

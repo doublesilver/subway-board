@@ -40,7 +40,7 @@
   - 자세한 내용: [KAKAO_LOGIN_SETUP.md](KAKAO_LOGIN_SETUP.md)
 
 ### 보안 & 성능
-- ⚡ **최적화된 폴링**: 3초 간격 폴링 + 페이지 숨김 시 자동 중단
+- ⚡ **실시간 통신**: Socket.io를 이용한 실시간 활성 사용자 및 메시지 업데이트
 - 🔒 **보안**: Helmet.js, CORS, SQL Injection 방지
 - 🚦 **Rate Limiting**: POST/DELETE 요청 제한 (GET 제외)
 
@@ -61,6 +61,7 @@
 - **ORM**: pg (node-postgres)
 - **Authentication**: JWT, Kakao OAuth 2.0
 - **HTTP Client**: Axios
+- **Real-time**: Socket.io
 - **Scheduler**: node-cron
 - **Security**: Helmet, CORS, express-rate-limit
 - **Hosting**: Railway
@@ -238,9 +239,8 @@ npm start
 [backend/src/utils/activeUsers.js](backend/src/utils/activeUsers.js)
 
 - **세션 기반 추적**: IP 주소를 고유 세션 ID로 사용
-- **타임아웃**: 30초간 활동 없으면 자동 제거
-- **실시간 폴링**: 프론트엔드에서 3초 간격으로 업데이트
-- **페이지 가시성 API**: 탭 숨김 시 폴링 자동 중단으로 리소스 절약
+- **WebSocket 통신**: 실시간 서버-클라이언트 양방향 통신
+- **실시간 브로드캐스트**: 데이터 변경 시 즉시 모든 클라이언트에 전파
 - **호선별 집계**: 각 지하철 호선의 현재 접속자 수 독립 관리
 
 ```javascript
@@ -440,7 +440,7 @@ CREATE TABLE comments (
 - [x] 모바일 최적화 UI/UX (한 손 조작)
 - [x] 탭 기반 정렬 (호선 순 | 인기 순)
 - [x] 심리적 안전 강조 디자인
-- [x] 최적화된 폴링 (3초 간격 + Page Visibility API)
+- [x] WebSocket 실시간 통신 (활성 사용자 및 메시지)
 - [x] 카카오 로그인 백엔드 구현 (OAuth 2.0 + JWT)
 
 ### 🚧 진행 중
@@ -460,7 +460,6 @@ CREATE TABLE comments (
 - [ ] 세션 기반 댓글 알림 (내가 댓글 단 글에 새 댓글 알림)
 - [ ] 게시글 신고 기능
 - [ ] 관리자 대시보드
-- [ ] WebSocket 실시간 업데이트 (폴링 → WebSocket 전환)
 
 ### Phase 3 - 수익화
 - [ ] Google AdSense 통합
