@@ -71,9 +71,18 @@ function LinePage() {
   const isInitialLoad = useRef(true);
   const textareaRef = useRef(null);
 
-  // 키패드 높이 관리를 위한 useEffect
+  // 키패드 높이 관리를 위한 useEffect (iOS만)
   useEffect(() => {
-    // iOS 및 Android에서 키패드가 올라올 때 입력란을 키패드 위로 이동
+    // iOS에서만 키패드가 올라올 때 입력란을 키패드 위로 이동
+    // Android는 브라우저가 자동으로 처리하므로 transform 적용 안 함
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    if (!isIOS) {
+      // Android 등 다른 기기에서는 기본값 사용 (transform 없음)
+      document.documentElement.style.setProperty('--viewport-height', '100vh');
+      return;
+    }
+
     const handleViewportResize = () => {
       if (window.visualViewport) {
         const viewportHeight = window.visualViewport.height;
