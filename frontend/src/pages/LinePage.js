@@ -107,6 +107,9 @@ function LinePage() {
   }, []);
 
   useEffect(() => {
+    // 페이지 로드 시 스크롤을 최상단으로 이동
+    window.scrollTo(0, 0);
+
     // 1. 진입 시 체크
     const isOpen = checkIsOperatingHours();
     if (!isOpen) {

@@ -31,7 +31,8 @@
       "Bash(netstat:*)",
       "Bash(findstr:*)",
       "Bash(git revert:*)",
-      "Bash(npx knex:*)"
+      "Bash(npx knex:*)",
+      "Bash(wc:*)"
     ]
   }
 }
