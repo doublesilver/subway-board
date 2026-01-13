@@ -108,7 +108,11 @@ function Header() {
 }
 
 function Footer() {
-  return null;
+  return (
+    <footer className="footer">
+      Copyright 2026. gagisiro, Co., Ltd. All rights reserved.
+    </footer>
+  );
 }
 
 export default App;

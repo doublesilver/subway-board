@@ -2378,3 +2378,15 @@ body {
   to { transform: translateY(0); opacity: 1; }
 }
 
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 24px 20px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: auto;
+  padding-bottom: 40px; /* Bottom padding for mobile */
+}
+
