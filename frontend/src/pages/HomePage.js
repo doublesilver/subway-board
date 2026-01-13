@@ -126,7 +126,7 @@ function HomePage() {
       {/* 메인 헤더 (Centered & Gradient) */}
       <div className="home-header">
         <p className="home-subtitle">
-          🔒 익명 · ⏰ 매일 오전 9시 초기화
+          🔒 익명 채팅 · ⏰ 평일 오전 7–9시 · 🚫 주말·공휴일 제외
         </p>
       </div>
 
