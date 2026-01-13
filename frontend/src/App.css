@@ -1046,7 +1046,7 @@ body {
 /* 입력창 전체 컨테이너 */
 .chat-composer {
   position: fixed;
-  bottom: 0;
+  bottom: 0; /* JavaScript에서 키보드 높이만큼 bottom 값 조정 */
   left: 0;
   right: 0;
   background: var(--composer-bg);
@@ -1059,8 +1059,8 @@ body {
   flex-direction: column;
   gap: var(--composer-gap);
 
-  /* transform은 JavaScript에서 직접 제어 (iOS visualViewport API) */
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 키보드 올라올 때 부드러운 애니메이션 */
+  transition: bottom 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 입력 폼 (이모지 + textarea + 이미지 + 전송 버튼) */

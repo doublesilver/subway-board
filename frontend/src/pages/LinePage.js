@@ -71,51 +71,65 @@ function LinePage() {
   const isInitialLoad = useRef(true);
   const textareaRef = useRef(null);
 
-  // 키패드 높이 관리를 위한 useEffect (iOS만)
+  // 키패드 대응: 입력창만 위로 이동, 헤더는 고정
   useEffect(() => {
-    // iOS에서만 키패드가 올라올 때 입력란을 키패드 위로 이동
-    // Android는 브라우저가 자동으로 처리하므로 transform 적용 안 함
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    let initialHeight = window.innerHeight;
 
-    if (!isIOS) {
-      // Android는 자동 처리되므로 아무것도 하지 않음
-      return;
-    }
+    const handleResize = () => {
+      const currentHeight = window.innerHeight;
+      const composer = document.querySelector('.chat-composer');
 
-    const handleViewportResize = () => {
-      if (window.visualViewport) {
+      if (!composer) return;
+
+      // 화면 높이가 줄어들었다 = 키보드가 올라옴
+      if (currentHeight < initialHeight) {
+        const keyboardHeight = initialHeight - currentHeight;
+        // 입력창만 키보드 위로 이동
+        composer.style.bottom = `${keyboardHeight}px`;
+      } else {
+        // 키보드 내려감
+        composer.style.bottom = '0';
+      }
+    };
+
+    // visualViewport API 사용 (iOS Safari, Chrome 등)
+    if (window.visualViewport) {
+      const handleVisualViewportResize = () => {
+        const composer = document.querySelector('.chat-composer');
+        if (!composer) return;
+
         const viewportHeight = window.visualViewport.height;
         const windowHeight = window.innerHeight;
-        const keyboardHeight = windowHeight - viewportHeight;
 
-        // composer 요소 찾기
+        if (viewportHeight < windowHeight) {
+          // 키보드 올라옴
+          const keyboardHeight = windowHeight - viewportHeight;
+          composer.style.bottom = `${keyboardHeight}px`;
+        } else {
+          // 키보드 내려감
+          composer.style.bottom = '0';
+        }
+      };
+
+      window.visualViewport.addEventListener('resize', handleVisualViewportResize);
+      window.visualViewport.addEventListener('scroll', handleVisualViewportResize);
+
+      return () => {
+        window.visualViewport.removeEventListener('resize', handleVisualViewportResize);
+        window.visualViewport.removeEventListener('scroll', handleVisualViewportResize);
+      };
+    } else {
+      // 폴백: 일반 window resize 사용 (삼성 브라우저 등)
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
         const composer = document.querySelector('.chat-composer');
         if (composer) {
-          // 키보드 높이만큼 입력창을 위로 이동 (헤더는 영향 없음)
-          composer.style.transform = `translateY(-${keyboardHeight}px)`;
+          composer.style.bottom = '0';
         }
-      }
-    };
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleViewportResize);
-      window.visualViewport.addEventListener('scroll', handleViewportResize);
-
-      // 초기 설정
-      handleViewportResize();
+      };
     }
-
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleViewportResize);
-        window.visualViewport.removeEventListener('scroll', handleViewportResize);
-      }
-      // cleanup: transform 제거
-      const composer = document.querySelector('.chat-composer');
-      if (composer) {
-        composer.style.transform = '';
-      }
-    };
   }, []);
 
   useEffect(() => {
