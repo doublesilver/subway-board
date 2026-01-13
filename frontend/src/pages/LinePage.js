@@ -7,6 +7,7 @@ import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate, onNewMe
 import { useToast } from '../hooks/useToast';
 import Toast from '../components/Toast';
 import { checkIsOperatingHours } from '../utils/operatingHours';
+import SessionExpiredModal from '../components/SessionExpiredModal';
 
 // 호선 데이터 캐싱
 let cachedLines = null;
@@ -62,18 +63,57 @@ function LinePage() {
   const [swipedMessageId, setSwipedMessageId] = useState(null);
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
   const [touchOffset, setTouchOffset] = useState(0);
+  // 세션 만료 상태
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
 
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const isInitialLoad = useRef(true);
   const textareaRef = useRef(null);
 
+  // 키패드 높이 관리를 위한 useEffect
+  useEffect(() => {
+    // iOS 및 Android에서 키패드가 올라올 때 입력란을 키패드 위로 이동
+    const handleViewportResize = () => {
+      if (window.visualViewport) {
+        const viewportHeight = window.visualViewport.height;
+        document.documentElement.style.setProperty('--viewport-height', `${viewportHeight}px`);
+      }
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportResize);
+      window.visualViewport.addEventListener('scroll', handleViewportResize);
+
+      // 초기 높이 설정
+      handleViewportResize();
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportResize);
+        window.visualViewport.removeEventListener('scroll', handleViewportResize);
+      }
+    };
+  }, []);
 
   useEffect(() => {
+    // 1. 진입 시 체크
     const isOpen = checkIsOperatingHours();
     if (!isOpen) {
       navigate('/', { replace: true });
+      return;
     }
+
+    // 2. 1분마다 운영 시간 종료 체크 (실시간 만료 처리)
+    const interval = setInterval(() => {
+      const currentlyOpen = checkIsOperatingHours();
+      if (!currentlyOpen) {
+        setIsSessionExpired(true);
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, [navigate]);
 
   // 채팅방 입장 - 임시 사용자 생성 및 입장 메시지 전송
@@ -456,6 +496,13 @@ function LinePage() {
 
   return (
     <div className="chat-container">
+      {/* 운영 시간 종료 모달 */}
+      {isSessionExpired && (
+        <SessionExpiredModal
+          onConfirm={() => navigate('/', { replace: true })}
+        />
+      )}
+
       {/* Toast 알림 */}
       {toasts.map(toast => (
         <Toast
@@ -514,7 +561,6 @@ function LinePage() {
           <>
             {/* 입장 안내 메시지 (항상 맨 위에 고정) */}
             <div className="welcome-notice">
-              <div className="welcome-date">{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
               <div className="welcome-message">
                 <strong>{currentUser?.nickname || '익명'}</strong> 님이 들어왔어요.
               </div>
