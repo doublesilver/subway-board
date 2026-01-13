@@ -725,10 +725,11 @@ body {
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100vh; /* 항상 실제 뷰포트 높이 사용 (키보드 무관) */
   background: #f8fafc;
   max-height: 100vh;
   overflow: hidden;
+  position: relative;
 }
 
 /* Glass Header */
@@ -741,11 +742,12 @@ body {
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   position: fixed;
-  top: 0;
+  top: 0 !important; /* 키보드와 무관하게 항상 최상단 고정 */
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 200; /* 키보드 올라올 때도 항상 최상단에 고정 */
   gap: 12px;
+  transform: none !important; /* viewport-height 변화에도 영향 안받음 */
 }
 
 .chat-back-btn {

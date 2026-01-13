@@ -113,8 +113,8 @@ function HomePage() {
     navigate(`/line/${lineId}`);
   };
 
-  if (loading) return <div className="loading">로딩 중...</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  // 로딩 중이거나 에러 발생 시 빈 페이지 표시 (헤더+콘텐츠 통일)
+  if (loading || error) return <div className="home-container"></div>;
 
   const sortedLines = getSortedLines();
 
