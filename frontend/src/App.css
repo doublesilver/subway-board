@@ -725,11 +725,17 @@ body {
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* 항상 실제 뷰포트 높이 사용 (키보드 무관) */
+  height: 100vh; /* 폴백: 구형 브라우저용 */
+  height: 100dvh; /* dvh = dynamic viewport height (키보드 올라와도 변하지 않음) */
   background: #f8fafc;
   max-height: 100vh;
+  max-height: 100dvh;
   overflow: hidden;
-  position: relative;
+  position: fixed; /* 화면에 고정 */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 /* Glass Header */
@@ -873,10 +879,9 @@ body {
   flex-direction: column;
   gap: 12px;
   box-sizing: border-box;
-  /* 헤더(60px) + 입력창(56px) 제외한 높이 */
-  height: calc(100vh - 116px);
-  max-height: calc(100vh - 116px);
-  flex-shrink: 0;
+  /* flex를 사용하여 남은 공간을 자동으로 채움 (키보드와 무관) */
+  flex: 1;
+  min-height: 0; /* flex 자식이 overflow를 제대로 처리하도록 */
 }
 
 /* Message Bubbles */
