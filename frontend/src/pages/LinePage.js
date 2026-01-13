@@ -78,15 +78,22 @@ function LinePage() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
     if (!isIOS) {
-      // Android 등 다른 기기에서는 기본값 사용 (transform 없음)
-      document.documentElement.style.setProperty('--viewport-height', '100vh');
+      // Android는 자동 처리되므로 아무것도 하지 않음
       return;
     }
 
     const handleViewportResize = () => {
       if (window.visualViewport) {
         const viewportHeight = window.visualViewport.height;
-        document.documentElement.style.setProperty('--viewport-height', `${viewportHeight}px`);
+        const windowHeight = window.innerHeight;
+        const keyboardHeight = windowHeight - viewportHeight;
+
+        // composer 요소 찾기
+        const composer = document.querySelector('.chat-composer');
+        if (composer) {
+          // 키보드 높이만큼 입력창을 위로 이동 (헤더는 영향 없음)
+          composer.style.transform = `translateY(-${keyboardHeight}px)`;
+        }
       }
     };
 
@@ -94,7 +101,7 @@ function LinePage() {
       window.visualViewport.addEventListener('resize', handleViewportResize);
       window.visualViewport.addEventListener('scroll', handleViewportResize);
 
-      // 초기 높이 설정
+      // 초기 설정
       handleViewportResize();
     }
 
@@ -102,6 +109,11 @@ function LinePage() {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleViewportResize);
         window.visualViewport.removeEventListener('scroll', handleViewportResize);
+      }
+      // cleanup: transform 제거
+      const composer = document.querySelector('.chat-composer');
+      if (composer) {
+        composer.style.transform = '';
       }
     };
   }, []);

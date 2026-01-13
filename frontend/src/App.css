@@ -1059,8 +1059,7 @@ body {
   flex-direction: column;
   gap: var(--composer-gap);
 
-  /* 키패드가 올라올 때 입력란도 함께 상승 (iOS/Android 대응) */
-  transform: translateY(calc(100vh - var(--viewport-height, 100vh)));
+  /* transform은 JavaScript에서 직접 제어 (iOS visualViewport API) */
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
