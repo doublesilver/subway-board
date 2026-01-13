@@ -14,30 +14,26 @@
 // 운영 시간 체크 유틸리티
 
 export const checkIsOperatingHours = () => {
-    // ⚠️ 테스트를 위해 운영시간 체크 임시 비활성화
-    // 항상 true 반환 (24시간 운영)
-    return true;
+    // 1. 개발 모드 강제 설정 확인 (DevControl에서 설정)
+    const devMode = sessionStorage.getItem('app_mode');
 
-    // // 1. 개발 모드 강제 설정 확인 (DevControl에서 설정)
-    // const devMode = sessionStorage.getItem('app_mode');
+    // 개발 모드면 무조건 오픈 (테스트 용도)
+    if (devMode === 'development') {
+        return true;
+    }
 
-    // // 개발 모드면 무조건 오픈 (테스트 용도)
-    // if (devMode === 'development') {
-    //     return true;
-    // }
+    // 2. 실제 시간 체크 (평일 07:00 ~ 09:00)
+    const now = new Date();
+    const day = now.getDay(); // 0: 일요일, 6: 토요일
+    const hours = now.getHours();
 
-    // // 2. 실제 시간 체크 (평일 07:00 ~ 09:00)
-    // const now = new Date();
-    // const day = now.getDay(); // 0: 일요일, 6: 토요일
-    // const hours = now.getHours();
+    // 주말(토, 일)은 운영 안 함 (평일 출근길 컨셉)
+    if (day === 0 || day === 6) {
+        return false;
+    }
 
-    // // 주말(토, 일)은 운영 안 함 (평일 출근길 컨셉)
-    // if (day === 0 || day === 6) {
-    //     return false;
-    // }
+    // 07:00 ~ 09:00 (9시 정각에 닫힘)
+    const isOpen = hours >= 7 && hours < 9;
 
-    // // 07:00 ~ 09:00 (9시 정각에 닫힘)
-    // const isOpen = hours >= 7 && hours < 9;
-
-    // return isOpen;
+    return isOpen;
 };
