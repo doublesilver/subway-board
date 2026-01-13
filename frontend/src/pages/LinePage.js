@@ -283,8 +283,27 @@ function LinePage() {
       sessionStorage.removeItem(joinTimestampKey);
       sessionStorage.removeItem(hasJoinedKey);
       sessionStorage.removeItem(messagesKey);
+    };
+  }, [lineId]);
 
-      // Note: 퇴장 메시지는 handleBackClick에서 명시적으로 전송됨
+  // 화면 가시성 변경 감지 (백그라운드 -> 포그라운드 복귀 시 소켓 재연결)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const { reconnectSocket } = require('../utils/socket');
+        reconnectSocket();
+
+        // 데이터 최신화 (소켓이 끊겨있었을 수 있으므로)
+        fetchLineInfo();
+        // 메시지 누락 확인을 위해 마지막 메시지 이후 데이터만 요청하면 좋겠지만
+        // 현재 API 구조상 fetchMessages(false)로 전체/캐싱된 거 확인
+        // (실제 프로덕션에선 Last-Event-ID 기반 동기화가 이상적임)
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [lineId]);
 

@@ -146,3 +146,15 @@ export const offNewMessage = (callback) => {
     sock.off('new_message', callback);
   }
 };
+
+// 수동 재연결 (모바일 포그라운드 전환 시 사용)
+export const reconnectSocket = () => {
+  if (socket && !socket.connected) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[WebSocket] Attempting manual reconnection...');
+    }
+    socket.connect();
+  } else if (!socket) {
+    initSocket();
+  }
+};
