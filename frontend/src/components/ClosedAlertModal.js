@@ -19,9 +19,6 @@ const ClosedAlertModal = () => {
                     지하철 채팅은 출근 시간인<br />
                     <strong>평일 오전 07:00 ~ 09:00</strong>에만 운영됩니다.
                 </p>
-                <div className="modal-footer-text">
-                    Copyright 2026. gagisiro, Co., Ltd. All rights reserved.
-                </div>
             </div>
         </div>
     );
