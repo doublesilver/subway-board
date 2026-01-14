@@ -181,13 +181,21 @@ io.on('connection', (socket) => {
 - **결과**: 1초 단위 실시간 업데이트
 
 ### 4. Express 4 → 5 업그레이드
-**문제**: async 에러 핸들링의 복잡성
-**해결**: Express 5의 네이티브 async 지원 활용
+**문제**: async 에러 핸들링의 복잡성, 라우팅 문법 변경
+**해결**: Express 5의 네이티브 async 지원 활용 및 path-to-regexp 문법 적용
 - try-catch 보일러플레이트 제거
 - 통합 에러 핸들러로 일원화
+- 와일드카드 라우팅 문법 변경 (`app.all('*')` → `app.all('/{*path}')`)
 - **결과**: 에러 핸들링 코드 50% 감소
 
-### 5. 모바일 키보드 대응
+### 5. Railway 헬스체크 타임아웃
+**문제**: 서버 시작 중 Railway 헬스체크 실패로 무한 재시작 루프 발생
+**해결**: 서버 시작 순서 재구성
+- `httpServer.listen()`을 미들웨어 설정보다 먼저 실행
+- `/health` 엔드포인트를 가장 먼저 등록
+- **결과**: 헬스체크 응답 시간 단축, 안정적인 배포
+
+### 6. 모바일 키보드 대응
 **문제**: iOS/Android에서 키보드 출현 시 레이아웃 깨짐
 **해결**: visualViewport API 활용
 ```javascript
@@ -197,7 +205,7 @@ window.visualViewport?.addEventListener('resize', () => {
 ```
 - **결과**: iOS Safari, Chrome 정상 동작 확인
 
-### 6. CRA → Vite 마이그레이션
+### 7. CRA → Vite 마이그레이션
 **문제**: Create React App의 느린 개발 서버와 빌드 속도
 **해결**: Vite 6.0으로 마이그레이션
 - 환경 변수 체계 변경 (`REACT_APP_*` → `VITE_*`)
