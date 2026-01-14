@@ -6,18 +6,67 @@ const morgan = require('morgan');
 const compression = require('compression');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-const globalErrorHandler = require('./middleware/errorMiddleware');
-const AppError = require('./utils/AppError');
-const logger = require('./utils/logger');
 require('dotenv').config();
-
-const routes = require('./routes');
-const { startScheduler } = require('./utils/scheduler');
-const { RATE_LIMIT, SECURITY } = require('./config/constants');
 
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
+
+// 서버를 먼저 시작하여 Railway 헬스체크에 응답할 수 있도록 함
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+
+  // 서버 시작 후 스케줄러 초기화
+  try {
+    const { startScheduler } = require('./utils/scheduler');
+    startScheduler();
+  } catch (err) {
+    console.error('Failed to start scheduler:', err);
+  }
+});
+
+httpServer.on('error', (err) => {
+  console.error('Server error:', err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+  process.exit(1);
+});
+
+// 기본 헬스체크 (가장 먼저 등록)
+app.get('/health', async (req, res) => {
+  const health = {
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    database: 'unknown'
+  };
+
+  try {
+    const pool = require('./db/connection');
+    const startTime = Date.now();
+    await pool.query('SELECT NOW()');
+    const queryTime = Date.now() - startTime;
+
+    health.database = 'connected';
+    health.dbResponseTime = `${queryTime}ms`;
+  } catch (error) {
+    health.status = 'DEGRADED';
+    health.database = 'disconnected';
+    health.dbError = error.message;
+  }
+
+  const statusCode = health.status === 'OK' ? 200 : 503;
+  res.status(statusCode).json(health);
+});
+
+// 이후 미들웨어 및 라우트 설정
+const globalErrorHandler = require('./middleware/errorMiddleware');
+const AppError = require('./utils/AppError');
+const logger = require('./utils/logger');
+const routes = require('./routes');
+const { RATE_LIMIT, SECURITY } = require('./config/constants');
 
 // Trust proxy (Railway, Heroku 등 클라우드 플랫폼용)
 app.set('trust proxy', 1);
@@ -60,7 +109,6 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 logger.info('Allowed CORS origins:', { origins: allowedOrigins });
-console.log('[DEBUG] CORS origins set, continuing...');
 
 // 토스 미니앱 도메인 패턴 (https://<appName>.apps.tossmini.com 등)
 const isTossDomain = (origin) => {
@@ -95,7 +143,6 @@ const io = new Server(httpServer, {
 
 // Socket.io를 activeUsers에서 사용할 수 있도록 글로벌로 설정
 global.io = io;
-console.log('[DEBUG] Socket.io initialized');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -123,10 +170,8 @@ const readLimiter = rateLimit({
 
 app.use('/api', writeLimiter);
 app.use('/api', readLimiter);
-console.log('[DEBUG] Rate limiters set');
 
 app.use('/api', routes);
-console.log('[DEBUG] Routes loaded');
 
 app.get('/', (req, res) => {
   res.json({
@@ -140,73 +185,17 @@ app.get('/', (req, res) => {
     }
   });
 });
-console.log('[DEBUG] Root route defined');
-
-app.get('/health', async (req, res) => {
-  const health = {
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    database: 'unknown'
-  };
-
-  try {
-    const pool = require('./db/connection');
-    const startTime = Date.now();
-    const result = await pool.query('SELECT NOW()');
-    const queryTime = Date.now() - startTime;
-
-    health.database = 'connected';
-    health.dbResponseTime = `${queryTime}ms`;
-  } catch (error) {
-    health.status = 'DEGRADED';
-    health.database = 'disconnected';
-    health.dbError = error.message;
-    logger.error('Health check database error:', { error: error.message, stack: error.stack });
-  }
-
-  const statusCode = health.status === 'OK' ? 200 : 503;
-  res.status(statusCode).json(health);
-});
-console.log('[DEBUG] Health route defined');
 
 // 404 Handler
-console.log('[DEBUG] About to set 404 handler');
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
-console.log('[DEBUG] 404 handler set');
 
 // Global Error Handler
 app.use(globalErrorHandler);
-console.log('[DEBUG] Error handler set');
 
 // Socket.io 이벤트 핸들러
 const { handleSocketConnection } = require('./utils/activeUsers');
 io.on('connection', handleSocketConnection);
-console.log('[DEBUG] Socket connection handler set');
-
-// 서버 시작
-console.log(`Attempting to start server on port ${PORT}...`);
-httpServer.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  logger.info(`Server is running on port ${PORT}`);
-  logger.info('WebSocket server is ready');
-  try {
-    startScheduler();
-  } catch (err) {
-    logger.error('Failed to start scheduler:', err);
-  }
-});
-
-httpServer.on('error', (err) => {
-  console.error('Server error:', err);
-  logger.error('Server error:', err);
-});
-
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught exception:', err);
-  process.exit(1);
-});
 
 module.exports = app;
