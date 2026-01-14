@@ -12,7 +12,7 @@
 | `frontend/src/utils/operatingHours.js` | 테스트 모드 플래그 체크 추가 | 해당 로직 제거 |
 | `frontend/src/components/ClosedAlertModal.jsx` | 입장하기 버튼 추가 | 기존 코드로 복원 |
 | `frontend/src/App.css` | 입장하기 버튼 스타일 추가 | 추가된 스타일 제거 |
-| `backend/src/middleware/operatingHours.js` | TEST_MODE 환경변수 체크 추가 | 해당 로직 제거 |
+| `backend/src/middleware/checkOperatingHours.js` | TEST_MODE 환경변수 체크 추가 | 해당 로직 제거 |
 | `backend/src/utils/scheduler.js` | 초기화 시간 0시로 변경 | 9시로 원복 |
 | `backend/.env` | TEST_MODE=true 추가 | 해당 변수 제거 |
 
@@ -110,7 +110,7 @@ const ClosedAlertModal = () => {
                 <p className="modal-desc">
                     입장하기 버튼을 통해서 이용해 보세요!<br /><br />
                     <span className="operating-hours-info">
-                        정식 운영 시간: 평일 오전 7시 ~ 9시
+                        19일(월) 이후에는 07시~09시에만 운영됩니다
                     </span>
                 </p>
                 <button className="enter-test-button" onClick={handleEnterTestMode}>
@@ -195,7 +195,7 @@ export default ClosedAlertModal;
 
 ## 2. 백엔드 원복
 
-### 2-1. `backend/src/middleware/operatingHours.js`
+### 2-1. `backend/src/middleware/checkOperatingHours.js`
 
 **현재 (테스트 기간):**
 ```javascript
@@ -316,10 +316,10 @@ TEST_MODE=true
 - [ ] `frontend/src/utils/operatingHours.js` - 테스트 모드 플래그 체크 제거
 - [ ] `frontend/src/components/ClosedAlertModal.jsx` - 기존 코드로 복원
 - [ ] `frontend/src/App.css` - 테스트 기간용 버튼 스타일 제거
-- [ ] `backend/src/middleware/operatingHours.js` - TEST_MODE 체크 제거
+- [ ] `backend/src/middleware/checkOperatingHours.js` - TEST_MODE 체크 제거
 - [ ] `backend/src/utils/scheduler.js` - cron 스케줄 `0 0 * * *` → `0 9 * * *`
 - [ ] `backend/.env` - TEST_MODE 환경변수 제거
-- [ ] Railway 환경변수에서 TEST_MODE 제거 (설정한 경우)
+- [ ] **Railway 환경변수에서 TEST_MODE 제거** (현재 설정되어 있음)
 - [ ] 프론트엔드 재배포 (Vercel)
 - [ ] 백엔드 재배포 (Railway)
 
