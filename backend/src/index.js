@@ -186,8 +186,8 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 Handler
-app.all('*', (req, res, next) => {
+// 404 Handler (Express 5: '*' -> '/*' 또는 '{*path}')
+app.all('/{*path}', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
