@@ -42,6 +42,15 @@ frontend/build/
 coverage/
 .nyc_output/
 
+
 # Misc
 .cache/
 .temp/
+
+# Cleanup Targets (Local only)
+toss.md
+frontend/app.json
+*.py
+*.zip
+stitch_subway_board_home_screen/
+Subway Board Chat App/
