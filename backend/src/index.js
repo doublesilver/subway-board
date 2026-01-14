@@ -180,17 +180,15 @@ app.use(globalErrorHandler);
 const { handleSocketConnection } = require('./utils/activeUsers');
 io.on('connection', handleSocketConnection);
 
-// 서버 시작 (테스트 환경에서는 별도로 처리)
-if (process.env.NODE_ENV !== 'test') {
-  httpServer.listen(PORT, () => {
-    logger.info(`Server is running on port ${PORT}`);
-    logger.info('WebSocket server is ready');
-    try {
-      startScheduler();
-    } catch (err) {
-      logger.error('Failed to start scheduler:', err);
-    }
-  });
-}
+// 서버 시작
+httpServer.listen(PORT, () => {
+  logger.info(`Server is running on port ${PORT}`);
+  logger.info('WebSocket server is ready');
+  try {
+    startScheduler();
+  } catch (err) {
+    logger.error('Failed to start scheduler:', err);
+  }
+});
 
 module.exports = app;
