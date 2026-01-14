@@ -60,6 +60,7 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 logger.info('Allowed CORS origins:', { origins: allowedOrigins });
+console.log('[DEBUG] CORS origins set, continuing...');
 
 // 토스 미니앱 도메인 패턴 (https://<appName>.apps.tossmini.com 등)
 const isTossDomain = (origin) => {
@@ -94,6 +95,7 @@ const io = new Server(httpServer, {
 
 // Socket.io를 activeUsers에서 사용할 수 있도록 글로벌로 설정
 global.io = io;
+console.log('[DEBUG] Socket.io initialized');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -121,8 +123,10 @@ const readLimiter = rateLimit({
 
 app.use('/api', writeLimiter);
 app.use('/api', readLimiter);
+console.log('[DEBUG] Rate limiters set');
 
 app.use('/api', routes);
+console.log('[DEBUG] Routes loaded');
 
 app.get('/', (req, res) => {
   res.json({
@@ -175,10 +179,12 @@ app.all('*', (req, res, next) => {
 
 // Global Error Handler
 app.use(globalErrorHandler);
+console.log('[DEBUG] Error handler set');
 
 // Socket.io 이벤트 핸들러
 const { handleSocketConnection } = require('./utils/activeUsers');
 io.on('connection', handleSocketConnection);
+console.log('[DEBUG] Socket connection handler set');
 
 // 서버 시작
 console.log(`Attempting to start server on port ${PORT}...`);
