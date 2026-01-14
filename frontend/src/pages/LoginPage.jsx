@@ -9,7 +9,7 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   // Check if Kakao login is enabled via environment variable
-  const isKakaoLoginEnabled = process.env.REACT_APP_ENABLE_KAKAO_LOGIN === 'true';
+  const isKakaoLoginEnabled = import.meta.env.VITE_ENABLE_KAKAO_LOGIN === 'true';
 
   const handleAnonymousLogin = () => {
     setLoading(true);

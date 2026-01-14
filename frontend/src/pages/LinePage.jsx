@@ -246,7 +246,7 @@ function LinePage() {
     // ⚠️ 새로고침 시에는 입장 플래그를 제거하지 않음
     const handleBeforeUnload = (e) => {
       // sendBeacon으로 페이지 종료 시에도 전송 보장
-      const url = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/posts/leave`;
+      const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/posts/leave`;
       const data = JSON.stringify({ subway_line_id: parseInt(lineId) });
 
       // 세션 스토리지에서 사용자 정보 가져오기

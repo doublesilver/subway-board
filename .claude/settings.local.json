@@ -32,7 +32,8 @@
       "Bash(findstr:*)",
       "Bash(git revert:*)",
       "Bash(npx knex:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(ls:*)"
     ]
   }
 }

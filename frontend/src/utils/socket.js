@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 let socket = null;
 let connectionStatusCallback = null;
@@ -17,7 +17,7 @@ export const initSocket = () => {
     });
 
     socket.on('connect', () => {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.MODE === 'development') {
         console.log('[WebSocket] Connected to server');
       }
       if (connectionStatusCallback) {
@@ -26,7 +26,7 @@ export const initSocket = () => {
     });
 
     socket.on('disconnect', (reason) => {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.MODE === 'development') {
         console.log('[WebSocket] Disconnected from server:', reason);
       }
       if (connectionStatusCallback) {
@@ -35,7 +35,7 @@ export const initSocket = () => {
     });
 
     socket.on('reconnect_attempt', (attemptNumber) => {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.MODE === 'development') {
         console.log(`[WebSocket] Reconnection attempt ${attemptNumber}`);
       }
       if (connectionStatusCallback) {
@@ -44,7 +44,7 @@ export const initSocket = () => {
     });
 
     socket.on('reconnect_failed', () => {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.MODE === 'development') {
         console.error('[WebSocket] Reconnection failed');
       }
       if (connectionStatusCallback) {
@@ -53,7 +53,7 @@ export const initSocket = () => {
     });
 
     socket.on('connect_error', (error) => {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.MODE === 'development') {
         console.error('[WebSocket] Connection error:', error);
       }
       if (connectionStatusCallback) {
@@ -93,7 +93,7 @@ export const disconnectSocket = () => {
 export const joinLine = (lineId, sessionId) => {
   const sock = getSocket();
   sock.emit('join_line', { lineId, sessionId });
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.MODE === 'development') {
     console.log(`[WebSocket] Joining line ${lineId} with session ${sessionId}`);
   }
 };
@@ -102,7 +102,7 @@ export const joinLine = (lineId, sessionId) => {
 export const leaveLine = (lineId) => {
   const sock = getSocket();
   sock.emit('leave_line', { lineId });
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.MODE === 'development') {
     console.log(`[WebSocket] Leaving line ${lineId}`);
   }
 };
@@ -150,7 +150,7 @@ export const offNewMessage = (callback) => {
 // 수동 재연결 (모바일 포그라운드 전환 시 사용)
 export const reconnectSocket = () => {
   if (socket && !socket.connected) {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.log('[WebSocket] Attempting manual reconnection...');
     }
     socket.connect();
