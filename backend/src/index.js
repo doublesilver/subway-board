@@ -61,10 +61,19 @@ const allowedOrigins = [
 
 logger.info('Allowed CORS origins:', { origins: allowedOrigins });
 
+// 토스 미니앱 도메인 패턴 (https://<appName>.apps.tossmini.com 등)
+const isTossDomain = (origin) => {
+  return /^https:\/\/[a-z0-9-]+\.(apps|private-apps)\.tossmini\.com$/.test(origin);
+};
+
 app.use(cors({
   origin: function (origin, callback) {
     logger.http('CORS request from origin:', { origin });
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin)) {
       callback(null, true);
     } else {
       logger.warn('CORS blocked for origin:', { origin });
@@ -171,12 +180,16 @@ app.use(globalErrorHandler);
 const { handleSocketConnection } = require('./utils/activeUsers');
 io.on('connection', handleSocketConnection);
 
-httpServer.listen(PORT, () => {
-  logger.info(`Server is running on port ${PORT}`);
-  logger.info('WebSocket server is ready');
-  try {
-    startScheduler();
-  } catch (err) {
-    logger.error('Failed to start scheduler:', err);
-  }
-});
+if (require.main === module) {
+  httpServer.listen(PORT, () => {
+    logger.info(`Server is running on port ${PORT}`);
+    logger.info('WebSocket server is ready');
+    try {
+      startScheduler();
+    } catch (err) {
+      logger.error('Failed to start scheduler:', err);
+    }
+  });
+}
+
+module.exports = app;
