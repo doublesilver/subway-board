@@ -5,15 +5,31 @@
 > 같은 호선, 같은 방향으로 향하는 수많은 사람들. 하지만 서로의 표정은 읽을 수 없어 더욱 삭막한 아침.
 > 이 프로젝트는 **'가장 붐비는 시간, 가장 외로운 사람들'**을 연결하기 위해 시작된 **디지털 대나무 숲**입니다.
 
-[![Deploy Status](https://img.shields.io/badge/deploy-live-brightgreen)](https://gagisiro.com)
-[![Node.js](https://img.shields.io/badge/Node.js-22_LTS-339933?logo=node.js)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite)](https://vitejs.dev/)
-[![Express](https://img.shields.io/badge/Express-5-000000?logo=express)](https://expressjs.com/)
-[![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
+<div align="center">
 
-🔗 **Live Demo**: [https://gagisiro.com](https://gagisiro.com)
-⏰ **운영 시간**: 평일 오전 7시 ~ 9시 (주말·공휴일 제외)
+[![Deploy Status](https://img.shields.io/badge/deploy-live-brightgreen?style=for-the-badge)](https://gagisiro.com)
+[![Node.js](https://img.shields.io/badge/Node.js-22_LTS-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Express](https://img.shields.io/badge/Express-5-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+
+🔗 **Live Demo**: [https://gagisiro.com](https://gagisiro.com) | ⏰ **운영 시간**: 평일 07:00 ~ 09:00
+
+</div>
+
+---
+
+## 📑 목차
+
+- [프로젝트 개요](#-프로젝트-개요)
+- [주요 기능](#-주요-기능)
+- [기술 스택](#-기술-스택)
+- [시스템 아키텍처](#-시스템-아키텍처)
+- [기술적 도전과 해결](#-기술적-도전과-해결)
+- [프로젝트 구조](#-프로젝트-구조)
+- [로컬 실행 방법](#-로컬-실행-방법)
+- [테스트 전략](#-테스트-전략)
+- [성능 및 확장성](#-성능-및-확장성)
 
 ---
 
@@ -30,6 +46,26 @@
 
 ## ✨ 주요 기능
 
+```mermaid
+mindmap
+  root((가기싫어))
+    실시간 채팅
+      9개 호선별 독립 채널
+      Socket.IO 양방향 통신
+      실시간 접속자 카운팅
+    시간 제한 서비스
+      평일 07:00~09:00 운영
+      클라이언트/서버 이중 검증
+      비운영시간 안내 모달
+    완전한 익명성
+      회원가입 불필요
+      UUID 세션 관리
+      매일 09:00 자동 삭제
+    모바일 최적화
+      모바일 퍼스트 디자인
+      iOS/Android 키보드 대응
+      다크모드 지원
+```
 
 ### 🚇 호선별 실시간 채팅
 - 1호선부터 9호선까지 9개 독립 채널 운영
@@ -49,11 +85,45 @@
 ### 📱 모바일 최적화
 - 모바일 퍼스트 반응형 디자인
 - iOS/Android 키보드 대응 (visualViewport API)
-- 터치 친화적 UI/UX
+- 시스템 다크모드 자동 지원
 
 ---
 
 ## 🛠 기술 스택
+
+```mermaid
+flowchart LR
+    subgraph Frontend["🖥️ Frontend"]
+        React[React 19]
+        Vite[Vite 6]
+        Router[React Router 7]
+        SIO_C[Socket.IO Client]
+    end
+
+    subgraph Backend["⚙️ Backend"]
+        Node[Node.js 22 LTS]
+        Express[Express 5]
+        SIO_S[Socket.IO Server]
+        Helmet[Helmet 8]
+    end
+
+    subgraph Database["💾 Database"]
+        PG[(PostgreSQL 16)]
+    end
+
+    subgraph Infra["☁️ Infrastructure"]
+        Vercel[Vercel]
+        Railway[Railway]
+    end
+
+    React --> SIO_C
+    SIO_C <-->|WebSocket| SIO_S
+    React -->|HTTP| Express
+    Express --> PG
+    Frontend --> Vercel
+    Backend --> Railway
+    PG --> Railway
+```
 
 ### Frontend
 | 기술 | 버전 | 선택 이유 |
@@ -83,100 +153,129 @@
 
 ## 🏗 시스템 아키텍처
 
+### 전체 아키텍처
+```mermaid
+flowchart TB
+    subgraph Client["👤 Client (Browser)"]
+        ReactApp[React SPA]
+        WS_Client[WebSocket Client]
+    end
+
+    subgraph CDN["🌐 Vercel CDN"]
+        Static[Static Assets]
+    end
+
+    subgraph Server["🖥️ Railway Server"]
+        ExpressAPI[Express 5 API]
+        WS_Server[Socket.IO Server]
+        Scheduler[Cron Scheduler]
+    end
+
+    subgraph DB["💾 Railway PostgreSQL"]
+        PostgreSQL[(PostgreSQL 16)]
+    end
+
+    ReactApp -->|HTTPS| Static
+    Static -->|API Calls| ExpressAPI
+    WS_Client <-->|WebSocket| WS_Server
+    ExpressAPI -->|Query| PostgreSQL
+    Scheduler -->|Daily Cleanup| PostgreSQL
 ```
-flowchart LR
-    A["React SPA\n(Vercel)"]
-    B["Express API\n(Railway)"]
-    C[("PostgreSQL\n(Railway)")]
 
-    %% HTTP Request
-    A --> B
-    B --> C
+### 실시간 채팅 흐름 (Sequence Diagram)
+```mermaid
+sequenceDiagram
+    participant U as 사용자
+    participant C as React Client
+    participant S as Socket.IO Server
+    participant DB as PostgreSQL
 
-    %% WebSocket Connection
-    A <-->|WebSocket\nSocket.IO| B
-    
-    %% 스타일링 (선택사항)
-    style A fill:#fff,stroke:#333,stroke-width:2px
-    style B fill:#fff,stroke:#333,stroke-width:2px
-    style C fill:#fff,stroke:#333,stroke-width:2px
+    U->>C: 호선 선택 (2호선)
+    C->>S: join_line(lineId: 2)
+    S->>S: socket.join("line_2")
+    S-->>C: user_count 업데이트
+
+    U->>C: 메시지 입력 "출근 힘들어요"
+    C->>S: POST /api/posts
+    S->>S: 운영시간 검증
+    S->>DB: INSERT message
+    DB-->>S: OK
+    S-->>C: 201 Created
+    S->>S: io.to("line_2").emit()
+    S-->>C: new_message (broadcast)
+
+    Note over C,S: 다른 사용자들도 실시간 수신
 ```
 
-### 💾 데이터베이스 설계 (ERD)
-PostgreSQL을 사용하여 채팅 로그와 호선 정보를 관리합니다.
-
+### 데이터베이스 설계 (ERD)
 ```mermaid
 erDiagram
-    SUBWAY_LINE ||--o{ MESSAGE : "contains"
-    SUBWAY_LINE {
+    SUBWAY_LINES ||--o{ POSTS : contains
+    POSTS ||--o{ COMMENTS : has
+
+    SUBWAY_LINES {
         int id PK
-        string name "1호선~9호선"
-    }
-    MESSAGE {
-        uuid id PK
-        int line_id FK
-        text content
+        string line_number "1~9"
+        string line_name "1호선~9호선"
+        string color "#0052A4"
         timestamp created_at
-        string ip_hash "익명 사용자 식별"
+    }
+
+    POSTS {
+        uuid id PK
+        int subway_line_id FK
+        text content
+        string message_type "message|join|leave"
+        string session_id "익명 세션"
+        timestamp created_at
+    }
+
+    COMMENTS {
+        uuid id PK
+        uuid post_id FK
+        text content
+        string session_id
+        timestamp created_at
     }
 ```
 
-
-### 🔌 API 명세 (Example)
-<details>
-<summary>👉 API 상세 명세 보기 (클릭)</summary>
-
-#### `POST /api/lines/:lineId/messages`
-- **기능**: 특정 호선에 메시지 전송
-- **Request**:
-  ```json
-  { "content": "지금 신도림역 사람 너무 많아요 ㅠㅠ" }
-  ```
-- **Response** (201 Created):
-  ```json
-  { "success": true, "messageId": "uuid-..." }
-  ```
-
-#### `GET /api/lines`
-- **기능**: 호선 목록 및 현재 접속자 수 조회
-- **Response** (200 OK):
-  ```json
-  [
-    { "id": 1, "name": "1호선", "userCount": 42 },
-    { "id": 2, "name": "2호선", "userCount": 128 }
-  ]
-  ```
-</details>
-
-### WebSocket 이벤트
-- `join_line` - 호선 입장
-- `leave_line` - 호선 퇴장
-- `new_message` - 새 메시지 브로드캐스트
-- `user_count` - 접속자 수 업데이트
+### WebSocket 이벤트 흐름
+```mermaid
+stateDiagram-v2
+    [*] --> Connected: socket.connect()
+    Connected --> InRoom: join_line(lineId)
+    InRoom --> InRoom: new_message
+    InRoom --> InRoom: user_count
+    InRoom --> Connected: leave_line
+    Connected --> [*]: disconnect
+```
 
 ---
 
 ## 🎯 기술적 도전과 해결
 
-### 1. 배포 환경 트러블 슈팅 (추가됨)
-**문제**: Railway 배포 시 `npm warn config production` 경고와 함께 서버 크래시 발생
-**원인**: 프로덕션 환경에서 devDependencies가 설치되지 않아 빌드 도구 누락 및 포트 바인딩 실패
-**해결**:
-- `NPM_CONFIG_PRODUCTION=false` 환경 변수 설정으로 빌드 의존성 확보
-- 하드코딩된 포트 대신 `process.env.PORT`를 사용하여 클라우드 환경 동적 포트 할당
-**배운점**: 로컬과 클라우드 배포 환경의 차이 이해 및 환경 변수 관리의 중요성 체득
+### 1. 배포 환경 트러블슈팅
+| 문제 | 원인 | 해결 |
+|------|------|------|
+| Railway 서버 크래시 | devDependencies 미설치 | `NPM_CONFIG_PRODUCTION=false` 설정 |
+| 포트 바인딩 실패 | 하드코딩된 포트 | `process.env.PORT` 동적 할당 |
 
 ### 2. 운영 시간 이중 검증
-**문제**: 클라이언트 시간 조작으로 우회 가능
-**해결**: 서버 사이드 검증 추가
-- 클라이언트: 빠른 UX를 위한 1차 검증
-- 서버: API 요청 시 2차 검증
-- **결과**: 완벽한 운영 시간 통제
+```mermaid
+flowchart LR
+    A[사용자 요청] --> B{클라이언트 검증}
+    B -->|통과| C[API 요청]
+    B -->|차단| D[안내 모달]
+    C --> E{서버 검증}
+    E -->|통과| F[요청 처리]
+    E -->|차단| G[403 에러]
+```
+- **클라이언트**: 빠른 UX를 위한 1차 검증
+- **서버**: API 요청 시 2차 검증 (우회 방지)
 
 ### 3. 실시간 접속자 카운팅
-**문제**: 정확한 동시 접속자 수 파악
-**해결**: Socket.IO Room + 메모리 카운터
 ```javascript
+// Socket.IO Room 기반 카운팅
 io.on('connection', (socket) => {
   socket.on('join_line', (lineId) => {
     socket.join(`line_${lineId}`);
@@ -184,41 +283,42 @@ io.on('connection', (socket) => {
   });
 });
 ```
-- **결과**: 1초 단위 실시간 업데이트
 
-### 4. Express 4 → 5 업그레이드
-**문제**: async 에러 핸들링의 복잡성, 라우팅 문법 변경
-**해결**: Express 5의 네이티브 async 지원 활용 및 path-to-regexp 문법 적용
-- try-catch 보일러플레이트 제거
-- 통합 에러 핸들러로 일원화
-- 와일드카드 라우팅 문법 변경 (`app.all('*')` → `app.all('/{*path}')`)
-- **결과**: 에러 핸들링 코드 50% 감소
+### 4. Express 5 마이그레이션
+| 변경사항 | Express 4 | Express 5 |
+|----------|-----------|-----------|
+| 와일드카드 라우팅 | `app.all('*')` | `app.all('/{*path}')` |
+| async 에러 핸들링 | try-catch 필요 | 네이티브 지원 |
+| path-to-regexp | v1 | v8 |
 
 ### 5. Railway 헬스체크 타임아웃
-**문제**: 서버 시작 중 Railway 헬스체크 실패로 무한 재시작 루프 발생
-**해결**: 서버 시작 순서 재구성
-- `httpServer.listen()`을 미들웨어 설정보다 먼저 실행
-- `/health` 엔드포인트를 가장 먼저 등록
-- **결과**: 헬스체크 응답 시간 단축, 안정적인 배포
+```mermaid
+flowchart TB
+    subgraph Before["❌ 기존 (타임아웃)"]
+        A1[미들웨어 설정] --> A2[라우트 등록] --> A3[서버 시작]
+    end
+
+    subgraph After["✅ 개선 (즉시 응답)"]
+        B1[서버 시작] --> B2[/health 등록] --> B3[미들웨어 설정]
+    end
+```
 
 ### 6. 모바일 키보드 대응
-**문제**: iOS/Android에서 키보드 출현 시 레이아웃 깨짐
-**해결**: visualViewport API 활용
 ```javascript
+// visualViewport API 활용
 window.visualViewport?.addEventListener('resize', () => {
-  // 키보드 높이만큼 입력창 위치 조정
+  const keyboardHeight = window.innerHeight - window.visualViewport.height;
+  // 입력창 위치 조정
 });
 ```
-- **결과**: iOS Safari, Chrome 정상 동작 확인
 
 ### 7. CRA → Vite 마이그레이션
-**문제**: Create React App의 느린 개발 서버와 빌드 속도
-**해결**: Vite 6.0으로 마이그레이션
-- 환경 변수 체계 변경 (`REACT_APP_*` → `VITE_*`)
-- JSX 파일 확장자 명시적 변경
-- ES 모듈 기반 설정
-- **결과**: 빌드 시간 70% 단축
-
+| 항목 | CRA | Vite |
+|------|-----|------|
+| 개발 서버 시작 | ~10초 | ~1초 |
+| HMR 속도 | ~2초 | ~50ms |
+| 프로덕션 빌드 | ~60초 | ~20초 |
+| 환경변수 접두사 | `REACT_APP_*` | `VITE_*` |
 
 ---
 
@@ -226,31 +326,33 @@ window.visualViewport?.addEventListener('resize', () => {
 
 ```
 subway-board/
-├── frontend/                 # React 프론트엔드
-│   ├── src/
-│   │   ├── components/       # 재사용 컴포넌트
-│   │   │   ├── chat/         # 채팅 관련 컴포넌트
-│   │   │   ├── common/       # 공통 UI 컴포넌트
-│   │   │   └── feedback/     # 피드백 컴포넌트
-│   │   ├── contexts/         # React Context (테마, 인증)
-│   │   ├── hooks/            # 커스텀 훅
-│   │   ├── pages/            # 페이지 컴포넌트
-│   │   ├── services/         # API 서비스
-│   │   ├── styles/           # CSS 스타일
-│   │   └── utils/            # 유틸리티 함수
-│   ├── public/               # 정적 파일
-│   ├── index.html            # Vite 엔트리 포인트
-│   └── vite.config.js        # Vite 설정
+├── 📂 frontend/                 # React 프론트엔드
+│   ├── 📂 src/
+│   │   ├── 📂 components/       # 재사용 컴포넌트
+│   │   │   ├── 📂 chat/         # 채팅 관련
+│   │   │   ├── 📂 common/       # 공통 UI
+│   │   │   └── 📂 feedback/     # 피드백
+│   │   ├── 📂 contexts/         # React Context
+│   │   ├── 📂 hooks/            # 커스텀 훅
+│   │   ├── 📂 pages/            # 페이지 컴포넌트
+│   │   ├── 📂 services/         # API 서비스
+│   │   ├── 📂 styles/           # CSS 스타일
+│   │   └── 📂 utils/            # 유틸리티
+│   ├── 📄 index.html            # Vite 엔트리
+│   └── 📄 vite.config.js        # Vite 설정
 │
-├── backend/                  # Express 백엔드
-│   ├── src/
-│   │   ├── routes/           # API 라우트
-│   │   ├── services/         # 비즈니스 로직
-│   │   ├── socket/           # Socket.IO 핸들러
-│   │   └── utils/            # 유틸리티
-│   └── server.js             # 서버 엔트리 포인트
+├── 📂 backend/                  # Express 백엔드
+│   ├── 📂 src/
+│   │   ├── 📂 config/           # 설정 파일
+│   │   ├── 📂 controllers/      # 컨트롤러
+│   │   ├── 📂 db/               # DB 연결/마이그레이션
+│   │   ├── 📂 middleware/       # 미들웨어
+│   │   ├── 📂 routes/           # API 라우트
+│   │   └── 📂 utils/            # 유틸리티
+│   └── 📄 index.js              # 서버 엔트리
 │
-└── vercel.json               # Vercel 배포 설정
+├── 📄 RESTORE.md                # 원복 가이드
+└── 📄 README.md                 # 프로젝트 문서
 ```
 
 ---
@@ -262,21 +364,40 @@ subway-board/
 - PostgreSQL 16.x 이상
 - npm 10.x 이상
 
-### Backend 실행
+### Quick Start
 ```bash
+# 1. 저장소 클론
+git clone https://github.com/your-repo/subway-board.git
+cd subway-board
+
+# 2. Backend 실행
 cd backend
-cp .env.example .env
-# .env 파일에 DATABASE_URL 설정
+cp .env.example .env  # DATABASE_URL 설정 필요
 npm install
-npm run dev  # http://localhost:5000
+npm run dev           # http://localhost:5000
+
+# 3. Frontend 실행 (새 터미널)
+cd frontend
+npm install
+npm run dev           # http://localhost:3000
 ```
 
-### Frontend 실행
+---
+
+## 🧪 테스트 전략
+
+### 3-Layer 테스트 전략
+
+| Layer | 대상 | 도구 | 목적 |
+|-------|------|------|------|
+| **Unit** | `validator.js` | Jest | XSS/SQL Injection 차단 검증 |
+| **Business** | `operatingHours.js` | Jest + Fake Timers | 운영시간 로직 검증 |
+| **Integration** | `/health` API | Supertest | 시스템 가용성 확인 |
+
 ```bash
-cd frontend
-cp .env.example .env
-npm install
-npm run dev  # http://localhost:3000
+# 테스트 실행
+cd backend
+npm test
 ```
 
 ---
@@ -284,74 +405,69 @@ npm run dev  # http://localhost:3000
 ## 📊 성능 및 확장성
 
 ### 현재 아키텍처 지원 범위
-| 동시 접속자 | 상태 | 비고 |
-|------------|------|------|
-| ~100명 | ✅ 안정 | 현재 설정으로 충분 |
-| ~500명 | ⚠️ 주의 | Socket.IO 프로세스 부하 증가 예상 |
-| ~1,000명 | 🔶 업그레이드 | 서버 스펙 상향 필요 |
-| 1,000명+ | 🔴 아키텍처 변경 | Redis, 로드밸런서 필요 |
+
+| 동시 접속자 | 상태 | 대응 방안 |
+|------------|------|----------|
+| ~100명 | ✅ 안정 | 현재 설정 |
+| ~500명 | ⚠️ 주의 | 모니터링 강화 |
+| ~1,000명 | 🔶 업그레이드 | 서버 스펙 상향 |
+| 1,000명+ | 🔴 아키텍처 변경 | Redis + 로드밸런서 |
 
 ### 향후 확장 계획
-- Redis 기반 세션/캐시 레이어 추가
-- Socket.IO Redis Adapter 적용
-- 수평적 스케일링 지원
+```mermaid
+flowchart LR
+    subgraph Current["현재"]
+        A[단일 서버]
+    end
+
+    subgraph Future["확장 시"]
+        B[Load Balancer]
+        C[Server 1]
+        D[Server 2]
+        E[(Redis)]
+        F[(PostgreSQL)]
+    end
+
+    Current --> Future
+    B --> C & D
+    C & D --> E
+    C & D --> F
+```
 
 ---
 
 ## 🔐 보안 고려사항
 
-- **Helmet.js**: HTTP 보안 헤더 자동 설정
-- **Rate Limiting**: API 요청 제한 (분당 100회)
-- **CORS**: 허용된 도메인만 접근 가능
-- **Input Validation**: 메시지 길이 및 형식 검증
-- **SQL Injection 방지**: Parameterized Query 사용
+| 보안 영역 | 구현 내용 |
+|----------|----------|
+| **HTTP 헤더** | Helmet.js로 보안 헤더 자동 설정 |
+| **Rate Limiting** | API 요청 제한 (쓰기: 10회/분, 읽기: 100회/분) |
+| **CORS** | 허용된 도메인만 접근 가능 |
+| **Input Validation** | XSS 필터링, 메시지 길이 검증 |
+| **SQL Injection** | Parameterized Query 사용 |
 
 ---
 
-## 🧪 테스트 전략 (Quality Assurance)
+## 📝 개발 타임라인
 
-안정적인 서비스를 제공하기 위해 **3-Layer 테스트 전략**을 구축했습니다.
-`npm test` 명령어로 전체 테스트 슈트를 실행할 수 있습니다.
-
-### 1. Unit Tests (단위 테스트)
-- **대상**: `validator.js`
-- **목표**: 입력값 유효성 및 보안 검증
-- **내용**: XSS 및 SQL Injection 패턴 차단 여부 검증
-
-### 2. Business Logic Tests (비즈니스 로직 테스트)
-- **대상**: `operatingHours.js`
-- **목표**: 시간 기반 정책의 정합성 검증
-- **내용**: `jest.useFakeTimers()`를 활용하여 **가상 시간(Mock Time)** 환경에서 평일/주말 및 운영 시간(07~09시) 내/외 차단 로직 완벽 검증
-
-### 3. Integration Tests (통합 테스트)
-- **대상**: `/health` 엔드포인트
-- **목표**: 시스템 가용성 확인
-- **내용**: Express 서버 초기화 및 DB 연결 상태 실시간 검증
-
----
-
-## 📝 개발 일지
-
-### Week 1-2: 기획 및 설계
-- 서비스 컨셉 확정 (출근길 익명 채팅)
-- 와이어프레임 설계
-- 기술 스택 선정
-
-### Week 3-4: 핵심 기능 구현
-- 프론트엔드/백엔드 기본 구조 구축
-- Socket.IO 실시간 채팅 구현
-- PostgreSQL 연동
-
-### Week 5: UI/UX 개선
-- 모바일 최적화
-- 키보드 대응 개선
-- 로딩 상태 통합
-
-### Week 6: 최적화 및 배포
-- CRA → Vite 마이그레이션
-- Express 4 → 5 업그레이드
-- Node.js 22 LTS 적용
-- 프로덕션 배포
+```mermaid
+gantt
+    title 개발 일정
+    dateFormat  YYYY-MM-DD
+    section 기획
+    서비스 컨셉 확정     :done, 2025-12-01, 7d
+    와이어프레임 설계    :done, 2025-12-08, 7d
+    section 개발
+    프론트엔드 구축      :done, 2025-12-15, 14d
+    백엔드 API 개발      :done, 2025-12-15, 14d
+    Socket.IO 연동       :done, 2025-12-22, 7d
+    section 최적화
+    UI/UX 개선          :done, 2026-01-01, 7d
+    Vite 마이그레이션   :done, 2026-01-05, 3d
+    Express 5 업그레이드 :done, 2026-01-08, 3d
+    section 배포
+    프로덕션 배포        :done, 2026-01-11, 3d
+```
 
 ---
 
@@ -375,4 +491,10 @@ MIT License - 자유롭게 사용, 수정, 배포 가능합니다.
 
 ---
 
-> *이 프로젝트는 개인 포트폴리오 목적으로 제작되었으며, 실제 지하철 운영 주체와는 무관합니다.*
+<div align="center">
+
+*이 프로젝트는 개인 포트폴리오 목적으로 제작되었으며, 실제 지하철 운영 주체와는 무관합니다.*
+
+**Made with ❤️ by a developer who also hates Monday mornings**
+
+</div>
