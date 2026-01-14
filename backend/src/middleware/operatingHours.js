@@ -1,6 +1,9 @@
 const { ErrorCodes } = require('../utils/errorCodes');
 const AppError = require('../utils/AppError');
 
+// 서버 시작 시 TEST_MODE 값 로깅
+console.log('[OperatingHours] TEST_MODE env value:', process.env.TEST_MODE);
+
 const checkOperatingHours = (req, res, next) => {
     // 테스트 모드: 24시간 개방 (테스트 기간용 - 원복 시 삭제)
     if (process.env.TEST_MODE === 'true') {
