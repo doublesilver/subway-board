@@ -171,9 +171,11 @@ app.get('/health', async (req, res) => {
 console.log('[DEBUG] Health route defined');
 
 // 404 Handler
+console.log('[DEBUG] About to set 404 handler');
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
+console.log('[DEBUG] 404 handler set');
 
 // Global Error Handler
 app.use(globalErrorHandler);
