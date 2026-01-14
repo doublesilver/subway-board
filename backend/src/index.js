@@ -181,7 +181,9 @@ const { handleSocketConnection } = require('./utils/activeUsers');
 io.on('connection', handleSocketConnection);
 
 // 서버 시작
+console.log(`Attempting to start server on port ${PORT}...`);
 httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
   logger.info(`Server is running on port ${PORT}`);
   logger.info('WebSocket server is ready');
   try {
@@ -189,6 +191,16 @@ httpServer.listen(PORT, () => {
   } catch (err) {
     logger.error('Failed to start scheduler:', err);
   }
+});
+
+httpServer.on('error', (err) => {
+  console.error('Server error:', err);
+  logger.error('Server error:', err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+  process.exit(1);
 });
 
 module.exports = app;
