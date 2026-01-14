@@ -1985,6 +1985,35 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+/* ===== 테스트 기간 입장 버튼 스타일 (원복 시 삭제) ===== */
+.enter-test-button {
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.enter-test-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+.enter-test-button:active {
+  transform: translateY(0);
+}
+
+.operating-hours-info {
+  font-size: 13px;
+  color: #9ca3af;
+}
+/* ===== 테스트 기간 입장 버튼 스타일 끝 ===== */
+
 /* 오늘의 상식 카드 */
 .trivia-card {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);

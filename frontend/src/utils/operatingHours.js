@@ -22,7 +22,13 @@ export const checkIsOperatingHours = () => {
         return true;
     }
 
-    // 2. 실제 시간 체크 (평일 07:00 ~ 09:00)
+    // 2. 테스트 기간 입장 허용 체크 (테스트 기간용 - 원복 시 삭제)
+    const testModeAccepted = sessionStorage.getItem('test_mode_accepted');
+    if (testModeAccepted === 'true') {
+        return true;
+    }
+
+    // 3. 실제 시간 체크 (평일 07:00 ~ 09:00)
     const now = new Date();
     const day = now.getDay(); // 0: 일요일, 6: 토요일
     const hours = now.getHours();
