@@ -140,10 +140,7 @@ app.get('/', (req, res) => {
     }
   });
 });
-
-app.get('/', (req, res) => {
-  res.status(200).send('Subway Board Backend is Running!');
-});
+console.log('[DEBUG] Root route defined');
 
 app.get('/health', async (req, res) => {
   const health = {
@@ -171,6 +168,7 @@ app.get('/health', async (req, res) => {
   const statusCode = health.status === 'OK' ? 200 : 503;
   res.status(statusCode).json(health);
 });
+console.log('[DEBUG] Health route defined');
 
 // 404 Handler
 app.all('*', (req, res, next) => {
