@@ -211,6 +211,7 @@ sequenceDiagram
 ```mermaid
 erDiagram
     SUBWAY_LINES ||--o{ POSTS : contains
+    SUBWAY_LINES ||--o{ DAILY_VISITS : tracks
     POSTS ||--o{ COMMENTS : has
 
     SUBWAY_LINES {
@@ -235,6 +236,20 @@ erDiagram
         uuid post_id FK
         text content
         string session_id
+        timestamp created_at
+    }
+
+    DAILY_VISITS {
+        int id PK
+        date visit_date
+        int subway_line_id FK
+        int visit_count
+    }
+
+    FEEDBACK {
+        int id PK
+        text content
+        string user_session_id
         timestamp created_at
     }
 ```
@@ -330,6 +345,36 @@ window.visualViewport?.addEventListener('resize', () => {
 - **Custom Hooks 분리**: 800줄에 달하던 `LinePage.jsx`를 `useChatSocket`, `useChatScroll`, `useSwipeReply` 등 3개의 Hooks로 분리하여 유지보수성 향상
 - **Integration Test 도입**: `supertest`를 도입하여 백엔드 핵심 비즈니스 로직(`postController`)의 안정성 검증 자동화
 
+### 10. 낙관적 업데이트 (Optimistic Update) 구현
+```mermaid
+sequenceDiagram
+    participant U as 사용자
+    participant C as Client
+    participant S as Server
+
+    U->>C: 메시지 전송
+    C->>C: 임시 메시지 즉시 표시
+    C->>S: API 요청
+    S-->>C: 성공 응답
+    C->>C: WebSocket으로 실제 메시지 수신
+    C->>C: 임시 메시지 제거 (중복 방지)
+```
+- **체감 속도 향상**: 서버 응답 대기 없이 즉시 UI 반영
+- **실패 시 롤백**: 에러 발생 시 임시 메시지 제거 및 입력 내용 복원
+
+### 11. 일별 방문자 통계 시스템
+```sql
+-- 일별 호선별 접속자 수 테이블
+CREATE TABLE daily_visits (
+  visit_date DATE,
+  subway_line_id INTEGER,
+  visit_count INTEGER,
+  UNIQUE(visit_date, subway_line_id)
+);
+```
+- **UPSERT 패턴**: 같은 날짜+호선이면 카운트 증가
+- **통계 API**: `GET /api/admin/stats?days=7`
+
 ---
 
 ## 📁 프로젝트 구조
@@ -339,29 +384,53 @@ subway-board/
 ├── 📂 frontend/                 # React 프론트엔드
 │   ├── 📂 src/
 │   │   ├── 📂 components/       # 재사용 컴포넌트
-│   │   │   ├── 📂 chat/         # 채팅 관련
-│   │   │   ├── 📂 common/       # 공통 UI
-│   │   │   └── 📂 feedback/     # 피드백
-│   │   ├── 📂 contexts/         # React Context
-│   │   ├── 📂 hooks/            # 커스텀 훅 (Socket, Scroll, Swipe)
+│   │   │   ├── ClosedAlertModal.jsx
+│   │   │   ├── FeedbackModal.jsx
+│   │   │   ├── SessionExpiredModal.jsx
+│   │   │   └── Toast.jsx
+│   │   ├── 📂 contexts/         # React Context (AuthContext)
+│   │   ├── 📂 hooks/            # 커스텀 훅
+│   │   │   ├── useChatSocket.js   # 소켓 연결/메시지 관리
+│   │   │   ├── useChatScroll.js   # 스크롤 동작
+│   │   │   ├── useSwipeReply.js   # 스와이프 답장
+│   │   │   └── useToast.js        # 토스트 알림
 │   │   ├── 📂 pages/            # 페이지 컴포넌트
+│   │   │   ├── HomePage.jsx       # 호선 선택
+│   │   │   └── LinePage.jsx       # 채팅방 (339줄)
 │   │   ├── 📂 services/         # API 서비스
-│   │   ├── 📂 styles/           # CSS 스타일
+│   │   │   └── api.js             # axios 인스턴스
 │   │   └── 📂 utils/            # 유틸리티
+│   │       ├── operatingHours.js  # 운영시간 체크
+│   │       ├── socket.js          # Socket.IO 클라이언트
+│   │       └── temporaryUser.js   # 임시 사용자 관리
 │   ├── 📄 index.html            # Vite 엔트리
 │   └── 📄 vite.config.js        # Vite 설정
 │
 ├── 📂 backend/                  # Express 백엔드
 │   ├── 📂 src/
-│   │   ├── 📂 config/           # 설정 파일
 │   │   ├── 📂 controllers/      # 컨트롤러
-│   │   ├── 📂 db/               # DB 연결/마이그레이션
+│   │   │   ├── postController.js    # 메시지 CRUD
+│   │   │   ├── visitController.js   # 방문 통계
+│   │   │   └── feedbackController.js
+│   │   ├── 📂 db/               # DB 관련
+│   │   │   ├── connection.js      # PostgreSQL 연결
+│   │   │   ├── schema.sql         # 테이블 정의
+│   │   │   └── migrations/        # 마이그레이션 파일
 │   │   ├── 📂 middleware/       # 미들웨어
+│   │   │   ├── checkOperatingHours.js  # 운영시간 검증
+│   │   │   ├── authMiddleware.js       # 인증
+│   │   │   └── validator.js            # 입력 검증
 │   │   ├── 📂 routes/           # API 라우트
 │   │   └── 📂 utils/            # 유틸리티
+│   │       ├── scheduler.js       # 일일 데이터 정리
+│   │       └── activeUsers.js     # 접속자 카운팅
+│   ├── 📂 tests/                # 테스트
+│   │   ├── health.test.js
+│   │   ├── post.test.js
+│   │   └── validator.test.js
 │   └── 📄 index.js              # 서버 엔트리
 │
-├── 📄 RESTORE.md                # 원복 가이드
+├── 📄 RESTORE.md                # 테스트→정식 원복 가이드
 └── 📄 README.md                 # 프로젝트 문서
 ```
 
@@ -479,6 +548,10 @@ gantt
     Express 5 업그레이드 :done, 2026-01-08, 3d
     section 배포
     프로덕션 배포        :done, 2026-01-11, 3d
+    section v2.1
+    Custom Hooks 리팩토링 :done, 2026-01-14, 2d
+    낙관적 업데이트      :done, 2026-01-16, 1d
+    방문자 통계 시스템   :done, 2026-01-16, 1d
 ```
 
 ---
