@@ -166,25 +166,27 @@ function LinePage() {
 
         console.log('✅ [LinePage] 첫 입장 - 입장 메시지 전송');
 
-        try {
-          await postAPI.createJoinMessage(parseInt(lineId));
-        } catch (error) {
+        // 입장 메시지 전송 (실패해도 계속 진행)
+        postAPI.createJoinMessage(parseInt(lineId)).catch(error => {
           console.error('Failed to send join message:', error);
-        }
+        });
 
         // 첫 입장: 입장 시점 이후 메시지만 로드
         fetchLineInfo();
-        fetchMessages(true);
+        await fetchMessages(true);
       } else {
         console.log('🔄 [LinePage] 새로고침 감지 - 입장 메시지 스킵, 기존 대화 유지');
 
         // 새로고침: 모든 메시지 로드
         fetchLineInfo();
-        fetchMessages(false);
+        await fetchMessages(false);
       }
     };
 
-    initChat();
+    initChat().catch(err => {
+      console.error('initChat error:', err);
+      setLoading(false);
+    });
 
     // WebSocket 활성 사용자 수 업데이트 리스너
     const handleActiveUsersUpdate = (data) => {
@@ -351,6 +353,7 @@ function LinePage() {
           try {
             const parsedMessages = JSON.parse(cachedMessages);
             setMessages(parsedMessages);
+            setLoading(false); // 캐시에서 복원 후 로딩 상태 해제
             console.log(`🔄 [fetchMessages] 새로고침 - sessionStorage에서 ${parsedMessages.length}개 메시지 복원`);
             return;
           } catch (e) {
@@ -387,11 +390,8 @@ function LinePage() {
       setError('메시지를 불러오는데 실패했습니다.');
       console.error(err);
     } finally {
-      // 최초 로딩 완료 후 로딩 상태 해제 및 플래그 변경
-      if (isInitialLoad.current) {
-        setLoading(false);
-        isInitialLoad.current = false;
-      }
+      // 로딩 상태 해제 (항상 실행)
+      setLoading(false);
     }
   };
 
