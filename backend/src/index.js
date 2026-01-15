@@ -135,7 +135,17 @@ app.use(cors({
 // Socket.io 설정
 const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      // allow requests with no origin
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin)) {
+        callback(null, true);
+      } else {
+        logger.warn('Socket.IO CORS blocked for origin:', { origin });
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST'],
     credentials: true
   }
