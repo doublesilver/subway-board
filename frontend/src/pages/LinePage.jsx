@@ -107,7 +107,10 @@ function LinePage() {
       });
       setContent('');
       setReplyTo(null);
-      if (textareaRef.current) textareaRef.current.style.height = 'auto';
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+        textareaRef.current.focus();
+      }
       scrollToBottom();
     } catch (err) {
       const errorMsg = err.response?.data?.error?.message || err.response?.data?.error || '메시지 작성에 실패했습니다.';
@@ -278,7 +281,7 @@ function LinePage() {
         <form onSubmit={handleSubmit} className="composer-form">
           <textarea
             ref={textareaRef} value={content} onChange={handleTextareaChange}
-            placeholder="메시지 보내기" maxLength={1000} disabled={submitting}
+            placeholder="메시지 보내기" maxLength={1000}
             className="composer-input"
             onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); } }}
           />
