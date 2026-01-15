@@ -46,6 +46,7 @@
   /* rounded-2xl */
   --radius-md: 12px;
   --header-height: 60px;
+  --composer-height: 70px; /* 입력창 전체 높이 (패딩 포함) */
 
   /* ========================================
      💬 채팅 입력창 커스텀 변수 (Chat Composer)
@@ -871,7 +872,7 @@ body {
 /* Messages Area */
 .chat-messages {
   padding: 20px 16px;
-  padding-bottom: 20px;
+  padding-bottom: calc(var(--composer-height) + 20px); /* 입력창 높이 + 여유 공간 */
   margin-top: var(--header-height);
   /* 헤더 높이만큼 상단 여백 */
   overflow-y: auto;
