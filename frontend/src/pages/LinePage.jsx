@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { postAPI, subwayLineAPI } from '../services/api';
+import { postAPI, subwayLineAPI, visitAPI } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { enterChatRoom, leaveChatRoom, getCurrentLineUser } from '../utils/temporaryUser';
 import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate, onNewMessage, offNewMessage } from '../utils/socket';
@@ -169,6 +169,11 @@ function LinePage() {
         // 입장 메시지 전송 (실패해도 계속 진행)
         postAPI.createJoinMessage(parseInt(lineId)).catch(error => {
           console.error('Failed to send join message:', error);
+        });
+
+        // 방문 기록 저장 (실패해도 계속 진행)
+        visitAPI.record(parseInt(lineId)).catch(error => {
+          console.error('Failed to record visit:', error);
         });
 
         // 첫 입장: 입장 시점 이후 메시지만 로드

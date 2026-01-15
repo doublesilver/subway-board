@@ -7,6 +7,7 @@ const postController = require('../controllers/postController');
 const commentController = require('../controllers/commentController');
 const authController = require('../controllers/authController');
 const feedbackController = require('../controllers/feedbackController');
+const visitController = require('../controllers/visitController');
 const { validatePost, validateComment } = require('../middleware/validator');
 const authMiddleware = require('../middleware/authMiddleware');
 const checkOperatingHours = require('../middleware/checkOperatingHours');
@@ -52,5 +53,9 @@ router.delete('/comments/:commentId', authMiddleware, checkOperatingHours, comme
 // Feedback routes
 router.post('/feedback', authMiddleware, feedbackController.submitFeedback);
 router.get('/admin/feedback', feedbackController.getAllFeedback);
+
+// Visit tracking routes
+router.post('/visits', authMiddleware, visitController.recordVisit);
+router.get('/admin/stats', visitController.getStats);
 
 module.exports = router;

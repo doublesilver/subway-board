@@ -79,4 +79,9 @@ export const feedbackAPI = {
   getAll: (limit, offset) => api.get('/api/admin/feedback', { params: { limit, offset } }),
 };
 
+export const visitAPI = {
+  record: (subway_line_id) => api.post('/api/visits', { subway_line_id }),
+  getStats: (days = 7) => api.get('/api/admin/stats', { params: { days } }),
+};
+
 export default api;
