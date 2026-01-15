@@ -101,6 +101,22 @@
 
 ---
 
+### 4. 리팩토링 및 안정성 강화 (v2.1)
+
+#### Frontend Refactoring
+- **Custom Hooks 도입**: `LinePage.jsx`의 비대해진 로직을 분리
+  - `useChatSocket`: Socket.IO 연결 및 메시지 동기화
+  - `useChatScroll`: 스크롤 위치 관리 및 자동 스크롤
+  - `useSwipeReply`: 모바일 스와이프 답장 제스처
+- **유지보수성 향상**: 컴포넌트 라인 수 60% 감소 (800줄 → 300줄)
+
+#### Backend Testing
+- **Integration Test 추가**: `supertest` 기반 통합 테스트 구축
+- **안정성 확보**: 핵심 비즈니스 로직(`postController`)에 대한 검증 자동화
+- **버그 수정**: 테스트 과정에서 발견된 잠재적 서버 에러(ReferenceError) 수정
+
+---
+
 ## 기술 스택 및 아키텍처
 
 ### Frontend
@@ -518,6 +534,7 @@ f193e84 - Fix routing and API path issues
 e101c98 - Add Kakao migration to start script for automatic Railway deployment
 4e129ae - Transform bulletin board to chat-based anonymous messaging system
 df3e9ab - Redesign main page for first-time user experience
+HEAD    - Refactor LinePage to hooks & Add backend integration tests
 ```
 
 ---

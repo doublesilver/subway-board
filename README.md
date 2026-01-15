@@ -318,7 +318,13 @@ window.visualViewport?.addEventListener('resize', () => {
 | 개발 서버 시작 | ~10초 | ~1초 |
 | HMR 속도 | ~2초 | ~50ms |
 | 프로덕션 빌드 | ~60초 | ~20초 |
+| HMR 속도 | ~2초 | ~50ms |
+| 프로덕션 빌드 | ~60초 | ~20초 |
 | 환경변수 접두사 | `REACT_APP_*` | `VITE_*` |
+
+### 8. Frontend 리팩토링 및 안정성 강화 (v2.1)
+- **Custom Hooks 분리**: 800줄에 달하던 `LinePage.jsx`를 `useChatSocket`, `useChatScroll`, `useSwipeReply` 등 3개의 Hooks로 분리하여 유지보수성 향상
+- **Integration Test 도입**: `supertest`를 도입하여 백엔드 핵심 비즈니스 로직(`postController`)의 안정성 검증 자동화
 
 ---
 
@@ -333,7 +339,7 @@ subway-board/
 │   │   │   ├── 📂 common/       # 공통 UI
 │   │   │   └── 📂 feedback/     # 피드백
 │   │   ├── 📂 contexts/         # React Context
-│   │   ├── 📂 hooks/            # 커스텀 훅
+│   │   ├── 📂 hooks/            # 커스텀 훅 (Socket, Scroll, Swipe)
 │   │   ├── 📂 pages/            # 페이지 컴포넌트
 │   │   ├── 📂 services/         # API 서비스
 │   │   ├── 📂 styles/           # CSS 스타일
@@ -392,7 +398,9 @@ npm run dev           # http://localhost:3000
 |-------|------|------|------|
 | **Unit** | `validator.js` | Jest | XSS/SQL Injection 차단 검증 |
 | **Business** | `operatingHours.js` | Jest + Fake Timers | 운영시간 로직 검증 |
-| **Integration** | `/health` API | Supertest | 시스템 가용성 확인 |
+| **Business** | `operatingHours.js` | Jest + Fake Timers | 운영시간 로직 검증 |
+| **Integration** | `postController.js` | Supertest | API 엔드포인트 및 DB 연동 검증 |
+| **System** | `/health` API | Supertest | 시스템 가용성 확인 |
 
 ```bash
 # 테스트 실행
