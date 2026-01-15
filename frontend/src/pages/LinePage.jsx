@@ -285,7 +285,13 @@ function LinePage() {
             className="composer-input"
             onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); } }}
           />
-          <button type="submit" className={`composer-send ${content.trim() ? 'active' : ''}`} disabled={submitting || !content.trim()}>
+          <button
+            type="submit"
+            className={`composer-send ${content.trim() ? 'active' : ''}`}
+            disabled={submitting || !content.trim()}
+            onMouseDown={(e) => e.preventDefault()}
+            onTouchStart={(e) => e.preventDefault()}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
             </svg>
