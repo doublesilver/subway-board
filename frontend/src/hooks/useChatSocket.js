@@ -107,13 +107,22 @@ export const useChatSocket = (lineId) => {
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         // 6. Before Unload (Leave Message)
+        // 플래그: 뒤로가기로 나갈 때는 beforeunload에서 퇴장 메시지 안 보냄
+        let isLeavingManually = false;
+
         const handleBeforeUnload = (e) => {
+            // 수동 퇴장(뒤로가기)일 때는 이미 leaveRoom에서 처리됨
+            if (isLeavingManually) return;
+
             const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/posts/leave`;
             const data = JSON.stringify({ subway_line_id: parseInt(lineId) });
             const blob = new Blob([data], { type: 'application/json' });
             navigator.sendBeacon(url, blob);
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
+
+        // leaveRoom에서 사용할 플래그 설정 함수
+        window.__setLeavingManually = () => { isLeavingManually = true; };
 
         // Cleanup
         return () => {
@@ -190,6 +199,11 @@ export const useChatSocket = (lineId) => {
     };
 
     const leaveRoom = async () => {
+        // 플래그 설정: beforeunload에서 중복 퇴장 메시지 방지
+        if (window.__setLeavingManually) {
+            window.__setLeavingManually();
+        }
+
         try {
             await postAPI.createLeaveMessage(parseInt(lineId));
         } catch (error) {

@@ -39,7 +39,7 @@ function LinePage() {
   const { toasts, error: showError, success: showSuccess, hideToast } = useToast();
 
   // Custom Hooks
-  const { messages, lineInfo, currentUser, loading, error, leaveRoom } = useChatSocket(lineId);
+  const { messages, setMessages, lineInfo, currentUser, loading, error, leaveRoom } = useChatSocket(lineId);
   const { messagesContainerRef, messagesEndRef, showScrollButton, handleScroll, scrollToBottom } = useChatScroll(messages);
 
   const [content, setContent] = useState('');
@@ -96,23 +96,57 @@ function LinePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    if (!content.trim() || submitting) return;
 
+    const messageContent = content.trim();
+    const currentReplyTo = replyTo;
+
+    // 낙관적 업데이트: 즉시 화면에 표시
+    const tempId = `temp-${Date.now()}`;
+    const optimisticMessage = {
+      id: tempId,
+      content: messageContent,
+      nickname: currentUser?.nickname || '익명',
+      anonymous_id: currentUser?.sessionId,
+      created_at: new Date().toISOString(),
+      reply_to: currentReplyTo?.id || null,
+      message_type: 'chat',
+      _isPending: true, // 전송 중 표시용
+    };
+
+    // 즉시 UI 업데이트
+    setMessages(prev => [...prev, optimisticMessage]);
+    setContent('');
+    setReplyTo(null);
+
+    // iOS 키보드 유지를 위한 포커스 처리
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      // iOS에서 키보드가 내려가는 것을 방지하기 위해 즉시 + 지연 포커스
+      textareaRef.current.focus();
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+        }
+      }, 10);
+    }
+    scrollToBottom();
+
+    // 서버에 전송
+    setSubmitting(true);
     try {
-      setSubmitting(true);
       await postAPI.create({
-        content: content.trim(),
+        content: messageContent,
         subway_line_id: parseInt(lineId),
-        reply_to: replyTo?.id || null,
+        reply_to: currentReplyTo?.id || null,
       });
-      setContent('');
-      setReplyTo(null);
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
-        textareaRef.current.focus();
-      }
-      scrollToBottom();
+      // 성공 시: WebSocket에서 실제 메시지가 오면 중복 제거됨
+      // 임시 메시지 제거 (WebSocket 메시지로 대체됨)
+      setMessages(prev => prev.filter(m => m.id !== tempId));
     } catch (err) {
+      // 실패 시: 임시 메시지 제거 및 에러 표시
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      setContent(messageContent); // 내용 복원
       const errorMsg = err.response?.data?.error?.message || err.response?.data?.error || '메시지 작성에 실패했습니다.';
       showError(errorMsg);
     } finally {
