@@ -249,19 +249,9 @@ function LinePage() {
       const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/posts/leave`;
       const data = JSON.stringify({ subway_line_id: parseInt(lineId) });
 
-      // 세션 스토리지에서 사용자 정보 가져오기
-      const sessionKey = `line_${lineId}_session`;
-      const nicknameKey = `line_${lineId}_nickname`;
-      const sessionId = sessionStorage.getItem(sessionKey);
-      const nickname = sessionStorage.getItem(nicknameKey);
-
-      // FormData로 전송 (헤더 포함 가능)
-      const formData = new FormData();
-      formData.append('subway_line_id', parseInt(lineId));
-      if (sessionId) formData.append('session_id', sessionId);
-      if (nickname) formData.append('nickname', nickname);
-
-      navigator.sendBeacon(url, data);
+      // Blob으로 감싸서 Content-Type: application/json 설정
+      const blob = new Blob([data], { type: 'application/json' });
+      navigator.sendBeacon(url, blob);
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
