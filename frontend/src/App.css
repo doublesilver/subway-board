@@ -871,18 +871,20 @@ body {
 
 /* Messages Area */
 .chat-messages {
+  position: absolute;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  bottom: var(--composer-height);
   padding: 20px 16px;
-  padding-bottom: calc(var(--composer-height) + 20px); /* 입력창 높이 + 여유 공간 */
-  margin-top: var(--header-height);
-  /* 헤더 높이만큼 상단 여백 */
+  padding-bottom: 20px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
   box-sizing: border-box;
-  /* flex를 사용하여 남은 공간을 자동으로 채움 (키보드와 무관) */
-  flex: 1;
-  min-height: 0; /* flex 자식이 overflow를 제대로 처리하도록 */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Message Bubbles */

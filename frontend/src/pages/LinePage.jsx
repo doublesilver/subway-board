@@ -314,14 +314,15 @@ function LinePage() {
   useEffect(() => {
     if (messages.length > 0) {
       // 최초 로딩 시 즉시 스크롤, 이후엔 스크롤 버튼 상태에 따라
-      const isFirstLoad = loading;
-      if (isFirstLoad) {
+      if (isInitialLoad.current) {
         scrollToBottom(false);
+        isInitialLoad.current = false;
       } else if (!showScrollButton) {
+        // 사용자가 하단 근처에 있을 때만 자동 스크롤
         scrollToBottom(true);
       }
     }
-  }, [messages, loading, showScrollButton]);
+  }, [messages]);
 
   const fetchLineInfo = async () => {
     try {
