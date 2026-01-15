@@ -6,7 +6,7 @@ const AppError = require('../utils/AppError');
 const { PAGINATION, SUBWAY_LINE } = require('../config/constants');
 const { ErrorCodes } = require('../utils/errorCodes');
 
-const getPostsByLine = asyncHandler(async (req, res) => {
+const getPostsByLine = asyncHandler(async (req, res, next) => {
   const { lineId } = req.params;
   // Input validation
   const parsedLineId = parseInt(lineId);
