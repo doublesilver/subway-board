@@ -1,22 +1,24 @@
 const pool = require('../db/connection');
 
-// 방문 기록 저장
+// 방문 기록 (해당 날짜+호선의 카운트 증가)
 const recordVisit = async (req, res) => {
   try {
-    const sessionId = req.headers['x-anonymous-id'];
     const { subway_line_id } = req.body;
-    const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    const userAgent = req.headers['user-agent'];
 
-    if (!sessionId) {
-      return res.status(400).json({ error: '세션 ID가 필요합니다.' });
+    if (!subway_line_id) {
+      return res.status(400).json({ error: '호선 ID가 필요합니다.' });
     }
 
-    await pool.query(
-      `INSERT INTO visits (session_id, subway_line_id, ip_address, user_agent)
-       VALUES ($1, $2, $3, $4)`,
-      [sessionId, subway_line_id || null, ipAddress, userAgent]
-    );
+    // 오늘 날짜 (KST 기준)
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
+
+    // UPSERT: 있으면 카운트 증가, 없으면 새로 생성
+    await pool.query(`
+      INSERT INTO daily_visits (visit_date, subway_line_id, visit_count)
+      VALUES ($1, $2, 1)
+      ON CONFLICT (visit_date, subway_line_id)
+      DO UPDATE SET visit_count = daily_visits.visit_count + 1
+    `, [today, subway_line_id]);
 
     res.status(201).json({ success: true });
   } catch (error) {
@@ -30,16 +32,15 @@ const getStats = async (req, res) => {
   try {
     const { days = 7 } = req.query;
 
-    // 일별 방문자 수 (중복 세션 제외)
+    // 일별 전체 방문자 수
     const dailyStats = await pool.query(`
       SELECT
-        DATE(visited_at AT TIME ZONE 'Asia/Seoul') as date,
-        COUNT(DISTINCT session_id) as unique_visitors,
-        COUNT(*) as total_visits
-      FROM visits
-      WHERE visited_at >= NOW() - INTERVAL '${parseInt(days)} days'
-      GROUP BY DATE(visited_at AT TIME ZONE 'Asia/Seoul')
-      ORDER BY date DESC
+        visit_date as date,
+        SUM(visit_count) as total_visits
+      FROM daily_visits
+      WHERE visit_date >= CURRENT_DATE - INTERVAL '${parseInt(days)} days'
+      GROUP BY visit_date
+      ORDER BY visit_date DESC
     `);
 
     // 호선별 방문 통계
@@ -47,35 +48,30 @@ const getStats = async (req, res) => {
       SELECT
         sl.line_number,
         sl.line_name,
-        COUNT(DISTINCT v.session_id) as unique_visitors,
-        COUNT(*) as total_visits
-      FROM visits v
-      LEFT JOIN subway_lines sl ON v.subway_line_id = sl.id
-      WHERE v.visited_at >= NOW() - INTERVAL '${parseInt(days)} days'
+        SUM(dv.visit_count) as total_visits
+      FROM daily_visits dv
+      JOIN subway_lines sl ON dv.subway_line_id = sl.id
+      WHERE dv.visit_date >= CURRENT_DATE - INTERVAL '${parseInt(days)} days'
       GROUP BY sl.id, sl.line_number, sl.line_name
-      ORDER BY unique_visitors DESC
+      ORDER BY total_visits DESC
     `);
 
     // 오늘 통계
     const todayStats = await pool.query(`
-      SELECT
-        COUNT(DISTINCT session_id) as unique_visitors,
-        COUNT(*) as total_visits
-      FROM visits
-      WHERE DATE(visited_at AT TIME ZONE 'Asia/Seoul') = DATE(NOW() AT TIME ZONE 'Asia/Seoul')
+      SELECT COALESCE(SUM(visit_count), 0) as total_visits
+      FROM daily_visits
+      WHERE visit_date = CURRENT_DATE
     `);
 
     // 전체 통계
     const totalStats = await pool.query(`
-      SELECT
-        COUNT(DISTINCT session_id) as unique_visitors,
-        COUNT(*) as total_visits
-      FROM visits
+      SELECT COALESCE(SUM(visit_count), 0) as total_visits
+      FROM daily_visits
     `);
 
     res.json({
-      today: todayStats.rows[0],
-      total: totalStats.rows[0],
+      today: { total_visits: parseInt(todayStats.rows[0].total_visits) },
+      total: { total_visits: parseInt(totalStats.rows[0].total_visits) },
       daily: dailyStats.rows,
       byLine: lineStats.rows
     });

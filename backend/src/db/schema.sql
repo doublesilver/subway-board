@@ -35,14 +35,13 @@ CREATE TABLE IF NOT EXISTS feedback (
   user_agent TEXT
 );
 
--- 방문 로그 테이블 (일별 사용자 수 추적용)
-CREATE TABLE IF NOT EXISTS visits (
+-- 일별 호선별 접속자 수 테이블
+CREATE TABLE IF NOT EXISTS daily_visits (
   id SERIAL PRIMARY KEY,
-  session_id VARCHAR(255) NOT NULL,
-  subway_line_id INTEGER REFERENCES subway_lines(id) ON DELETE SET NULL,
-  visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  ip_address VARCHAR(45),
-  user_agent TEXT
+  visit_date DATE NOT NULL,
+  subway_line_id INTEGER REFERENCES subway_lines(id) ON DELETE CASCADE,
+  visit_count INTEGER DEFAULT 0,
+  UNIQUE(visit_date, subway_line_id)
 );
 
 -- 인덱스 생성
@@ -51,8 +50,7 @@ CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at);
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
 CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at);
 CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_visits_visited_at ON visits(visited_at);
-CREATE INDEX IF NOT EXISTS idx_visits_session_id ON visits(session_id);
+CREATE INDEX IF NOT EXISTS idx_daily_visits_date ON daily_visits(visit_date DESC);
 
 -- 서울 지하철 호선 데이터 삽입 (1-9호선만)
 INSERT INTO subway_lines (line_number, line_name, color) VALUES
