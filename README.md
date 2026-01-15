@@ -312,7 +312,11 @@ window.visualViewport?.addEventListener('resize', () => {
 });
 ```
 
-### 7. CRA → Vite 마이그레이션
+### 7. 끊김 없는 대화 경험 (Consecutive Chat UX)
+- **문제**: 전송 버튼 클릭 시 `button`으로 포커스가 이동하여 모바일 키보드가 닫히는 현상 발생
+- **해결**: `preventDefault`로 버튼의 포커스 진입을 차단하여, 입력창(`textarea`)의 포커스를 유지. 연속적인 메시지 전송 시에도 키보드가 유지됨.
+
+### 8. CRA → Vite 마이그레이션
 | 항목 | CRA | Vite |
 |------|-----|------|
 | 개발 서버 시작 | ~10초 | ~1초 |
@@ -322,7 +326,7 @@ window.visualViewport?.addEventListener('resize', () => {
 | 프로덕션 빌드 | ~60초 | ~20초 |
 | 환경변수 접두사 | `REACT_APP_*` | `VITE_*` |
 
-### 8. Frontend 리팩토링 및 안정성 강화 (v2.1)
+### 9. Frontend 리팩토링 및 안정성 강화 (v2.1)
 - **Custom Hooks 분리**: 800줄에 달하던 `LinePage.jsx`를 `useChatSocket`, `useChatScroll`, `useSwipeReply` 등 3개의 Hooks로 분리하여 유지보수성 향상
 - **Integration Test 도입**: `supertest`를 도입하여 백엔드 핵심 비즈니스 로직(`postController`)의 안정성 검증 자동화
 
