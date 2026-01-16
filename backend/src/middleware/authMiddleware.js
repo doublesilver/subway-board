@@ -31,28 +31,24 @@ const authMiddleware = (req, res, next) => {
         const signature = req.headers['x-anonymous-signature'];
 
         if (anonymousId) {
-            // [Security] HMAC 서명 검증 (Mandatory)
-            if (!process.env.JWT_SECRET) {
-                console.error('CRITICAL: JWT_SECRET is not defined.');
-                return res.status(500).json({ error: 'Server configuration error' });
-            }
+            // Optional signature verification (anonymous access allowed without signature)
+            if (signature) {
+                if (!process.env.JWT_SECRET) {
+                    console.error('CRITICAL: JWT_SECRET is not defined.');
+                    return res.status(500).json({ error: 'Server configuration error' });
+                }
 
-            if (!signature) {
-                console.warn(`Missing signature for anonymousId: ${anonymousId}`);
-                // 서명이 없으면 401 Unauthorized
-                return res.status(401).json({ error: 'Missing authentication signature' });
-            }
+                const crypto = require('crypto');
+                const expectedSignature = crypto
+                    .createHmac('sha256', process.env.JWT_SECRET)
+                    .update(anonymousId)
+                    .digest('hex');
 
-            const crypto = require('crypto');
-            const expectedSignature = crypto
-                .createHmac('sha256', process.env.JWT_SECRET)
-                .update(anonymousId)
-                .digest('hex');
-
-            if (signature !== expectedSignature) {
-                console.warn(`Invalid signature for anonymousId: ${anonymousId}`);
-                // 서명 불일치 시 403 Forbidden
-                return res.status(403).json({ error: 'Invalid authentication signature' });
+                if (signature !== expectedSignature) {
+                    console.warn(`Invalid signature for anonymousId: ${anonymousId}`);
+                    // ????? ???????????403 Forbidden
+                    return res.status(403).json({ error: 'Invalid authentication signature' });
+                }
             }
 
             req.user = {

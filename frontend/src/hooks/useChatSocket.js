@@ -67,8 +67,7 @@ export const useChatSocket = (lineId) => {
                         }
                     } catch (sigErr) {
                         console.error('Failed to issue identity from server:', sigErr);
-                        setError('?? ??? ??????. ???? ????.');
-                        return; // Stop initialization
+                                                return; // Stop initialization
                     }
                 }
 
