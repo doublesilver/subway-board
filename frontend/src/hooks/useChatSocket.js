@@ -5,7 +5,7 @@ import { enterChatRoom, leaveChatRoom, getLineSignature, setLineSignature } from
 import { useAuth } from '../contexts/AuthContext';
 import { API } from '../config/constants';
 
-// 모듈 스코프 상태 제거 (useRef로 대체됨)
+// 모듈 ?�코???�태 ?�거 (useRef�??�체됨)
 
 export const useChatSocket = (lineId) => {
     const [messages, setMessages] = useState([]);
@@ -16,7 +16,7 @@ export const useChatSocket = (lineId) => {
     const { setLineUser, removeLineUser } = useAuth();
 
     const isInitialLoad = useRef(true);
-    // 수동 퇴장 여부 추적 (Ref 사용)
+    // ?�동 ?�장 ?��? 추적 (Ref ?�용)
     const isLeavingManuallyRef = useRef(false);
 
     useEffect(() => {
@@ -38,37 +38,36 @@ export const useChatSocket = (lineId) => {
                 // [Security] Signature Check & Issue (Server-Side ID)
                 let signature = getLineSignature(lineId);
 
-                // 서명이 없거나(legacy/new) 유효하지 않은 경우, 서버로부터 새 ID와 서명을 발급받음
+                // ?�명???�거??legacy/new) ?�효?��? ?��? 경우, ?�버로�?????ID?� ?�명??발급받음
                 if (!signature) {
                     try {
-                        // 1. 서버에 새 ID+서명 요청
+                        // 1. ?�버????ID+?�명 ?�청
                         const sigResponse = await authAPI.issueAnonymousSignature();
                         const { anonymousId, signature: newSignature } = sigResponse.data;
 
                         if (anonymousId && newSignature) {
-                            // 2. 로컬 스토리지 업데이트 (기존 Client-Side ID 덮어쓰기)
-                            const { setLineSession } = await import('../utils/temporaryUser'); // Dynamic import to avoid circular dep if any (just safety)
+                            // 2. 로컬 ?�토리�? ?�데?�트 (기존 Client-Side ID ??��?�기)
                             setLineSession(lineId, anonymousId);
                             setLineSignature(lineId, newSignature);
 
-                            // 3. 상태 업데이트
+                            // 3. ?�태 ?�데?�트
                             signature = newSignature;
                             const newUserData = { ...userData, sessionId: anonymousId };
                             setCurrentUser(newUserData);
                             setLineUser(lineId, newUserData);
 
-                            // joinLine도 새 ID로 다시 호출해야 할 수 있음.
-                            // 하지만 socket.js의 joinLine은 단순히 emit만 함.
-                            // 문제는 '2. Socket Join' 단계에서 이미 구ID로 join을 시도했을 수 있음.
-                            // 따라서 여기서 재가입(emit)을 해주는 것이 안전함.
+                            // joinLine????ID�??�시 ?�출?�야 ?????�음.
+                            // ?��?�?socket.js??joinLine?� ?�순??emit�???
+                            // 문제??'2. Socket Join' ?�계?�서 ?��? 구ID�?join???�도?�을 ???�음.
+                            // ?�라???�기???��???emit)???�주??것이 ?�전??
                             joinLine(parseInt(lineId), anonymousId);
 
-                            // userData 참조 업데이트
+                            // userData 참조 ?�데?�트
                             userData.sessionId = anonymousId;
                         }
                     } catch (sigErr) {
                         console.error('Failed to issue identity from server:', sigErr);
-                        setError('보안 인증에 실패했습니다. 새로고침 해주세요.');
+                        setError('보안 ?�증???�패?�습?�다. ?�로고침 ?�주?�요.');
                         return; // Stop initialization
                     }
                 }
@@ -81,7 +80,7 @@ export const useChatSocket = (lineId) => {
                     sessionStorage.setItem(joinTimestampKey, joinTime);
                     sessionStorage.setItem(hasJoinedKey, 'true');
 
-                    // Fire and forget calls (에러는 서버 로그에서 추적)
+                    // Fire and forget calls (?�러???�버 로그?�서 추적)
                     postAPI.createJoinMessage(parseInt(lineId)).catch(() => { });
                     visitAPI.record(parseInt(lineId)).catch(() => { });
 
@@ -96,7 +95,7 @@ export const useChatSocket = (lineId) => {
                     ]);
                 }
             } catch (err) {
-                setError('채팅방을 불러오는데 실패했습니다.');
+                setError('채팅방을 불러?�는???�패?�습?�다.');
             } finally {
                 setLoading(false);
             }
@@ -147,7 +146,7 @@ export const useChatSocket = (lineId) => {
 
         // 6. Before Unload (Leave Message)
         const handleBeforeUnload = () => {
-            // 수동 퇴장(뒤로가기)일 때는 이미 leaveRoom에서 처리됨
+            // ?�동 ?�장(?�로가�????�는 ?��? leaveRoom?�서 처리??
             if (isLeavingManuallyRef.current) return;
 
             const url = `${API.BASE_URL}/api/posts/leave`;
@@ -162,7 +161,7 @@ export const useChatSocket = (lineId) => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
 
-            // Ref 상태와 상관없이 cleanup 시에는 소켓 연결 해제
+            // Ref ?�태?� ?��??�이 cleanup ?�에???�켓 ?�결 ?�제
             leaveLine(parseInt(lineId));
             offActiveUsersUpdate(handleActiveUsersUpdate);
             offNewMessage(handleNewMessage);
@@ -176,11 +175,11 @@ export const useChatSocket = (lineId) => {
             sessionStorage.removeItem(hasJoinedKey);
             sessionStorage.removeItem(messagesKey);
 
-            // Ref는 컴포넌트 언마운트 시 자동 소멸되므로 별도 cleanup 불필요
+            // Ref??컴포?�트 ?�마?�트 ???�동 ?�멸?��?�?별도 cleanup 불필??
         };
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [lineId]); // setLineUser, removeLineUser는 useCallback으로 안정적인 참조
+    }, [lineId]); // setLineUser, removeLineUser??useCallback?�로 ?�정?�인 참조
 
     // Helpers
     const fetchLineInfo = async () => {
@@ -189,7 +188,7 @@ export const useChatSocket = (lineId) => {
             const line = response.data.find((l) => l.id === parseInt(lineId));
             setLineInfo(line);
         } catch {
-            // 서버 로그에서 추적
+            // ?�버 로그?�서 추적
         }
     };
 
@@ -207,7 +206,7 @@ export const useChatSocket = (lineId) => {
                     setMessages(parsed);
                     setLoading(false);
                     return;
-                } catch { /* 캐시 파싱 실패 - 서버에서 다시 로드 */ }
+                } catch { /* 캐시 ?�싱 ?�패 - ?�버?�서 ?�시 로드 */ }
             }
         }
 
@@ -227,7 +226,7 @@ export const useChatSocket = (lineId) => {
             setMessages(filteredMessages);
             sessionStorage.setItem(messagesKey, JSON.stringify(filteredMessages));
         } catch {
-            setError('메시지를 불러오는데 실패했습니다.');
+            setError('메시지�?불러?�는???�패?�습?�다.');
         } finally {
             setLoading(false);
             isInitialLoad.current = false;
@@ -235,7 +234,7 @@ export const useChatSocket = (lineId) => {
     };
 
     const leaveRoom = useCallback(async () => {
-        // Ref 사용하여 수동 퇴장 상태 설정
+        // Ref ?�용?�여 ?�동 ?�장 ?�태 ?�정
         isLeavingManuallyRef.current = true;
 
         try {
@@ -258,3 +257,4 @@ export const useChatSocket = (lineId) => {
         leaveRoom
     };
 };
+
