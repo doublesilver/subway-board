@@ -13,8 +13,6 @@ import { checkIsOperatingHours } from './utils/operatingHours';
 import ClosedAlertModal from './components/ClosedAlertModal';
 
 function App() {
-  console.log("🚀 App Version: Red Button Debug 0.2"); // 배포 버전 확인용 로그
-
   // 앱 실행 시 최초 1회 운영 시간 체크
   const isOperatingHours = checkIsOperatingHours();
 

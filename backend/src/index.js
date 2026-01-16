@@ -151,8 +151,9 @@ const io = new Server(httpServer, {
   }
 });
 
-// Socket.io를 activeUsers에서 사용할 수 있도록 글로벌로 설정
-global.io = io;
+// Socket.io 인스턴스를 activeUsers 모듈에 주입 (DI 패턴)
+const { setSocketIO } = require('./utils/activeUsers');
+setSocketIO(io);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -1,4 +1,3 @@
-const ProfanityFilter = require('../utils/profanityFilter');
 const xss = require('xss');
 const { CONTENT, SUBWAY_LINE } = require('../config/constants');
 const { createErrorResponse, ErrorCodes } = require('../utils/errorCodes');
@@ -36,24 +35,11 @@ const validatePost = (req, res, next) => {
   // XSS prevention using xss library
   const cleanContent = xss(content);
   if (cleanContent !== content) {
-    // If sanitization changed the content, it might have contained malicious script
-    // We can either reject it or use the sanitized version.
-    // For now, let's reject to discourage hacking attempts.
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  // SQL injection prevention - basic check
-  const sqlPattern = /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b)/gi;
-  if (sqlPattern.test(content)) {
-    return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
-  }
-
-  // Legacy ProfanityFilter removed in favor of AI Cleanbot
-  // try {
-  //   ProfanityFilter.validate(content);
-  // } catch (error) {
-  //   return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_PROFANITY_DETECTED, error.message));
-  // }
+  // Note: SQL Injection is prevented by parameterized queries in controllers
+  // No additional regex check needed (causes false positives)
 
   next();
 };
@@ -74,23 +60,13 @@ const validateComment = (req, res, next) => {
     ));
   }
 
-  // XSS prevention
-  if (/<script[\s\S]*?>[\s\S]*?<\/script>/gi.test(content)) {
+  // XSS prevention using xss library (consistent with validatePost)
+  const cleanContent = xss(content);
+  if (cleanContent !== content) {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  // SQL injection prevention
-  const sqlPattern = /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b)/gi;
-  if (sqlPattern.test(content)) {
-    return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
-  }
-
-  // Legacy ProfanityFilter removed in favor of AI Cleanbot
-  // try {
-  //   ProfanityFilter.validate(content);
-  // } catch (error) {
-  //   return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_PROFANITY_DETECTED, error.message));
-  // }
+  // Note: SQL Injection is prevented by parameterized queries in controllers
 
   next();
 };

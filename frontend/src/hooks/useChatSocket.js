@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { postAPI, subwayLineAPI, visitAPI } from '../services/api';
 import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate, onNewMessage, offNewMessage, reconnectSocket } from '../utils/socket';
 import { enterChatRoom, leaveChatRoom } from '../utils/temporaryUser';
 import { useAuth } from '../contexts/AuthContext';
+import { API } from '../config/constants';
+
+// 모듈 스코프 상태: 수동 퇴장 여부 추적 (window 전역 변수 대신 사용)
+const leavingManuallyMap = new Map();
 
 export const useChatSocket = (lineId) => {
     const [messages, setMessages] = useState([]);
@@ -37,25 +41,21 @@ export const useChatSocket = (lineId) => {
                     sessionStorage.setItem(joinTimestampKey, joinTime);
                     sessionStorage.setItem(hasJoinedKey, 'true');
 
-                    console.log('✅ [useChatSocket] First Join - Sending join message');
-
-                    // Fire and forget calls
-                    postAPI.createJoinMessage(parseInt(lineId)).catch(e => console.error('Join msg failed:', e));
-                    visitAPI.record(parseInt(lineId)).catch(e => console.error('Visit record failed:', e));
+                    // Fire and forget calls (에러는 서버 로그에서 추적)
+                    postAPI.createJoinMessage(parseInt(lineId)).catch(() => {});
+                    visitAPI.record(parseInt(lineId)).catch(() => {});
 
                     await Promise.all([
                         fetchLineInfo(),
                         fetchMessages(true)
                     ]);
                 } else {
-                    console.log('🔄 [useChatSocket] Rejoin - Skipping join message');
                     await Promise.all([
                         fetchLineInfo(),
                         fetchMessages(false)
                     ]);
                 }
             } catch (err) {
-                console.error('initChat error:', err);
                 setError('채팅방을 불러오는데 실패했습니다.');
             } finally {
                 setLoading(false);
@@ -73,10 +73,6 @@ export const useChatSocket = (lineId) => {
 
         const handleNewMessage = (data) => {
             if (data.lineId !== parseInt(lineId)) return;
-
-            if (process.env.NODE_ENV === 'development') {
-                console.log('[WebSocket] New message received:', data.message);
-            }
 
             const messagesKey = `line_${lineId}_messages`;
             const joinTime = sessionStorage.getItem(joinTimestampKey);
@@ -111,22 +107,19 @@ export const useChatSocket = (lineId) => {
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         // 6. Before Unload (Leave Message)
-        // 플래그: 뒤로가기로 나갈 때는 beforeunload에서 퇴장 메시지 안 보냄
-        let isLeavingManually = false;
+        // 모듈 스코프 Map으로 수동 퇴장 여부 추적
+        leavingManuallyMap.set(lineId, false);
 
-        const handleBeforeUnload = (e) => {
+        const handleBeforeUnload = () => {
             // 수동 퇴장(뒤로가기)일 때는 이미 leaveRoom에서 처리됨
-            if (isLeavingManually) return;
+            if (leavingManuallyMap.get(lineId)) return;
 
-            const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/posts/leave`;
+            const url = `${API.BASE_URL}/api/posts/leave`;
             const data = JSON.stringify({ subway_line_id: parseInt(lineId) });
             const blob = new Blob([data], { type: 'application/json' });
             navigator.sendBeacon(url, blob);
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
-
-        // leaveRoom에서 사용할 플래그 설정 함수
-        window.__setLeavingManually = () => { isLeavingManually = true; };
 
         // Cleanup
         return () => {
@@ -145,9 +138,12 @@ export const useChatSocket = (lineId) => {
             sessionStorage.removeItem(joinTimestampKey);
             sessionStorage.removeItem(hasJoinedKey);
             sessionStorage.removeItem(messagesKey);
+
+            // 모듈 스코프 상태 정리
+            leavingManuallyMap.delete(lineId);
         };
 
-    }, [lineId]);
+    }, [lineId, setLineUser, removeLineUser]);
 
     // Helpers
     const fetchLineInfo = async () => {
@@ -155,8 +151,8 @@ export const useChatSocket = (lineId) => {
             const response = await subwayLineAPI.getAll();
             const line = response.data.find((l) => l.id === parseInt(lineId));
             setLineInfo(line);
-        } catch (err) {
-            console.error(err);
+        } catch {
+            // 서버 로그에서 추적
         }
     };
 
@@ -174,7 +170,7 @@ export const useChatSocket = (lineId) => {
                     setMessages(parsed);
                     setLoading(false);
                     return;
-                } catch (e) { console.error(e); }
+                } catch { /* 캐시 파싱 실패 - 서버에서 다시 로드 */ }
             }
         }
 
@@ -193,8 +189,7 @@ export const useChatSocket = (lineId) => {
 
             setMessages(filteredMessages);
             sessionStorage.setItem(messagesKey, JSON.stringify(filteredMessages));
-        } catch (err) {
-            console.error(err);
+        } catch {
             setError('메시지를 불러오는데 실패했습니다.');
         } finally {
             setLoading(false);
@@ -202,19 +197,19 @@ export const useChatSocket = (lineId) => {
         }
     };
 
-    const leaveRoom = async () => {
-        // 플래그 설정: beforeunload에서 중복 퇴장 메시지 방지
-        if (window.__setLeavingManually) {
-            window.__setLeavingManually();
-        }
+    const leaveRoom = useCallback(async () => {
+        // 모듈 스코프 플래그 설정: beforeunload에서 중복 퇴장 메시지 방지
+        leavingManuallyMap.set(lineId, true);
 
         try {
             await postAPI.createLeaveMessage(parseInt(lineId));
         } catch (error) {
-            console.error('Failed to send leave message:', error);
+            if (import.meta.env.DEV) {
+                console.error('Failed to send leave message:', error);
+            }
         }
         // Navigation is handled by caller
-    };
+    }, [lineId]);
 
     return {
         messages,

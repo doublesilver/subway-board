@@ -52,10 +52,6 @@ export const enterChatRoom = (lineId) => {
 
     sessionStorage.setItem(sessionKey, sessionId);
     sessionStorage.setItem(nicknameKey, nickname);
-
-    console.log(`🚇 [Line ${lineId}] 입장: ${nickname} (${sessionId})`);
-  } else {
-    console.log(`🚇 [Line ${lineId}] 재입장: ${nickname} (${sessionId})`);
   }
 
   return { sessionId, nickname };
@@ -68,13 +64,6 @@ export const enterChatRoom = (lineId) => {
 export const leaveChatRoom = (lineId) => {
   const sessionKey = `line_${lineId}_session`;
   const nicknameKey = `line_${lineId}_nickname`;
-
-  const sessionId = sessionStorage.getItem(sessionKey);
-  const nickname = sessionStorage.getItem(nicknameKey);
-
-  if (sessionId && nickname) {
-    console.log(`🚪 [Line ${lineId}] 퇴장: ${nickname} (${sessionId})`);
-  }
 
   // 세션 스토리지에서 제거 (휘발성)
   sessionStorage.removeItem(sessionKey);
@@ -114,5 +103,4 @@ export const clearAllSessions = () => {
   }
 
   keysToRemove.forEach(key => sessionStorage.removeItem(key));
-  console.log('🧹 모든 호선 세션 정리 완료');
 };

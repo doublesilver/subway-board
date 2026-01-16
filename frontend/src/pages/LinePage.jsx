@@ -5,6 +5,7 @@ import { useToast } from '../hooks/useToast';
 import Toast from '../components/Toast';
 import { checkIsOperatingHours } from '../utils/operatingHours';
 import SessionExpiredModal from '../components/SessionExpiredModal';
+import { CONTENT, UI } from '../config/constants';
 
 // Custom Hooks
 import { useChatSocket } from '../hooks/useChatSocket';
@@ -86,7 +87,7 @@ function LinePage() {
     }
     const interval = setInterval(() => {
       if (!checkIsOperatingHours()) setIsSessionExpired(true);
-    }, 60000);
+    }, UI.OPERATING_HOURS_CHECK_INTERVAL);
     return () => clearInterval(interval);
   }, [navigate]);
 
@@ -158,7 +159,7 @@ function LinePage() {
     setContent(e.target.value);
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, CONTENT.TEXTAREA_MAX_HEIGHT)}px`;
     }
   };
 
@@ -318,7 +319,7 @@ function LinePage() {
         <form onSubmit={handleSubmit} className="composer-form">
           <textarea
             ref={textareaRef} value={content} onChange={handleTextareaChange}
-            placeholder="메시지 보내기" maxLength={1000}
+            placeholder="메시지 보내기" maxLength={CONTENT.MESSAGE_MAX_LENGTH}
             className="composer-input"
             onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); } }}
           />

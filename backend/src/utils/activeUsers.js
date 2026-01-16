@@ -9,6 +9,18 @@ const activeUsers = new Map();
 // Socket ID -> Line ID 매핑
 const socketToLine = new Map();
 
+// Socket.IO 인스턴스 (DI로 주입받음)
+let io = null;
+
+/**
+ * Socket.IO 인스턴스 설정 (Dependency Injection)
+ * @param {Server} socketIO - Socket.IO 서버 인스턴스
+ */
+function setSocketIO(socketIO) {
+  io = socketIO;
+  logger.info('Socket.IO instance injected into activeUsers module');
+}
+
 // Socket.io 연결 핸들러
 function handleSocketConnection(socket) {
   logger.info('WebSocket client connected', { socketId: socket.id });
@@ -147,15 +159,15 @@ function leaveRoom(socket, lineId) {
 function broadcastActiveUsers(lineId) {
   const count = getActiveUserCount(lineId);
 
-  if (global.io) {
+  if (io) {
     // 해당 호선의 사용자들에게만 전송
-    global.io.to(`line_${lineId}`).emit('active_users_update', {
+    io.to(`line_${lineId}`).emit('active_users_update', {
       lineId,
       count
     });
 
     // 메인 화면의 모든 사용자에게도 전송
-    global.io.emit('line_users_update', {
+    io.emit('line_users_update', {
       lineId,
       count
     });
@@ -181,8 +193,8 @@ function getAllActiveUserCounts() {
 
 // 새 메시지를 특정 호선의 모든 사용자에게 브로드캐스트
 function broadcastNewMessage(lineId, message) {
-  if (global.io) {
-    global.io.to(`line_${lineId}`).emit('new_message', {
+  if (io) {
+    io.to(`line_${lineId}`).emit('new_message', {
       lineId,
       message
     });
@@ -202,6 +214,7 @@ function removeActivity(lineId, sessionId) {
 }
 
 module.exports = {
+  setSocketIO,
   handleSocketConnection,
   recordActivity,
   removeActivity,

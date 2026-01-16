@@ -76,8 +76,8 @@ const createPost = asyncHandler(async (req, res, next) => {
   }
 
   // [AI Cleanbot Integration]
-  const aiService = require('../services/aiService');
-  const safetyResult = await aiService.checkContentSafety(content);
+  const { checkContentSafety } = require('../services/aiService');
+  const safetyResult = await checkContentSafety(content);
   if (!safetyResult.safe) {
     return next(new AppError(`AI Cleanbot: ${safetyResult.reason || '부적절한 메시지가 감지되었습니다.'}`, 400));
   }

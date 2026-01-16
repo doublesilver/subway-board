@@ -1,10 +1,9 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { API } from '../config/constants';
 
 const api = axios.create({
-  baseURL: API_URL,
-  timeout: 15000,
+  baseURL: API.BASE_URL,
+  timeout: API.TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -48,8 +47,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message = error.response?.data?.error || '오류가 발생했습니다.';
-    console.error('API Error:', message);
+    // 에러는 호출하는 쪽에서 처리
     return Promise.reject(error);
   }
 );
