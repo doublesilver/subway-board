@@ -113,8 +113,30 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
+// 익명 세션 서명 발급
+const issueAnonymousSignature = async (req, res) => {
+  const anonymousId = req.headers['x-anonymous-id'] || req.body.anonymousId;
+
+  if (!anonymousId) {
+    return res.status(400).json({ error: 'Anonymous ID required' });
+  }
+
+  try {
+    const crypto = require('crypto');
+    const signature = crypto
+      .createHmac('sha256', process.env.JWT_SECRET || 'fallback_secret')
+      .update(anonymousId)
+      .digest('hex');
+
+    res.json({ signature });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to issue signature' });
+  }
+};
+
 module.exports = {
   getKakaoAuthURL,
   kakaoCallback,
   getCurrentUser,
+  issueAnonymousSignature, // Export new function
 };

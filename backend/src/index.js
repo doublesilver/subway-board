@@ -132,8 +132,8 @@ app.use(cors({
   credentials: true
 }));
 
-// Socket.io 설정
-const io = new Server(httpServer, {
+// Socket.io 설정 (socket.js 모듈 사용)
+require('./utils/socket').init(httpServer, {
   cors: {
     origin: (origin, callback) => {
       // allow requests with no origin
@@ -151,9 +151,7 @@ const io = new Server(httpServer, {
   }
 });
 
-// Socket.io 인스턴스를 activeUsers 모듈에 주입 (DI 패턴)
-const { setSocketIO } = require('./utils/activeUsers');
-setSocketIO(io);
+// Note: setSocketIO injection is no longer needed as we use the socket module directly
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -206,7 +204,11 @@ app.all('/{*path}', (req, res, next) => {
 app.use(globalErrorHandler);
 
 // Socket.io 이벤트 핸들러
+const socketService = require('./utils/socket');
 const { handleSocketConnection } = require('./utils/activeUsers');
+
+// Socket initialized earlier, get instance to attach handler
+const io = socketService.getIO();
 io.on('connection', handleSocketConnection);
 
 module.exports = app;

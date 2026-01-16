@@ -27,15 +27,20 @@ api.interceptors.request.use(
     if (lineId) {
       const sessionKey = `line_${lineId}_session`;
       const nicknameKey = `line_${lineId}_nickname`;
+      const signatureKey = `line_${lineId}_signature`; // 서명 키 추가
 
       const sessionId = sessionStorage.getItem(sessionKey);
       const nickname = sessionStorage.getItem(nicknameKey);
+      const signature = sessionStorage.getItem(signatureKey);
 
       if (sessionId) {
         config.headers['X-Anonymous-ID'] = sessionId;
       }
       if (nickname) {
         config.headers['X-Anonymous-Nickname'] = encodeURIComponent(nickname);
+      }
+      if (signature) {
+        config.headers['X-Anonymous-Signature'] = signature;
       }
     }
 
@@ -80,6 +85,12 @@ export const feedbackAPI = {
 export const visitAPI = {
   record: (subway_line_id) => api.post('/api/visits', { subway_line_id }),
   getStats: (days = 7) => api.get('/api/admin/stats', { params: { days } }),
+};
+
+export const authAPI = {
+  issueAnonymousSignature: (anonymousId) => api.post('/api/auth/anonymous', { anonymousId }, {
+    headers: { 'X-Anonymous-ID': anonymousId }
+  }),
 };
 
 export default api;

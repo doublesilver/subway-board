@@ -104,3 +104,11 @@ export const clearAllSessions = () => {
 
   keysToRemove.forEach(key => sessionStorage.removeItem(key));
 };
+
+export const getLineSignature = (lineId) => {
+  return sessionStorage.getItem(`line_${lineId}_signature`);
+};
+
+export const setLineSignature = (lineId, signature) => {
+  sessionStorage.setItem(`line_${lineId}_signature`, signature);
+};

@@ -40,6 +40,17 @@ const getOrCreateUser = async (identity) => {
         }
     }
 
+    // 3. 서명 생성 (HMAC-SHA256)
+    // 보안 강화: 클라이언트에게 발급할 서명 생성 (나중에 검증용)
+    const crypto = require('crypto');
+    const signature = crypto
+        .createHmac('sha256', process.env.JWT_SECRET || 'fallback_secret')
+        .update(user.anonymous_id || user.kakao_id || '')
+        .digest('hex');
+
+    // User 객체에 서명 포함하여 반환 (DB에는 저장 안함)
+    user.signature = signature;
+
     return user;
 };
 

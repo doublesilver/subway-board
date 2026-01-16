@@ -1,6 +1,7 @@
 const { WEBSOCKET, SUBWAY_LINE } = require('../config/constants');
 const { ErrorCodes } = require('./errorCodes');
 const logger = require('./logger');
+const socketService = require('../utils/socket'); // socket.js 모듈 가져오기
 
 // 각 호선별 활성 사용자 추적 (WebSocket 기반)
 // Map<lineId, Set<socketId>>
@@ -8,18 +9,6 @@ const activeUsers = new Map();
 
 // Socket ID -> Line ID 매핑
 const socketToLine = new Map();
-
-// Socket.IO 인스턴스 (DI로 주입받음)
-let io = null;
-
-/**
- * Socket.IO 인스턴스 설정 (Dependency Injection)
- * @param {Server} socketIO - Socket.IO 서버 인스턴스
- */
-function setSocketIO(socketIO) {
-  io = socketIO;
-  logger.info('Socket.IO instance injected into activeUsers module');
-}
 
 // Socket.io 연결 핸들러
 function handleSocketConnection(socket) {
@@ -159,7 +148,8 @@ function leaveRoom(socket, lineId) {
 function broadcastActiveUsers(lineId) {
   const count = getActiveUserCount(lineId);
 
-  if (io) {
+  try {
+    const io = socketService.getIO();
     // 해당 호선의 사용자들에게만 전송
     io.to(`line_${lineId}`).emit('active_users_update', {
       lineId,
@@ -171,6 +161,8 @@ function broadcastActiveUsers(lineId) {
       lineId,
       count
     });
+  } catch (e) {
+    logger.warn('Socket IO not available yet in broadcastActiveUsers');
   }
 }
 
@@ -193,12 +185,15 @@ function getAllActiveUserCounts() {
 
 // 새 메시지를 특정 호선의 모든 사용자에게 브로드캐스트
 function broadcastNewMessage(lineId, message) {
-  if (io) {
+  try {
+    const io = socketService.getIO();
     io.to(`line_${lineId}`).emit('new_message', {
       lineId,
       message
     });
     logger.debug('New message broadcasted', { lineId, messageId: message.id });
+  } catch (e) {
+    logger.warn('Socket IO not available for broadcasting message');
   }
 }
 
@@ -214,7 +209,6 @@ function removeActivity(lineId, sessionId) {
 }
 
 module.exports = {
-  setSocketIO,
   handleSocketConnection,
   recordActivity,
   removeActivity,

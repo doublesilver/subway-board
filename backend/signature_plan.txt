@@ -1,0 +1,4 @@
+// Verification Script
+// 1. Check if authController has issuance logic
+// 2. If not, add verify/issue logic
+// 3. Frontend calls it

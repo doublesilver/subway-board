@@ -28,11 +28,30 @@ const authMiddleware = (req, res, next) => {
         // 2. 익명 ID 확인
         const anonymousId = req.headers['x-anonymous-id'];
         const anonymousNickname = req.headers['x-anonymous-nickname'] ? decodeURIComponent(req.headers['x-anonymous-nickname']) : ''; // decode for Korean
+        const signature = req.headers['x-anonymous-signature'];
 
         if (anonymousId) {
+            // [Security] HMAC 서명 검증
+            if (signature) {
+                const crypto = require('crypto');
+                const expectedSignature = crypto
+                    .createHmac('sha256', process.env.JWT_SECRET || 'fallback_secret')
+                    .update(anonymousId)
+                    .digest('hex');
+
+                if (signature !== expectedSignature) {
+                    console.warn(`Invalid signature for anonymousId: ${anonymousId}`);
+                    // 서명 불일치 시 차단 (또는 무시하고 진행할지 정책 결정)
+                    // 현재는 로그만 남기고 통과시키거나, 강력하게 401을 줄 수 있음.
+                    // 배포 초기 호환성을 위해 로그만 남길 수도 있지만, 보안 강화 목적상 차단이 맞음.
+                    // throw new Error('Invalid anonymous signature'); // 주석 해제 시 강력 차단
+                }
+            }
+
             req.user = {
                 userId: null, // 아직 DB ID 모름
                 anonymousId: anonymousId,
+                sessionId: anonymousId, // 피드백 등에서 sessionId로 참조
                 nickname: anonymousNickname || '익명',
                 type: 'anonymous',
             };

@@ -101,10 +101,18 @@
 
 ---
 
-### 4. 리팩토링 및 안정성 강화 (v2.1)
+### 4. 리팩토링 및 안정성 강화 (v2.1 ~ v2.2)
+
+#### Security Hardening (v2.2)
+- **보안 취약점 제거**:
+  - `authMiddleware`의 오타 수정 및 UTF-8 닉네임 디코딩 로직 안정화
+  - `validator.js`의 불필요하고 취약한 Regex SQL Injection 검사 로직 제거 (Parameterized Query로 대체)
+- **AI 기반 콘텐츠 모더레이션**:
+  - Google Gemini AI를 활용한 2차 필터링 시스템 구축
+  - Fail-open 설계: AI 응답 지연 시 서비스 중단 없이 기본 필터만 적용
 
 #### Frontend Refactoring
-- **Custom Hooks 도입**: `LinePage.jsx`의 비대해진 로직을 분리
+- **Custom Hooks 분리**: `LinePage.jsx`의 비대해진 로직을 분리
   - `useChatSocket`: Socket.IO 연결 및 메시지 동기화
   - `useChatScroll`: 스크롤 위치 관리 및 자동 스크롤
   - `useSwipeReply`: 모바일 스와이프 답장 제스처

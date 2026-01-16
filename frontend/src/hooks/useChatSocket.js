@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { postAPI, subwayLineAPI, visitAPI } from '../services/api';
+import { postAPI, subwayLineAPI, visitAPI, authAPI } from '../services/api';
 import { joinLine, leaveLine, onActiveUsersUpdate, offActiveUsersUpdate, onNewMessage, offNewMessage, reconnectSocket } from '../utils/socket';
-import { enterChatRoom, leaveChatRoom } from '../utils/temporaryUser';
+import { enterChatRoom, leaveChatRoom, getLineSignature, setLineSignature } from '../utils/temporaryUser';
 import { useAuth } from '../contexts/AuthContext';
 import { API } from '../config/constants';
 
-// 모듈 스코프 상태: 수동 퇴장 여부 추적 (window 전역 변수 대신 사용)
-const leavingManuallyMap = new Map();
+// 모듈 스코프 상태 제거 (useRef로 대체됨)
 
 export const useChatSocket = (lineId) => {
     const [messages, setMessages] = useState([]);
@@ -17,6 +16,8 @@ export const useChatSocket = (lineId) => {
     const { setLineUser, removeLineUser } = useAuth();
 
     const isInitialLoad = useRef(true);
+    // 수동 퇴장 여부 추적 (Ref 사용)
+    const isLeavingManuallyRef = useRef(false);
 
     useEffect(() => {
         // 1. Room Entry & User Setup
@@ -33,6 +34,20 @@ export const useChatSocket = (lineId) => {
 
         const initChat = async () => {
             try {
+                // [Security] Signature Check & Issue
+                let signature = getLineSignature(lineId);
+                if (!signature) {
+                    try {
+                        const sigResponse = await authAPI.issueAnonymousSignature(userData.sessionId);
+                        if (sigResponse.data.signature) {
+                            setLineSignature(lineId, sigResponse.data.signature);
+                            signature = sigResponse.data.signature;
+                        }
+                    } catch (sigErr) {
+                        console.error('Failed to issue signature:', sigErr);
+                    }
+                }
+
                 const hasJoined = sessionStorage.getItem(hasJoinedKey);
                 const isFirstJoin = !hasJoined;
 
@@ -42,8 +57,8 @@ export const useChatSocket = (lineId) => {
                     sessionStorage.setItem(hasJoinedKey, 'true');
 
                     // Fire and forget calls (에러는 서버 로그에서 추적)
-                    postAPI.createJoinMessage(parseInt(lineId)).catch(() => {});
-                    visitAPI.record(parseInt(lineId)).catch(() => {});
+                    postAPI.createJoinMessage(parseInt(lineId)).catch(() => { });
+                    visitAPI.record(parseInt(lineId)).catch(() => { });
 
                     await Promise.all([
                         fetchLineInfo(),
@@ -78,7 +93,8 @@ export const useChatSocket = (lineId) => {
             const joinTime = sessionStorage.getItem(joinTimestampKey);
 
             setMessages(prev => {
-                if (prev.find(m => m.id === data.message.id)) return prev;
+                const alreadyExists = prev.find(m => m.id === data.message.id);
+                if (alreadyExists) return prev;
 
                 // Filter logic based on join time
                 if (joinTime) {
@@ -100,18 +116,14 @@ export const useChatSocket = (lineId) => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 reconnectSocket();
-                // lineInfo는 WebSocket으로 activeUsers 업데이트됨
             }
         };
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         // 6. Before Unload (Leave Message)
-        // 모듈 스코프 Map으로 수동 퇴장 여부 추적
-        leavingManuallyMap.set(lineId, false);
-
         const handleBeforeUnload = () => {
             // 수동 퇴장(뒤로가기)일 때는 이미 leaveRoom에서 처리됨
-            if (leavingManuallyMap.get(lineId)) return;
+            if (isLeavingManuallyRef.current) return;
 
             const url = `${API.BASE_URL}/api/posts/leave`;
             const data = JSON.stringify({ subway_line_id: parseInt(lineId) });
@@ -125,6 +137,7 @@ export const useChatSocket = (lineId) => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
 
+            // Ref 상태와 상관없이 cleanup 시에는 소켓 연결 해제
             leaveLine(parseInt(lineId));
             offActiveUsersUpdate(handleActiveUsersUpdate);
             offNewMessage(handleNewMessage);
@@ -138,11 +151,10 @@ export const useChatSocket = (lineId) => {
             sessionStorage.removeItem(hasJoinedKey);
             sessionStorage.removeItem(messagesKey);
 
-            // 모듈 스코프 상태 정리
-            leavingManuallyMap.delete(lineId);
+            // Ref는 컴포넌트 언마운트 시 자동 소멸되므로 별도 cleanup 불필요
         };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [lineId]); // setLineUser, removeLineUser는 useCallback으로 안정적인 참조
 
     // Helpers
@@ -198,8 +210,8 @@ export const useChatSocket = (lineId) => {
     };
 
     const leaveRoom = useCallback(async () => {
-        // 모듈 스코프 플래그 설정: beforeunload에서 중복 퇴장 메시지 방지
-        leavingManuallyMap.set(lineId, true);
+        // Ref 사용하여 수동 퇴장 상태 설정
+        isLeavingManuallyRef.current = true;
 
         try {
             await postAPI.createLeaveMessage(parseInt(lineId));

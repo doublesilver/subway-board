@@ -7,7 +7,9 @@ description: 가기싫어(gagisiro) 프로젝트를 위한 역할 기반(Role-Ba
 ## Context
 - **Project**: 가기싫어 (Subway Board)
 - **Goal**: 기획부터 배포, 검증까지 각 역할(Persona)별 관점을 거쳐 완성도 높은 결과물 도출.
-- **Rules**: 각 Phase 종료 시 반드시 결과물(Artifact/Code)을 확인하고 사용자 컨펌을 유도할 것.
+- **Rules**: 
+  1. 각 Phase 종료 시 반드시 결과물(Artifact/Code)을 확인하고 사용자 컨펌을 유도할 것.
+  2. **Language Policy**: 모든 작업, 주석, 커밋 메시지, 아티팩트 및 에이전트 답변은 **반드시 한국어(Korean)**로 작성할 것. (단, 코드 내 영어 변수명 등은 제외)
 
 ---
 

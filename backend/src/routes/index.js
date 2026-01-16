@@ -11,9 +11,10 @@ const visitController = require('../controllers/visitController');
 const { validatePost, validateComment } = require('../middleware/validator');
 const authMiddleware = require('../middleware/authMiddleware');
 const checkOperatingHours = require('../middleware/checkOperatingHours');
+const adminMiddleware = require('../middleware/adminMiddleware');
 
 // 특수 호선 삭제 (1회성 정리용)
-router.post('/admin/cleanup-lines', async (req, res) => {
+router.post('/admin/cleanup-lines', adminMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
       "DELETE FROM subway_lines WHERE line_number NOT IN ('1', '2', '3', '4', '5', '6', '7', '8', '9')"
@@ -36,6 +37,7 @@ if (process.env.ENABLE_KAKAO_LOGIN === 'true') {
   router.get('/auth/kakao/callback', authController.kakaoCallback);
 }
 router.get('/auth/me', authController.getCurrentUser);
+router.post('/auth/anonymous', authController.issueAnonymousSignature); // 익명 서명 발급
 
 router.get('/subway-lines', subwayLineController.getAllLines);
 
@@ -52,10 +54,10 @@ router.delete('/comments/:commentId', authMiddleware, checkOperatingHours, comme
 
 // Feedback routes
 router.post('/feedback', authMiddleware, feedbackController.submitFeedback);
-router.get('/admin/feedback', feedbackController.getAllFeedback);
+router.get('/admin/feedback', adminMiddleware, feedbackController.getAllFeedback);
 
 // Visit tracking routes
 router.post('/visits', authMiddleware, visitController.recordVisit);
-router.get('/admin/stats', visitController.getStats);
+router.get('/admin/stats', adminMiddleware, visitController.getStats);
 
 module.exports = router;

@@ -397,6 +397,8 @@ flowchart LR
 | 프로덕션 로그 | `console.log` 노출 | 환경별 분기 처리 |
 | AI Service | 싱글톤 직접 export | 팩토리 패턴 + 클래스 export |
 | 하드코딩 값 | 매직 넘버 산재 | `config/constants.js` 중앙 관리 |
+| Context 함수 | 매 렌더링마다 재생성 | `useCallback`으로 안정화 |
+| HomePage 폴링 | 3초마다 API 호출 | WebSocket 전용으로 전환 |
 
 ---
 

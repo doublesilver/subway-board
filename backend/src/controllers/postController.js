@@ -14,7 +14,11 @@ const getPostsByLine = asyncHandler(async (req, res, next) => {
     return next(AppError.fromErrorCode(ErrorCodes.VALIDATION_INVALID_LINE, 400));
   }
 
-  const { page = 1, limit = PAGINATION.DEFAULT_LIMIT } = req.query;
+  let { page = 1, limit = PAGINATION.DEFAULT_LIMIT } = req.query;
+
+  // [Security] Pagination Limit Clamp
+  page = Math.max(1, parseInt(page));
+  limit = Math.min(50, Math.max(1, parseInt(limit))); // Max 50, Min 1
 
   // 프론트엔드에서 전달한 세션 ID 사용
   const sessionId = req.headers['x-anonymous-id'];
