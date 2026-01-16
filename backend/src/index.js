@@ -13,17 +13,19 @@ const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // 서버를 먼저 시작하여 Railway 헬스체크에 응답할 수 있도록 함
-httpServer.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+if (require.main === module) {
+  httpServer.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 
-  // 서버 시작 후 스케줄러 초기화
-  try {
-    const { startScheduler } = require('./utils/scheduler');
-    startScheduler();
-  } catch (err) {
-    console.error('Failed to start scheduler:', err);
-  }
-});
+    // 서버 시작 후 스케줄러 초기화
+    try {
+      const { startScheduler } = require('./utils/scheduler');
+      startScheduler();
+    } catch (err) {
+      console.error('Failed to start scheduler:', err);
+    }
+  });
+}
 
 httpServer.on('error', (err) => {
   console.error('Server error:', err);

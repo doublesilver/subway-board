@@ -109,6 +109,10 @@
 - **Auth Hardening**: 익명 ID 사칭 방지를 위한 HMAC-SHA256 서명 시스템 도입.
 - **Stability**: 페이지네이션 Limit 제한 및 피드백 세션 기록 버그 수정.
 
+### Phase 6: Mobile Experience Refinement (Current)
+- **Problem**: 모바일(iOS/Android)에서 키보드 활성화 시 헤더가 스크롤되어 사라지거나 위치가 어긋나는 현상.
+- **Solution**: `visualViewport` API를 활용하여 뷰포트 오프셋(`offsetTop`)만큼 헤더를 강제로 이동(`translateY`)시켜 시각적 고정 유지. `checkIsOperatingHours` 로직과 충돌하지 않도록 이벤트 리스너 통합.
+
 #### AI Cleanbot & Security (v2.2)
 - **AI Content Moderation**: Google Gemini 1.5 Flash를 이용한 비속어/혐오 표현 필터링 도입.
 - **Security Patches**: `authMiddleware` 오타 수정, SQL Injection 정규식 제거(Parameterized Query 의존).

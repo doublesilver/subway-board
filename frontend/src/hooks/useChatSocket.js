@@ -35,16 +35,41 @@ export const useChatSocket = (lineId) => {
         const initChat = async () => {
             try {
                 // [Security] Signature Check & Issue
+                // [Security] Signature Check & Issue (Server-Side ID)
                 let signature = getLineSignature(lineId);
+
+                // 서명이 없거나(legacy/new) 유효하지 않은 경우, 서버로부터 새 ID와 서명을 발급받음
                 if (!signature) {
                     try {
-                        const sigResponse = await authAPI.issueAnonymousSignature(userData.sessionId);
-                        if (sigResponse.data.signature) {
-                            setLineSignature(lineId, sigResponse.data.signature);
-                            signature = sigResponse.data.signature;
+                        // 1. 서버에 새 ID+서명 요청
+                        const sigResponse = await authAPI.issueAnonymousSignature();
+                        const { anonymousId, signature: newSignature } = sigResponse.data;
+
+                        if (anonymousId && newSignature) {
+                            // 2. 로컬 스토리지 업데이트 (기존 Client-Side ID 덮어쓰기)
+                            const { setLineSession } = await import('../utils/temporaryUser'); // Dynamic import to avoid circular dep if any (just safety)
+                            setLineSession(lineId, anonymousId);
+                            setLineSignature(lineId, newSignature);
+
+                            // 3. 상태 업데이트
+                            signature = newSignature;
+                            const newUserData = { ...userData, sessionId: anonymousId };
+                            setCurrentUser(newUserData);
+                            setLineUser(lineId, newUserData);
+
+                            // joinLine도 새 ID로 다시 호출해야 할 수 있음.
+                            // 하지만 socket.js의 joinLine은 단순히 emit만 함.
+                            // 문제는 '2. Socket Join' 단계에서 이미 구ID로 join을 시도했을 수 있음.
+                            // 따라서 여기서 재가입(emit)을 해주는 것이 안전함.
+                            joinLine(parseInt(lineId), anonymousId);
+
+                            // userData 참조 업데이트
+                            userData.sessionId = anonymousId;
                         }
                     } catch (sigErr) {
-                        console.error('Failed to issue signature:', sigErr);
+                        console.error('Failed to issue identity from server:', sigErr);
+                        setError('보안 인증에 실패했습니다. 새로고침 해주세요.');
+                        return; // Stop initialization
                     }
                 }
 

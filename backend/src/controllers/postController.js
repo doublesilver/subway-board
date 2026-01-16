@@ -17,8 +17,11 @@ const getPostsByLine = asyncHandler(async (req, res, next) => {
   let { page = 1, limit = PAGINATION.DEFAULT_LIMIT } = req.query;
 
   // [Security] Pagination Limit Clamp
-  page = Math.max(1, parseInt(page));
-  limit = Math.min(50, Math.max(1, parseInt(limit))); // Max 50, Min 1
+  const parsedPage = parseInt(page);
+  const parsedLimit = parseInt(limit);
+
+  page = isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
+  limit = isNaN(parsedLimit) || parsedLimit < 1 ? PAGINATION.DEFAULT_LIMIT : Math.min(50, parsedLimit); // Max 50, Default if invalid
 
   // 프론트엔드에서 전달한 세션 ID 사용
   const sessionId = req.headers['x-anonymous-id'];

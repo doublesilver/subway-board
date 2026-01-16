@@ -88,9 +88,7 @@ export const visitAPI = {
 };
 
 export const authAPI = {
-  issueAnonymousSignature: (anonymousId) => api.post('/api/auth/anonymous', { anonymousId }, {
-    headers: { 'X-Anonymous-ID': anonymousId }
-  }),
+  issueAnonymousSignature: () => api.post('/api/auth/anonymous'),
 };
 
 export default api;

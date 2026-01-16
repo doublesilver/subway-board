@@ -31,21 +31,28 @@ const authMiddleware = (req, res, next) => {
         const signature = req.headers['x-anonymous-signature'];
 
         if (anonymousId) {
-            // [Security] HMAC 서명 검증
-            if (signature) {
-                const crypto = require('crypto');
-                const expectedSignature = crypto
-                    .createHmac('sha256', process.env.JWT_SECRET || 'fallback_secret')
-                    .update(anonymousId)
-                    .digest('hex');
+            // [Security] HMAC 서명 검증 (Mandatory)
+            if (!process.env.JWT_SECRET) {
+                console.error('CRITICAL: JWT_SECRET is not defined.');
+                return res.status(500).json({ error: 'Server configuration error' });
+            }
 
-                if (signature !== expectedSignature) {
-                    console.warn(`Invalid signature for anonymousId: ${anonymousId}`);
-                    // 서명 불일치 시 차단 (또는 무시하고 진행할지 정책 결정)
-                    // 현재는 로그만 남기고 통과시키거나, 강력하게 401을 줄 수 있음.
-                    // 배포 초기 호환성을 위해 로그만 남길 수도 있지만, 보안 강화 목적상 차단이 맞음.
-                    // throw new Error('Invalid anonymous signature'); // 주석 해제 시 강력 차단
-                }
+            if (!signature) {
+                console.warn(`Missing signature for anonymousId: ${anonymousId}`);
+                // 서명이 없으면 401 Unauthorized
+                return res.status(401).json({ error: 'Missing authentication signature' });
+            }
+
+            const crypto = require('crypto');
+            const expectedSignature = crypto
+                .createHmac('sha256', process.env.JWT_SECRET)
+                .update(anonymousId)
+                .digest('hex');
+
+            if (signature !== expectedSignature) {
+                console.warn(`Invalid signature for anonymousId: ${anonymousId}`);
+                // 서명 불일치 시 403 Forbidden
+                return res.status(403).json({ error: 'Invalid authentication signature' });
             }
 
             req.user = {

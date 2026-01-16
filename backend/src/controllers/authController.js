@@ -113,23 +113,27 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
-// 익명 세션 서명 발급
+// 익명 세션 ID 및 서명 발급 (Server-Side Generation)
 const issueAnonymousSignature = async (req, res) => {
-  const anonymousId = req.headers['x-anonymous-id'] || req.body.anonymousId;
-
-  if (!anonymousId) {
-    return res.status(400).json({ error: 'Anonymous ID required' });
-  }
-
+  // Client does not provide ID anymore. Server generates it.
   try {
+    if (!process.env.JWT_SECRET) {
+      console.error('CRITICAL: JWT_SECRET is not defined.');
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
+
     const crypto = require('crypto');
+    const { v4: uuidv4 } = require('uuid');
+
+    const anonymousId = uuidv4();
     const signature = crypto
-      .createHmac('sha256', process.env.JWT_SECRET || 'fallback_secret')
+      .createHmac('sha256', process.env.JWT_SECRET)
       .update(anonymousId)
       .digest('hex');
 
-    res.json({ signature });
+    res.json({ anonymousId, signature });
   } catch (error) {
+    console.error('Signature Issue Error:', error);
     res.status(500).json({ error: 'Failed to issue signature' });
   }
 };

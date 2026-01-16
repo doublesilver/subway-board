@@ -112,3 +112,7 @@ export const getLineSignature = (lineId) => {
 export const setLineSignature = (lineId, signature) => {
   sessionStorage.setItem(`line_${lineId}_signature`, signature);
 };
+
+export const setLineSession = (lineId, sessionId) => {
+  sessionStorage.setItem(`line_${lineId}_session`, sessionId);
+};

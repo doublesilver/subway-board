@@ -53,26 +53,83 @@ function LinePage() {
   // Swipe Gesture
   const { swipedMessageId, touchOffset, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeReply(currentUser, setReplyTo);
 
-  // iOS Keyboard Fix
+  // Mobile Keyboard Fix (iOS & Android)
   useEffect(() => {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (!isIOS) return;
+    if (!window.visualViewport) return;
 
-    const handleViewportResize = () => {
-      if (window.visualViewport) {
+    const handleViewportChange = () => {
+      // 1. 헤더 고정 (상단 스크롤 방지)
+      // 키보드가 올라오면서 뷰포트가 offsetTop만큼 밀려날 때, 헤더도 같이 내려와야 함
+      const header = document.querySelector('.chat-header');
+      if (header) {
+        // visualViewport.offsetTop: 뷰포트 상단이 레이아웃 상단으로부터 얼마나 떨어져 있는지
+        header.style.transform = `translateY(${window.visualViewport.offsetTop}px)`;
+      }
+
+      // 2. 입력창 고정 (하단 고정)
+      const composer = document.querySelector('.chat-composer');
+      if (composer) {
+        // Android/iOS 모두 뷰포트 높이가 줄어들므로, 화면 높이 차이만큼 올려줌
+        // 단, Android Chrome은 window.innerHeight가 *줄어들지 않는* 경우가 있어 계산 주의
+        // visualViewport.height가 실제 보이는 높이.
+
+        // Mobile Safari (iOS) 등
         const keyboardHeight = window.innerHeight - window.visualViewport.height;
-        const composer = document.querySelector('.chat-composer');
-        if (composer) composer.style.transform = `translateY(-${keyboardHeight}px)`;
+        // visualViewport.offsetTop(스크롤된 양) + height가 전체 높이가 되어야 함
+
+        // 가장 확실한 방법: bottom: 0 + transform
+        // 하지만 container가 fixed이므로, composer를 뷰포트 하단에 딱 붙이는 계산:
+
+        // composer는 'bottom: 0' fixed임.
+        // 키보드가 올라오면 -> visualViewport.height가 줄어듦.
+        // layout viewport(window.innerHeight)는 그대로일 수 있음 (iOS).
+        // 따라서 그 차이만큼 위로 올려야 함.
+
+        // 단, Android에서는 OS 설정에 따라 window.innerHeight가 같이 줄어들기도 함.
+        // 이 경우 keyboardHeight가 0에 가까움 -> transform 필요 없음.
+
+        // safe logic:
+        const offsetBottom = window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop;
+
+        // 심플한 접근: iOS는 확실히 transform 필요. Android는 테스트 필요하나 일반적으로 height 변경됨.
+        // 여기서는 기존 iOS 로직을 유지하되, Android도 대응하도록 visualViewport API가 있으면 적용.
+
+        // 더 정확한 계산:
+        // 고정된 헤더와 달리 푸터는 '보이는 뷰포트'의 가장 아래에 있어야 함.
+        // 뷰포트의 높이가 H, 오프셋이 T일 때,
+        // 화면상 좌표계에서 T + H 위치가 시각적 바닥.
+        // 레이아웃 전체 높이는 window.innerHeight (L).
+        // 기존 bottom:0 요소는 L 위치에 있음.
+        // 따라서 (L - (T + H)) 만큼 위로 올려야 함 (-값).
+
+        const scrollOffset = window.visualViewport.offsetTop;
+        const viewIdx = window.visualViewport.height;
+        const layoutH = window.innerHeight;
+
+        // 올릴 양 = 레이아웃 바닥(L) - (현재 보고있는 바닥(T+H))
+        // 예: L=800, T=200, H=400 (키보드 200, 스크롤 200) -> 바닥은 600.
+        // 800에 위치한 놈을 600으로 -> -200px 이동.
+
+        const translateY = -(layoutH - (scrollOffset + viewIdx));
+
+        // 미세 조정 (음수값만 허용, 0보다 커지면 안됨)
+        composer.style.transform = `translateY(${Math.min(0, translateY)}px)`;
       }
     };
 
-    window.visualViewport?.addEventListener('resize', handleViewportResize);
-    window.visualViewport?.addEventListener('scroll', handleViewportResize);
-    handleViewportResize();
+    window.visualViewport.addEventListener('resize', handleViewportChange);
+    window.visualViewport.addEventListener('scroll', handleViewportChange);
+
+    // 초기 실행
+    handleViewportChange();
 
     return () => {
-      window.visualViewport?.removeEventListener('resize', handleViewportResize);
-      window.visualViewport?.removeEventListener('scroll', handleViewportResize);
+      window.visualViewport.removeEventListener('resize', handleViewportChange);
+      window.visualViewport.removeEventListener('scroll', handleViewportChange);
+
+      const header = document.querySelector('.chat-header');
+      if (header) header.style.transform = '';
+
       const composer = document.querySelector('.chat-composer');
       if (composer) composer.style.transform = '';
     };
