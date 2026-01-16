@@ -1,44 +1,75 @@
 ---
-description: 가기싫어(Subway Board) 프로젝트의 기능 구현, 리팩토링, 보안 패치를 위한 표준 작업 절차입니다.
+description: 가기싫어(gagisiro) 프로젝트를 위한 역할 기반(Role-Based) 개발 및 유지보수 워크플로우입니다.
 ---
 
-# Gagisiro Development Workflow
+# Gagisiro Project Workflow: "Agent as a Team"
 
-## Goal
-Subway Board(가기싫어) 프로젝트의 신규 기능 개발 또는 유지보수 작업을 수행합니다. 안정성과 사용자 경험(UX)을 최우선으로 고려하며, 모든 변경 사항은 검증 후 배포합니다.
+## Context
+- **Project**: 가기싫어 (Subway Board)
+- **Goal**: 기획부터 배포, 검증까지 각 역할(Persona)별 관점을 거쳐 완성도 높은 결과물 도출.
+- **Rules**: 각 Phase 종료 시 반드시 결과물(Artifact/Code)을 확인하고 사용자 컨펌을 유도할 것.
 
-## Phase 1: Planning (설계 및 기획)
-1.  **현황 분석**:
-    -   `task.md`를 읽어 현재 작업의 목표를 확인합니다.
-    -   관련된 파일들(예: `backend/src/routes`, `frontend/src/pages`)을 `view_file`로 읽어 의존성을 파악합니다.
-2.  **보안 및 아키텍처 검토**:
-    -   백엔드 변경 시: SQL Injection, XSS, 권한 부여(Auth) 문제가 없는지 설계 단계에서 검토합니다.
-    -   프론트엔드 변경 시: 모바일 뷰포트(`visualViewport`), 소켓 연결 안정성 등을 고려합니다.
+---
+
+## Phase 1: Planning (Role: PO & Designer)
+**Mindset**: "사용자에게 어떤 가치를 줄 것인가? 어떻게 보여줄 것인가?"
+**Task**:
+1.  **요구사항 분석**: 채팅 기록(`task.md`, 사용자 대화)을 바탕으로 이번 작업의 핵심 목표를 정의하라.
+2.  **설계**:
+    -   기능 변경 시: 사용자 흐름(User Flow)에 미칠 영향을 분석.
+    -   UI 변경 시: 기존 디자인 시스템(CSS Variables, Glassmorphism)과의 통일성 검토.
 3.  **문서화**:
-    -   `implementation_plan.md`를 생성하거나 업데이트합니다.
-    -   변경될 파일 목록과 테스트 계획을 구체적으로 명시합니다.
-    -   **중요**: 사용자의 승인(컨펌)을 받고 다음 단계로 넘어갑니다.
+    -   `implementation_plan.md`를 업데이트하여 작업 범위와 예상 사이드 이펙트를 정리하라.
+    -   **Output**: 수정된 `implementation_plan.md`, 필요한 경우 Mermaid 흐름도.
 
-## Phase 2: Execution (구현)
-1.  **백엔드 작업 (Backend First)**:
-    -   데이터베이스 스키마 변경이 있다면 `schema.sql`을 수정하고 마이그레이션 전략을 수립합니다.
-    -   API 엔드포인트를 구현하고, `npm test` 또는 `supertest`를 이용해 단위/통합 테스트를 수행합니다.
-2.  **프론트엔드 작업**:
-    -   UI 컴포넌트를 수정합니다. 디자인 시스템(CSS Variables)을 준수하는지 확인합니다.
-    -   API 연동 로직(`api.js`)을 안전하게 구현합니다.
-3.  **중간 점검**:
-    -   코드가 컴파일(빌드) 되는지 확인합니다.
-    -   `npm run lint` 등의 정적 분석 도구가 있다면 실행합니다.
+---
 
-## Phase 3: Verification (검증 및 E2E 테스트)
-1.  **서버 가동**:
-    -   백엔드(`local:5000`)와 프론트엔드(`local:3000`) 서버를 모두 실행합니다.
-2.  **브라우저 서브 에이전트 호출 (Browser Subagent)**:
-    -   **명령어**: "브라우저 에이전트를 실행해서 `http://localhost:3000`에 접속해줘. [시나리오]를 수행하고 스크린샷을 찍어줘."
-    -   **검증 시나리오 예시**:
-        -   "2호선 채팅방에 입장하여 메시지가 잘 전송되는지 확인"
-        -   "모바일 사이즈(375x812)로 변경하여 UI가 깨지는지 확인"
-        -   "/auth/kakao/callback 등 리다이렉트 흐름 확인"
-3.  **결과 보고**:
-    -   `walkthrough.md`를 작성하여 구현 내용과 테스트 결과(스크린샷 포함)를 정리합니다.
-    -   실패 시 Phase 2로 돌아가 수정합니다.
+## Phase 2: Backend Development (Role: Senior Architect & Dev)
+**Mindset**: "안전하고, 빠르고, 확장 가능하게."
+**Task**:
+1.  **보안 검토 (Pre-check)**:
+    -   SQL Injection, XSS 가능성 사전 차단 (ex: 정규식 대신 Parameterized Query 사용).
+    -   권한 검증(`authMiddleware`) 로직 확인.
+2.  **구현**:
+    -   DB 스키마 변경 시 `schema.sql` 수정 및 마이그레이션 스크립트 작성.
+    -   API 구현 시 RESTful 원칙 준수, 에러 핸들링(`AppError`) 통합.
+3.  **단위 테스트**:
+    -   변경된 로직에 대해 `npm test` 또는 간단한 스크립트로 검증.
+    -   **Output**: 실행 가능한 백엔드 코드, 테스트 결과 로그.
+
+---
+
+## Phase 3: Frontend Development (Role: UX/UI Developer)
+**Mindset**: "모바일에서 손맛이 느껴지는 부드러운 경험."
+**Task**:
+1.  **구현**:
+    -   모바일 뷰포트(`visualViewport`), 터치 제스처(스와이프) 등 모바일 특화 기능을 최우선 고려.
+    -   API 연동 시 '낙관적 업데이트(Optimistic UI)' 패턴 적용 검토.
+2.  **스타일링**:
+    -   Tailwind 대신 `App.css` 기반의 Vanilla CSS 변수 활용 (기존 컨벤션 유지).
+    -   다크 모드 호환성 확인.
+    -   **Output**: 화면 구현 완료, 콘솔 에러 없는 상태.
+
+---
+
+## Phase 4: QA & Verification (Role: QA Engineer)
+**Mindset**: "버그는 반드시 존재한다. 찾아서 없앤다."
+**Tools**: `browser_subagent` (필수)
+**Task**:
+1.  **환경 준비**: 로컬 백엔드(`:5000`)와 프론트엔드(`:3000`) 동시 실행.
+2.  **E2E 테스트 수행** (`browser_subagent` 활용):
+    -   **필수 체크**: 모바일 해상도(375px)에서 레이아웃 깨짐 확인.
+    -   **시나리오 검증**: 채팅방 입장 -> 메시지 전송 -> 소켓 수신 -> UI 업데이트 확인.
+    -   **보안 검증**: 특수문자나 긴 텍스트 입력 시 에러 처리 확인.
+3.  **보고**:
+    -   `walkthrough.md`에 테스트 시나리오와 스크린샷 결과를 정리.
+    -   발견된 이슈는 즉시 수정 제안.
+
+---
+
+## Phase 5: Deployment (Role: DevOps Engineer)
+**Mindset**: "무중단 배포, 확실한 롤백."
+**Task**:
+1.  **빌드 확인**: `npm run build` 실행하여 프로덕션 빌드 오류 없음 확인.
+2.  **배포**: 변경 사항을 Git에 푸시하여 Vercel/Railway 자동 배포 트리거.
+3.  **운영 점검**: 배포된 라이브 사이트(`gagisiro.com`) 접속하여 최종 확인(Smoke Test).

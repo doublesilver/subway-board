@@ -35,6 +35,7 @@ function HomePage() {
     // WebSocket 초기화
     initSocket();
 
+    // 최초 1회 호선 목록 로드
     fetchSubwayLines();
 
     // WebSocket으로 실시간 참여자 수 업데이트
@@ -50,25 +51,7 @@ function HomePage() {
 
     onLineUsersUpdate(handleLineUsersUpdate);
 
-    // 3초마다 갱신 (백그라운드 시에는 중지) - 폴백용
-    let interval = setInterval(() => {
-      if (!document.hidden) {
-        fetchSubwayLines();
-      }
-    }, 3000);
-
-    // Page Visibility API - 포그라운드 복귀 시 즉시 갱신
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchSubwayLines();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       offLineUsersUpdate(handleLineUsersUpdate);
     };
   }, []);
