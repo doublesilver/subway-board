@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gagisiro Main Concept</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=IBM+Plex+Sans+KR:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0c1016;
+        --panel: #111827;
+        --ink: #f8fafc;
+        --muted: #a1a9b8;
+        --neon: #d6ff2f;
+        --pink: #ff3db8;
+        --line: #000;
+        --shadow: 6px 6px 0 #000;
+        --radius: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans KR", sans-serif;
+        background: radial-gradient(circle at 15% 10%, #1b2334, transparent 40%),
+          radial-gradient(circle at 80% 20%, #182033, transparent 35%),
+          linear-gradient(180deg, #0c1016, #0f1724);
+        color: var(--ink);
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 20px 14px;
+      }
+
+      .phone {
+        width: min(430px, 100%);
+        background: var(--panel);
+        border: 3px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        padding: 16px;
+      }
+
+      .home-container {
+        display: grid;
+        gap: 14px;
+      }
+
+      .home-header {
+        border: 2px solid #000;
+        border-radius: var(--radius);
+        background: #0f1521;
+        padding: 12px;
+      }
+
+      .home-subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .sort-tabs {
+        display: flex;
+        gap: 10px;
+      }
+
+      .sort-tab {
+        border: 2px solid #000;
+        border-radius: 999px;
+        padding: 8px 12px;
+        background: #fff;
+        color: #000;
+        font-weight: 700;
+        box-shadow: var(--shadow);
+      }
+
+      .sort-tab.active {
+        background: var(--neon);
+      }
+
+      .subway-lines-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .subway-line-item {
+        border: 2px solid #000;
+        border-radius: var(--radius);
+        background: #fff;
+        color: #000;
+        padding: 12px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        box-shadow: var(--shadow);
+      }
+
+      .line-indicator {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-weight: 800;
+        border: 2px solid #000;
+      }
+
+      .line-info {
+        display: grid;
+        gap: 6px;
+      }
+
+      .line-name {
+        margin: 0;
+        font-family: "Unbounded", sans-serif;
+        font-size: 14px;
+      }
+
+      .active-users-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #111;
+      }
+
+      .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--pink);
+        box-shadow: 0 0 0 4px rgba(255, 61, 184, 0.2);
+      }
+
+      .inactive-users {
+        color: #6b7280;
+      }
+
+      .line-1 { background: #0052a4; }
+      .line-2 { background: #00a84d; }
+      .line-3 { background: #ef7c1c; }
+      .line-4 { background: #00a5de; }
+      .line-5 { background: #996cac; }
+      .line-6 { background: #cd7c2f; }
+      .line-7 { background: #747f00; }
+      .line-8 { background: #e6186c; }
+      .line-9 { background: #bdb092; color: #000; }
+    </style>
+  </head>
+  <body>
+    <main class="phone">
+      <div class="home-container">
+        <div class="home-header">
+          <p class="home-subtitle">
+            익명 채팅 · 평일 07:00~09:00 운영 · 주말/공휴일 제외
+          </p>
+        </div>
+
+        <div class="sort-tabs">
+          <button class="sort-tab active">노선 순</button>
+          <button class="sort-tab">인기 순</button>
+        </div>
+
+        <div class="subway-lines-list">
+          <div class="subway-line-item">
+            <div class="line-indicator line-1">1</div>
+            <div class="line-info">
+              <h3 class="line-name">1호선</h3>
+              <div class="active-users-group">
+                <div class="pulse-dot"></div>
+                <span class="active-users-text">86명 참여중</span>
+              </div>
+            </div>
+          </div>
+          <div class="subway-line-item">
+            <div class="line-indicator line-2">2</div>
+            <div class="line-info">
+              <h3 class="line-name">2호선</h3>
+              <div class="active-users-group">
+                <div class="pulse-dot"></div>
+                <span class="active-users-text">128명 참여중</span>
+              </div>
+            </div>
+          </div>
+          <div class="subway-line-item">
+            <div class="line-indicator line-3">3</div>
+            <div class="line-info">
+              <h3 class="line-name">3호선</h3>
+              <div class="active-users-group">
+                <span class="inactive-users">대화 시작을 기다리는 중</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

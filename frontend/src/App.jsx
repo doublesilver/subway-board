@@ -4,6 +4,8 @@ import './App.css';
 import HomePage from './pages/HomePage';
 import LinePage from './pages/LinePage';
 import KakaoCallback from './pages/KakaoCallback';
+import PreviewHome from './pages/PreviewHome';
+import PreviewChat from './pages/PreviewChat';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthButton from './components/AuthButton';
 import AnimatedBackground from './components/AnimatedBackground';
@@ -15,11 +17,12 @@ import ClosedAlertModal from './components/ClosedAlertModal';
 function App() {
   // 앱 실행 시 최초 1회 운영 시간 체크
   const isOperatingHours = checkIsOperatingHours();
+  const isPreview = typeof window !== 'undefined' && window.location.pathname.startsWith('/preview');
 
   return (
     <AuthProvider>
       <AnimatedBackground />
-      {!isOperatingHours ? (
+      {!isOperatingHours && !isPreview ? (
         <ClosedAlertModal />
       ) : (
         <Router>
@@ -37,6 +40,8 @@ function AppContent() {
         <Route path="/auth/kakao/success" element={<KakaoCallback />} />
         <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
         <Route path="/line/:lineId" element={<LinePage />} />
+        <Route path="/preview" element={<PreviewHome />} />
+        <Route path="/preview/chat" element={<PreviewChat />} />
       </Routes>
     </div>
   );
