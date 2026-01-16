@@ -10,6 +10,7 @@ const ErrorCodes = {
   AUTH_REQUIRED: 'AUTH_REQUIRED',
   AUTH_INVALID_TOKEN: 'AUTH_INVALID_TOKEN',
   AUTH_SESSION_EXPIRED: 'AUTH_SESSION_EXPIRED',
+  AUTH_FORBIDDEN: 'AUTH_FORBIDDEN',
 
   // 권한 관련 (PERMISSION_*)
   PERMISSION_DENIED: 'PERMISSION_DENIED',
@@ -55,6 +56,7 @@ const ErrorMessages = {
   [ErrorCodes.AUTH_REQUIRED]: '로그인이 필요합니다.',
   [ErrorCodes.AUTH_INVALID_TOKEN]: '유효하지 않은 인증 정보입니다.',
   [ErrorCodes.AUTH_SESSION_EXPIRED]: '세션이 만료되었습니다. 다시 로그인해주세요.',
+  [ErrorCodes.AUTH_FORBIDDEN]: '접근 권한이 없습니다.',
 
   // 권한
   [ErrorCodes.PERMISSION_DENIED]: '권한이 없습니다.',

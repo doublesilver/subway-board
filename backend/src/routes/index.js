@@ -41,8 +41,9 @@ router.post('/auth/anonymous', authController.issueAnonymousSignature); // 익�
 
 router.get('/subway-lines', subwayLineController.getAllLines);
 
-router.get('/posts/line/:lineId', postController.getPostsByLine);
-router.get('/posts/:postId', postController.getPostById);
+// Reading endpoints also need auth to verify ownership (if anonymousId provided)
+router.get('/posts/line/:lineId', authMiddleware, postController.getPostsByLine);
+router.get('/posts/:postId', authMiddleware, postController.getPostById);
 router.post('/posts', authMiddleware, checkOperatingHours, validatePost, postController.createPost);
 router.post('/posts/join', authMiddleware, checkOperatingHours, postController.createJoinMessage); // 입장도 제한
 router.post('/posts/leave', authMiddleware, postController.createLeaveMessage); // 퇴장은 허용 (잔류 인원 처리)

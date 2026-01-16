@@ -14,6 +14,16 @@ class AppError extends Error {
 
     // 에러 코드로부터 AppError 생성하는 헬퍼 메서드
     static fromErrorCode(errorCode, statusCode = 400, customMessage = null, details = null) {
+        if (!statusCode || statusCode === 400) {
+            const statusMap = {
+                [ErrorCodes.AUTH_SESSION_EXPIRED]: 401,
+                [ErrorCodes.AUTH_FORBIDDEN]: 403,
+                [ErrorCodes.PERMISSION_DENIED]: 403,
+                [ErrorCodes.AUTH_REQUIRED]: 401
+            };
+            if (statusMap[errorCode]) statusCode = statusMap[errorCode];
+        }
+
         const message = customMessage || ErrorMessages[errorCode] || ErrorMessages[ErrorCodes.SERVER_ERROR];
         return new AppError(message, statusCode, errorCode, details);
     }

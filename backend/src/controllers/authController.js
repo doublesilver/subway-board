@@ -123,18 +123,23 @@ const issueAnonymousSignature = async (req, res) => {
     }
 
     const crypto = require('crypto');
+    // console.log('DEBUG: Requiring uuid'); // Commented out to avoid clutter if not needed
     const { v4: uuidv4 } = require('uuid');
 
     const anonymousId = uuidv4();
+    // console.log('DEBUG: Generated ID', anonymousId);
+
+    if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET missing in issueAnonymousSignature');
+
     const signature = crypto
-      .createHmac('sha256', process.env.JWT_SECRET)
+      .createHmac('sha256', process.env.JWT_SECRET) // Ensure secret is string
       .update(anonymousId)
       .digest('hex');
 
     res.json({ anonymousId, signature });
   } catch (error) {
-    console.error('Signature Issue Error:', error);
-    res.status(500).json({ error: 'Failed to issue signature' });
+    console.error('Signature Issue Error (Detailed):', error.message, error.stack);
+    res.status(500).json({ error: 'Failed to issue signature', details: error.message });
   }
 };
 
