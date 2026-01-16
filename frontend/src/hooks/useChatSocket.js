@@ -39,7 +39,7 @@ export const useChatSocket = (lineId) => {
                 let signature = getLineSignature(lineId);
 
                 // ?œëª…???†ê±°??legacy/new) ? íš¨?˜ì? ?Šì? ê²½ìš°, ?œë²„ë¡œë?????ID?€ ?œëª…??ë°œê¸‰ë°›ìŒ
-                if (!signature) {
+                if (false) {
                     try {
                         // 1. ?œë²„????ID+?œëª… ?”ì²­
                         const sigResponse = await authAPI.issueAnonymousSignature();

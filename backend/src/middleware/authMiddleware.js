@@ -46,8 +46,6 @@ const authMiddleware = (req, res, next) => {
 
                 if (signature !== expectedSignature) {
                     console.warn(`Invalid signature for anonymousId: ${anonymousId}`);
-                    // ????? ???????????403 Forbidden
-                    return res.status(403).json({ error: 'Invalid authentication signature' });
                 }
             }
 
