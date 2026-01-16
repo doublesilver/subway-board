@@ -3,15 +3,17 @@ process.env.ADMIN_KEY = 'test-admin-key';
 
 const request = require('supertest');
 const app = require('../src/index'); // Express App
-const crypto = require('crypto');
 // require('dotenv').config(); // Skip dotenv in test to avoid overwriting
 
 describe('Security Hardening Tests', () => {
+    afterAll(async () => {
+        const pool = require('../src/db/connection');
+        await pool.end();
+    });
 
     describe('Anonymous Authentication', () => {
         let serverId;
         let serverSignature;
-        // ... (rest is same, but I need to handle the diff carefully)
 
 
         it('should reject request without anonymous signature (401)', async () => {
@@ -19,10 +21,6 @@ describe('Security Hardening Tests', () => {
                 .get('/api/posts/line/1')
                 .set('x-anonymous-id', 'some-fake-id'); // No signature
 
-            if (res.status !== 401) {
-                console.log('DEBUG: Expected 401, got', res.status);
-                // console.log('DEBUG: Body:', res.body);
-            }
             expect(res.status).toBe(401);
         });
 
@@ -99,10 +97,7 @@ describe('Security Hardening Tests', () => {
 describe('Admin Authentication', () => {
     it('should block admin endpoint without key', async () => {
         const res = await request(app).get('/api/admin/stats');
-        // If ADMIN_KEY is not set in env, it might be 500 or 403 depending on middleware logic
-        // But if set, it should be 403 (AUTH_FORBIDDEN)
-        console.log('DEBUG: Status', res.status, res.body);
-        expect([403]).toContain(res.status); // Should be 403 now that we set env
+        expect([403]).toContain(res.status);
         if (res.status === 403) {
             expect(res.body.error.code).toBe('AUTH_FORBIDDEN');
         }

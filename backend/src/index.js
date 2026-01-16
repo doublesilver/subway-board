@@ -12,9 +12,10 @@ const socketService = require('./utils/socket');
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
+const isMain = require.main === module;
 
 // Start server only when running directly (avoid listen during tests)
-if (require.main === module) {
+if (isMain) {
   httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 
@@ -136,23 +137,25 @@ app.use(cors({
 }));
 
 // Socket.io setup (socket.js module)
-socketService.init(httpServer, {
-  cors: {
-    origin: (origin, callback) => {
-      // allow requests with no origin
-      if (!origin) return callback(null, true);
+if (isMain) {
+  socketService.init(httpServer, {
+    cors: {
+      origin: (origin, callback) => {
+        // allow requests with no origin
+        if (!origin) return callback(null, true);
 
-      if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin)) {
-        callback(null, true);
-      } else {
-        logger.warn('Socket.IO CORS blocked for origin:', { origin });
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST'],
-    credentials: true
-  }
-});
+        if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin)) {
+          callback(null, true);
+        } else {
+          logger.warn('Socket.IO CORS blocked for origin:', { origin });
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      methods: ['GET', 'POST'],
+      credentials: true
+    }
+  });
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -205,8 +208,10 @@ app.all('/{*path}', (req, res, next) => {
 app.use(globalErrorHandler);
 
 // Socket.io event handler
-const { handleSocketConnection } = require('./utils/activeUsers');
-const io = socketService.getIO();
-io.on('connection', handleSocketConnection);
+if (isMain) {
+  const { handleSocketConnection } = require('./utils/activeUsers');
+  const io = socketService.getIO();
+  io.on('connection', handleSocketConnection);
+}
 
 module.exports = app;
