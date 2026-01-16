@@ -5,19 +5,20 @@ const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const compression = require('compression');
 const { createServer } = require('http');
-const { Server } = require('socket.io');
 require('dotenv').config();
+
+const socketService = require('./utils/socket');
 
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
 
-// 서버를 먼저 시작하여 Railway 헬스체크에 응답할 수 있도록 함
+// Start server only when running directly (avoid listen during tests)
 if (require.main === module) {
   httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 
-    // 서버 시작 후 스케줄러 초기화
+    // Start scheduler after server boot
     try {
       const { startScheduler } = require('./utils/scheduler');
       startScheduler();
@@ -36,7 +37,7 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-// 기본 헬스체크 (가장 먼저 등록)
+// Basic health check
 app.get('/health', async (req, res) => {
   const health = {
     status: 'OK',
@@ -63,20 +64,20 @@ app.get('/health', async (req, res) => {
   res.status(statusCode).json(health);
 });
 
-// 이후 미들웨어 및 라우트 설정
+// Middleware and routes
 const globalErrorHandler = require('./middleware/errorMiddleware');
 const AppError = require('./utils/AppError');
 const logger = require('./utils/logger');
 const routes = require('./routes');
 const { RATE_LIMIT, SECURITY } = require('./config/constants');
 
-// Trust proxy (Railway, Heroku 등 클라우드 플랫폼용)
+// Trust proxy (Railway, Heroku, etc.)
 app.set('trust proxy', 1);
 
-// 응답 압축 (성능 최적화)
+// Response compression
 app.use(compression());
 
-// 보안 헤더 강화
+// Security headers
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -84,8 +85,8 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", process.env.FRONTEND_URL || "http://localhost:3000"],
-      fontSrc: ["'self'", "https:", "data:"],
+      connectSrc: ["'self'", process.env.FRONTEND_URL || 'http://localhost:3000'],
+      fontSrc: ["'self'", 'https:', 'data:'],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'none'"],
@@ -112,7 +113,7 @@ const allowedOrigins = [
 
 logger.info('Allowed CORS origins:', { origins: allowedOrigins });
 
-// 토스 미니앱 도메인 패턴 (https://<appName>.apps.tossmini.com 등)
+// Toss mini domain pattern (https://<appName>.apps.tossmini.com)
 const isTossDomain = (origin) => {
   return /^https:\/\/[a-z0-9-]+\.(apps|private-apps)\.tossmini\.com$/.test(origin);
 };
@@ -134,8 +135,8 @@ app.use(cors({
   credentials: true
 }));
 
-// Socket.io 설정 (socket.js 모듈 사용)
-require('./utils/socket').init(httpServer, {
+// Socket.io setup (socket.js module)
+socketService.init(httpServer, {
   cors: {
     origin: (origin, callback) => {
       // allow requests with no origin
@@ -153,27 +154,25 @@ require('./utils/socket').init(httpServer, {
   }
 });
 
-// Note: setSocketIO injection is no longer needed as we use the socket module directly
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// HTTP 요청 로깅
+// HTTP logging
 app.use(morgan('combined', { stream: logger.stream }));
 
-// POST/DELETE 요청 Rate Limit
+// POST/DELETE rate limit
 const writeLimiter = rateLimit({
   windowMs: RATE_LIMIT.WRITE.WINDOW_MS,
   max: RATE_LIMIT.WRITE.MAX,
-  message: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
+  message: '?ˆë¬´ ë§Žì? ?”ì²­??ë°œìƒ?ˆìŠµ?ˆë‹¤. ? ì‹œ ???¤ì‹œ ?œë„?´ì£¼?¸ìš”.',
   skip: (req) => req.method === 'GET',
 });
 
-// GET 요청 Rate Limit (DDoS 방어)
+// GET rate limit (DDoS mitigation)
 const readLimiter = rateLimit({
   windowMs: RATE_LIMIT.READ.WINDOW_MS,
   max: RATE_LIMIT.READ.MAX,
-  message: '너무 많은 조회 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
+  message: '?ˆë¬´ ë§Žì? ì¡°íšŒ ?”ì²­??ë°œìƒ?ˆìŠµ?ˆë‹¤. ? ì‹œ ???¤ì‹œ ?œë„?´ì£¼?¸ìš”.',
   skip: (req) => req.method !== 'GET',
   standardHeaders: true,
   legacyHeaders: false,
@@ -186,7 +185,7 @@ app.use('/api', routes);
 
 app.get('/', (req, res) => {
   res.json({
-    message: '출퇴근길 익명 게시판 API',
+    message: 'ì¶œí‡´ê·¼ê¸¸ ?µëª… ê²Œì‹œ??API',
     version: '1.0.0',
     endpoints: {
       health: '/health',
@@ -197,19 +196,16 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 Handler (Express 5: '*' -> '/*' 또는 '{*path}')
+// 404 handler
 app.all('/{*path}', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// Global Error Handler
+// Global error handler
 app.use(globalErrorHandler);
 
-// Socket.io 이벤트 핸들러
-const socketService = require('./utils/socket');
+// Socket.io event handler
 const { handleSocketConnection } = require('./utils/activeUsers');
-
-// Socket initialized earlier, get instance to attach handler
 const io = socketService.getIO();
 io.on('connection', handleSocketConnection);
 

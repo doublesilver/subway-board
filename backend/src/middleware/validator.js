@@ -2,6 +2,8 @@ const xss = require('xss');
 const { CONTENT, SUBWAY_LINE } = require('../config/constants');
 const { createErrorResponse, ErrorCodes } = require('../utils/errorCodes');
 
+const sqlInjectionPattern = /(\bselect\b\s+.+\bfrom\b|\bunion\b\s+\bselect\b|\bdrop\b\s+\btable\b|\binsert\b\s+into\b|\bupdate\b\s+\w+\s+set\b|\bdelete\b\s+from\b|--|\/\*|\*\/)/i;
+
 const validatePost = (req, res, next) => {
   const { content, subway_line_id } = req.body;
 
@@ -38,8 +40,9 @@ const validatePost = (req, res, next) => {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  // SQL injection prevention is handled by parameterized queries in the controller layer.
-  // The previous regex check was blocking legitimate sentences and is removed.
+  if (sqlInjectionPattern.test(content)) {
+    return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
+  }
 
   next();
 };
@@ -66,7 +69,9 @@ const validateComment = (req, res, next) => {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  // Note: SQL Injection is prevented by parameterized queries in controllers
+  if (sqlInjectionPattern.test(content)) {
+    return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
+  }
 
   next();
 };
