@@ -92,7 +92,8 @@ function LinePage() {
   }, [navigate]);
 
   useEffect(() => {
-    if (error) showError(error);
+    // useChatSocket 초기화 에러만 표시 (API 에러는 handleSubmit에서 처리)
+    if (error && !error.includes('부적절')) showError(error);
   }, [error, showError]);
 
   const handleSubmit = async (e) => {
