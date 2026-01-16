@@ -2853,13 +2853,19 @@ body {
 }
 
 .composer-form {
-  border: none;
+  border: 2px solid #000;
+  background: #0f1521;
+  box-shadow: 6px 6px 0 #000;
 }
 
 .composer-input {
   border: 2px solid #000;
-  background: #0b0f14;
+  background: #101826;
   color: #f8fafc;
+}
+
+.composer-input::placeholder {
+  color: #94a3b8;
 }
 
 .composer-send {
@@ -2879,7 +2885,9 @@ body {
 }
 
 .footer {
-  background: transparent;
-  color: #a1a9b8;
+  background: #0f1521;
+  border-top: 2px solid #000;
+  color: #e2e8f0;
+  box-shadow: 0 -6px 0 #000;
 }
 
