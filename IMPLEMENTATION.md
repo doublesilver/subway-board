@@ -101,15 +101,18 @@
 
 ---
 
-### 4. 리팩토링 및 안정성 강화 (v2.1 ~ v2.2)
+### 4. 리팩토링 및 안정성 강화 (v2.1 ~ v2.3)
 
-#### Security Hardening (v2.2)
-- **보안 취약점 제거**:
-  - `authMiddleware`의 오타 수정 및 UTF-8 닉네임 디코딩 로직 안정화
-  - `validator.js`의 불필요하고 취약한 Regex SQL Injection 검사 로직 제거 (Parameterized Query로 대체)
-- **AI 기반 콘텐츠 모더레이션**:
-  - Google Gemini AI를 활용한 2차 필터링 시스템 구축
-  - Fail-open 설계: AI 응답 지연 시 서비스 중단 없이 기본 필터만 적용
+#### Security Hardening (v2.3) - Current
+- **Frontend Refactoring**: `window` 전역 객체 의존성 제거 (`useRef` 도입).
+- **Admin Protection**: `/admin/*` 엔드포인트에 키 기반 인증 미들웨어 적용.
+- **Auth Hardening**: 익명 ID 사칭 방지를 위한 HMAC-SHA256 서명 시스템 도입.
+- **Stability**: 페이지네이션 Limit 제한 및 피드백 세션 기록 버그 수정.
+
+#### AI Cleanbot & Security (v2.2)
+- **AI Content Moderation**: Google Gemini 1.5 Flash를 이용한 비속어/혐오 표현 필터링 도입.
+- **Security Patches**: `authMiddleware` 오타 수정, SQL Injection 정규식 제거(Parameterized Query 의존).
+- **Fail-open Architecture**: AI 응답 지연 시 서비스 중단 없이 기본 필터만 적용.
 
 #### Frontend Refactoring
 - **Custom Hooks 분리**: `LinePage.jsx`의 비대해진 로직을 분리
