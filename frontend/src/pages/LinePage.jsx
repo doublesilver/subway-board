@@ -37,7 +37,7 @@ const formatTime = (dateString) => {
 function LinePage() {
   const { lineId } = useParams();
   const navigate = useNavigate();
-  const { toasts, error: showError, success: showSuccess, hideToast } = useToast();
+  const { toasts, error: showError, success: showSuccess, warning: showWarning, hideToast } = useToast();
 
   // Custom Hooks
   const { messages, setMessages, lineInfo, currentUser, loading, error, leaveRoom } = useChatSocket(lineId);
@@ -149,7 +149,12 @@ function LinePage() {
       setMessages(prev => prev.filter(m => m.id !== tempId));
       setContent(messageContent); // 내용 복원
       const errorMsg = err.response?.data?.error?.message || err.response?.data?.error || '메시지 작성에 실패했습니다.';
-      showError(errorMsg);
+      // AI Cleanbot 메시지는 warning으로 표시 (덜 공격적)
+      if (errorMsg.includes('부적절') || errorMsg.includes('Cleanbot')) {
+        showWarning(errorMsg);
+      } else {
+        showError(errorMsg);
+      }
     } finally {
       setSubmitting(false);
     }
