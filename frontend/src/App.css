@@ -1180,18 +1180,19 @@ body {
 }
 
 .message-bubble.other {
-  background: #F3E8FF;
-  /* 연보라색 */
+  background: #0f1521;
   border-bottom-left-radius: 4px;
-  color: var(--text-primary);
+  color: #f8fafc;
+  border: 2px solid #000;
+  box-shadow: 6px 6px 0 #000;
 }
 
 .message-bubble.my {
-  background: #A855F7;
-  /* 진한 보라색 */
+  background: #d6ff2f;
   border-bottom-right-radius: 4px;
-  color: white;
-  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+  color: #000;
+  border: 2px solid #000;
+  box-shadow: 6px 6px 0 #000;
 }
 
 .message-username {
@@ -1206,12 +1207,12 @@ body {
   font-size: 12px;
   font-weight: 600;
   margin-bottom: 4px;
-  color: var(--text-secondary);
+  color: #d6ff2f;
 }
 
 .message-wrapper.my-message .message-nickname {
   text-align: right;
-  color: #A855F7;
+  color: #0b0f14;
 }
 
 .message-meta {
@@ -1894,7 +1895,7 @@ body {
 
 .modal-desc {
   font-size: 15px;
-  color: var(--text-secondary);
+  color: #a1a9b8;
   line-height: 1.6;
   margin: 0 0 32px;
 }
@@ -2179,12 +2180,13 @@ body {
 }
 
 .closed-modal {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+  background: #0f1521;
   border-radius: 24px;
   padding: 32px 24px;
   max-width: 380px;
   width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 3px solid #000;
+  box-shadow: 10px 10px 0 #000;
   text-align: center;
   animation: modalSlideUp 0.4s ease;
 }
@@ -2212,6 +2214,7 @@ body {
 .modal-icon {
   font-size: 56px;
   margin-bottom: 16px;
+  color: #d6ff2f;
   animation: iconBounce 2s ease-in-out infinite;
 }
 
@@ -2230,25 +2233,21 @@ body {
 .modal-title {
   font-size: 24px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #f8fafc;
   margin: 0 0 12px;
   letter-spacing: -0.5px;
 }
 
 .modal-desc {
   font-size: 15px;
-  color: var(--text-secondary);
+  color: #a1a9b8;
   line-height: 1.6;
   margin: 0 0 24px;
 }
 
 .modal-desc strong {
-  color: var(--text-primary);
+  color: #d6ff2f;
   font-weight: 700;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 /* ===== 테스트 기간 입장 버튼 스타일 (원복 시 삭제) ===== */
@@ -2257,9 +2256,9 @@ body {
   padding: 16px 24px;
   font-size: 16px;
   font-weight: 700;
-  color: white;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  border: none;
+  color: #000;
+  background: #d6ff2f;
+  border: 2px solid #000;
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -2267,7 +2266,7 @@ body {
 
 .enter-test-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 6px 6px 0 #000;
 }
 
 .enter-test-button:active {
@@ -2769,8 +2768,8 @@ body {
 
 .subway-line-item {
   border: 2px solid #000;
-  background: #fff;
-  color: #000;
+  background: #0f1521;
+  color: #f8fafc;
   box-shadow: 6px 6px 0 #000;
 }
 
@@ -2785,15 +2784,16 @@ body {
 .line-name {
   font-family: "Unbounded", sans-serif;
   font-size: 14px;
+  color: #f8fafc;
 }
 
 .active-users-text {
-  color: #111827;
+  color: #d6ff2f;
   font-weight: 700;
 }
 
 .inactive-users {
-  color: #6b7280;
+  color: #a1a9b8;
 }
 
 .chat-header {
@@ -2832,12 +2832,13 @@ body {
 .message-content {
   border: 2px solid #000;
   box-shadow: 6px 6px 0 #000;
-  background: #fff;
-  color: #000;
+  background: #0f1521;
+  color: #f8fafc;
 }
 
 .message-wrapper.my-message .message-content {
   background: #d6ff2f;
+  color: #000;
 }
 
 .chat-composer {
@@ -2847,8 +2848,8 @@ body {
 
 .reply-bar {
   border: 2px solid #000;
-  background: #fff;
-  color: #000;
+  background: #0f1521;
+  color: #f8fafc;
 }
 
 .composer-form {
@@ -2857,7 +2858,7 @@ body {
 
 .composer-input {
   border: 2px solid #000;
-  background: #0f1521;
+  background: #0b0f14;
   color: #f8fafc;
 }
 
@@ -2866,6 +2867,15 @@ body {
   background: #ff3db8;
   color: #000;
   box-shadow: 6px 6px 0 #000;
+}
+
+.message-nickname {
+  color: #d6ff2f;
+}
+
+.message-meta,
+.message-time {
+  color: #a1a9b8;
 }
 
 .footer {
