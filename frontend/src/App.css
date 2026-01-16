@@ -4,6 +4,7 @@
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=IBM+Plex+Sans+KR:wght@400;600&display=swap');
 
 :root {
   /* Brand Colors (Vibrant Gradients) - Updated */
@@ -2682,5 +2683,193 @@ body {
   font-weight: 500;
   margin-top: auto;
   padding-bottom: 40px; /* Bottom padding for mobile */
+}
+
+/* ========================================
+   Neo-Brutalism Theme Overrides
+   ======================================== */
+body {
+  background: radial-gradient(circle at 12% 10%, #1b2334, transparent 40%),
+    radial-gradient(circle at 82% 20%, #182033, transparent 35%),
+    linear-gradient(180deg, #0c1016, #0f1724);
+  color: #f8fafc;
+  font-family: "IBM Plex Sans KR", sans-serif;
+}
+
+.header {
+  padding: 12px 0 0;
+}
+
+.header-content {
+  border: 2px solid #000;
+  border-radius: 18px;
+  background: #111827;
+  box-shadow: 6px 6px 0 #000;
+  padding: 12px 16px;
+}
+
+.header h1 {
+  font-family: "Unbounded", sans-serif;
+  font-size: 20px;
+  color: #f8fafc;
+}
+
+.share-button,
+.feedback-button-icon,
+.auth-button {
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0 #000;
+  background: #fff;
+  color: #000;
+}
+
+.toast-message {
+  border: 2px solid #000;
+  box-shadow: 6px 6px 0 #000;
+  background: #101826;
+  color: #d6ff2f;
+}
+
+.home-container {
+  background: #111827;
+}
+
+.home-header {
+  border: 2px solid #000;
+  border-radius: 16px;
+  background: #0f1521;
+  box-shadow: 6px 6px 0 #000;
+}
+
+.home-subtitle {
+  background: transparent;
+  color: #a1a9b8;
+  font-weight: 600;
+}
+
+.sort-tabs {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  gap: 10px;
+}
+
+.sort-tab {
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+  box-shadow: 6px 6px 0 #000;
+}
+
+.sort-tab.active {
+  background: #d6ff2f;
+  color: #000;
+  transform: none;
+}
+
+.subway-line-item {
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+  box-shadow: 6px 6px 0 #000;
+}
+
+.subway-line-item::before {
+  display: none;
+}
+
+.line-indicator {
+  border: 2px solid #000;
+}
+
+.line-name {
+  font-family: "Unbounded", sans-serif;
+  font-size: 14px;
+}
+
+.active-users-text {
+  color: #111827;
+  font-weight: 700;
+}
+
+.inactive-users {
+  color: #6b7280;
+}
+
+.chat-header {
+  background: #0f1521;
+  border-bottom: 2px solid #000;
+  box-shadow: 6px 6px 0 #000;
+}
+
+.chat-back-btn {
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+.chat-line-badge {
+  border: 2px solid #000;
+  box-shadow: none;
+}
+
+.chat-title {
+  font-family: "Unbounded", sans-serif;
+  color: #f8fafc;
+}
+
+.chat-meta {
+  color: #d6ff2f;
+  font-weight: 700;
+}
+
+.chat-messages {
+  background: #111827;
+}
+
+.welcome-notice,
+.system-message,
+.message-content {
+  border: 2px solid #000;
+  box-shadow: 6px 6px 0 #000;
+  background: #fff;
+  color: #000;
+}
+
+.message-wrapper.my-message .message-content {
+  background: #d6ff2f;
+}
+
+.chat-composer {
+  border-top: 3px solid #000;
+  background: #111827;
+}
+
+.reply-bar {
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+}
+
+.composer-form {
+  border: none;
+}
+
+.composer-input {
+  border: 2px solid #000;
+  background: #0f1521;
+  color: #f8fafc;
+}
+
+.composer-send {
+  border: 2px solid #000;
+  background: #ff3db8;
+  color: #000;
+  box-shadow: 6px 6px 0 #000;
+}
+
+.footer {
+  background: transparent;
+  color: #a1a9b8;
 }
 
