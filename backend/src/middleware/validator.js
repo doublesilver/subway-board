@@ -48,11 +48,12 @@ const validatePost = (req, res, next) => {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  try {
-    ProfanityFilter.validate(content);
-  } catch (error) {
-    return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_PROFANITY_DETECTED, error.message));
-  }
+  // Legacy ProfanityFilter removed in favor of AI Cleanbot
+  // try {
+  //   ProfanityFilter.validate(content);
+  // } catch (error) {
+  //   return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_PROFANITY_DETECTED, error.message));
+  // }
 
   next();
 };
@@ -84,11 +85,12 @@ const validateComment = (req, res, next) => {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  try {
-    ProfanityFilter.validate(content);
-  } catch (error) {
-    return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_PROFANITY_DETECTED, error.message));
-  }
+  // Legacy ProfanityFilter removed in favor of AI Cleanbot
+  // try {
+  //   ProfanityFilter.validate(content);
+  // } catch (error) {
+  //   return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_PROFANITY_DETECTED, error.message));
+  // }
 
   next();
 };

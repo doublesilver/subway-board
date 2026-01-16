@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import '../styles/Toast.css';
 
 /**
@@ -26,12 +27,14 @@ function Toast({ message, type = 'info', duration = 3000, onClose }) {
     info: 'ℹ'
   };
 
-  return (
+  const toastContent = (
     <div className={`toast toast-${type}`} onClick={onClose}>
       <span className="toast-icon">{icons[type]}</span>
       <span className="toast-message">{message}</span>
     </div>
   );
+
+  return ReactDOM.createPortal(toastContent, document.body);
 }
 
 export default Toast;
