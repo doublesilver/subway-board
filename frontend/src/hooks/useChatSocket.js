@@ -67,7 +67,7 @@ export const useChatSocket = (lineId) => {
                         }
                     } catch (sigErr) {
                         console.error('Failed to issue identity from server:', sigErr);
-                        setError('ë³´ì•ˆ ?¸ì¦???¤íŒ¨?ˆìŠµ?ˆë‹¤. ?ˆë¡œê³ ì¹¨ ?´ì£¼?¸ìš”.');
+                        setError('?? ??? ??????. ???? ????.');
                         return; // Stop initialization
                     }
                 }
@@ -95,7 +95,7 @@ export const useChatSocket = (lineId) => {
                     ]);
                 }
             } catch (err) {
-                setError('ì±„íŒ…ë°©ì„ ë¶ˆëŸ¬?¤ëŠ”???¤íŒ¨?ˆìŠµ?ˆë‹¤.');
+                setError('???? ????? ??????.');
             } finally {
                 setLoading(false);
             }
@@ -226,7 +226,7 @@ export const useChatSocket = (lineId) => {
             setMessages(filteredMessages);
             sessionStorage.setItem(messagesKey, JSON.stringify(filteredMessages));
         } catch {
-            setError('ë©”ì‹œì§€ë¥?ë¶ˆëŸ¬?¤ëŠ”???¤íŒ¨?ˆìŠµ?ˆë‹¤.');
+            setError('???? ????? ??????.');
         } finally {
             setLoading(false);
             isInitialLoad.current = false;
