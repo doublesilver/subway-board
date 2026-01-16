@@ -142,7 +142,8 @@ export const useChatSocket = (lineId) => {
             leavingManuallyMap.delete(lineId);
         };
 
-    }, [lineId, setLineUser, removeLineUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [lineId]); // setLineUser, removeLineUser는 useCallback으로 안정적인 참조
 
     // Helpers
     const fetchLineInfo = async () => {
