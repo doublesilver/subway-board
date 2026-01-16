@@ -27,7 +27,7 @@ const authMiddleware = (req, res, next) => {
 
         // 2. 익명 ID 확인
         const anonymousId = req.headers['x-anonymous-id'];
-        const anonymousNickname = req.decodeURIComponent ? req.decodeURIComponent(req.headers['x-anonymous-nickname'] || '') : decodeURIComponent(req.headers['x-anonymous-nickname'] || ''); // decode for Korean
+        const anonymousNickname = req.headers['x-anonymous-nickname'] ? decodeURIComponent(req.headers['x-anonymous-nickname']) : ''; // decode for Korean
 
         if (anonymousId) {
             req.user = {

@@ -100,8 +100,7 @@ export const useChatSocket = (lineId) => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 reconnectSocket();
-                fetchLineInfo();
-                // Optional: Refetch messages if critical
+                // lineInfo는 WebSocket으로 activeUsers 업데이트됨
             }
         };
         document.addEventListener('visibilitychange', handleVisibilityChange);

@@ -38,8 +38,8 @@ const validatePost = (req, res, next) => {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  // Note: SQL Injection is prevented by parameterized queries in controllers
-  // No additional regex check needed (causes false positives)
+  // SQL injection prevention is handled by parameterized queries in the controller layer.
+  // The previous regex check was blocking legitimate sentences and is removed.
 
   next();
 };
