@@ -85,7 +85,7 @@ function HomePage() {
     }
   };
 
-  const getSortedLines = () => {
+  const sortedLines = React.useMemo(() => {
     const linesCopy = [...lines];
 
     switch (sortType) {
@@ -106,7 +106,7 @@ function HomePage() {
         // 호선 번호 순
         return linesCopy.sort((a, b) => a.id - b.id);
     }
-  };
+  }, [lines, sortType]);
 
   const handleLineClick = (lineId) => {
     // 자동 익명 로그인이 이루어지므로 바로 입장
@@ -116,7 +116,7 @@ function HomePage() {
   // 로딩 중이거나 에러 발생 시 빈 페이지 표시 (헤더+콘텐츠 통일)
   if (loading || error) return <div className="home-container"></div>;
 
-  const sortedLines = getSortedLines();
+
 
   return (
     <div className="home-container">

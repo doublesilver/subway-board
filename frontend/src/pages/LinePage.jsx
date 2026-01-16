@@ -168,18 +168,21 @@ function LinePage() {
   };
 
   // Sort and Group Messages
-  const sortedMessages = [...messages].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-  const messagesWithDates = [];
-  let lastDate = null;
+  const messagesWithDates = React.useMemo(() => {
+    const sortedMessages = [...messages].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const result = [];
+    let lastDate = null;
 
-  sortedMessages.forEach((message) => {
-    const currentDate = getDateLabel(message.created_at);
-    if (currentDate !== lastDate) {
-      messagesWithDates.push({ type: 'date', label: currentDate });
-      lastDate = currentDate;
-    }
-    messagesWithDates.push({ type: 'message', data: message });
-  });
+    sortedMessages.forEach((message) => {
+      const currentDate = getDateLabel(message.created_at);
+      if (currentDate !== lastDate) {
+        result.push({ type: 'date', label: currentDate });
+        lastDate = currentDate;
+      }
+      result.push({ type: 'message', data: message });
+    });
+    return result;
+  }, [messages]);
 
   if (loading && messages.length === 0 && !lineInfo) {
     return (

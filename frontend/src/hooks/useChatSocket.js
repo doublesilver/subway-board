@@ -43,12 +43,16 @@ export const useChatSocket = (lineId) => {
                     postAPI.createJoinMessage(parseInt(lineId)).catch(e => console.error('Join msg failed:', e));
                     visitAPI.record(parseInt(lineId)).catch(e => console.error('Visit record failed:', e));
 
-                    await fetchLineInfo();
-                    await fetchMessages(true);
+                    await Promise.all([
+                        fetchLineInfo(),
+                        fetchMessages(true)
+                    ]);
                 } else {
                     console.log('🔄 [useChatSocket] Rejoin - Skipping join message');
-                    await fetchLineInfo();
-                    await fetchMessages(false);
+                    await Promise.all([
+                        fetchLineInfo(),
+                        fetchMessages(false)
+                    ]);
                 }
             } catch (err) {
                 console.error('initChat error:', err);
