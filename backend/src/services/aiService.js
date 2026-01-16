@@ -1,53 +1,70 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const axios = require('axios');
 const logger = require('../utils/logger');
+const ProfanityFilter = require('../utils/profanityFilter');
 
 class AIService {
     constructor() {
-        this.model = null;
-        this.init();
-    }
-
-    init() {
-        if (process.env.GEMINI_API_KEY) {
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            this.model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        } else {
-            logger.warn('GEMINI_API_KEY is missing. AI features will be disabled.');
+        // OpenAI API Key check
+        if (!process.env.OPENAI_API_KEY) {
+            logger.warn('OPENAI_API_KEY is missing. AI moderation features will be disabled.');
         }
     }
 
     /**
      * Check if the content is safe.
+     * Uses a 2-step process:
+     * 1. Local ProfanityFilter (Zero-latency, 0 cost)
+     * 2. OpenAI Moderation API (High accuracy, free tier)
+     * 
      * @param {string} text - The text to check.
      * @returns {Promise<{safe: boolean, reason?: string}>}
      */
     async checkContentSafety(text) {
-        if (!this.model) {
+        // 1. Local Filter Check
+        if (ProfanityFilter.containsProfanity(text)) {
+            logger.info(`[Filter] Blocked by Local Filter: "${text}"`);
+            return { safe: false, reason: "부적절한 언어가 포함되어 있습니다." };
+        }
+
+        // 2. OpenAI Moderation API Check
+        if (!process.env.OPENAI_API_KEY) {
             // Fail-open if no API key
             return { safe: true };
         }
 
         try {
-            const prompt = `
-        You are a content moderation assistant. 
-        Check the user's message for hate speech, explicit violence, sexual content, or severe harassment. 
-        Permit mild slang or casual expressions. 
-        Return ONLY a JSON object: { "safe": boolean, "reason": string }.
-        "reason" should be a short explanation in Korean if unsafe, otherwise null.
-        
-        Message: "${text}"
-      `;
+            const response = await axios.post(
+                'https://api.openai.com/v1/moderations',
+                { input: text },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+                    }
+                }
+            );
 
-            const result = await this.model.generateContent(prompt);
-            const response = await result.response;
-            const textResponse = response.text();
+            const result = response.data.results[0];
 
-            // Clean up markdown code blocks if present (Gemini sometimes adds them)
-            const jsonStr = textResponse.replace(/^```json\n|\n```$/g, '').trim();
+            if (result.flagged) {
+                // Map OpenAI categories to Korean reasons
+                const categories = result.categories;
+                let reason = "부적절한 내용이 감지되었습니다.";
 
-            return JSON.parse(jsonStr);
+                if (categories['sexual']) reason = "선정적인 내용이 포함되어 있습니다.";
+                else if (categories['hate']) reason = "혐오 발언이 포함되어 있습니다.";
+                else if (categories['harassment']) reason = "괴롭힘 또는 혐오 발언이 감지되었습니다.";
+                else if (categories['self-harm']) reason = "자해 관련 내용이 감지되었습니다.";
+                else if (categories['violence']) reason = "폭력적인 내용이 포함되어 있습니다.";
+
+                logger.info(`[Filter] Blocked by OpenAI: "${text}" (${reason})`);
+                return { safe: false, reason };
+            }
+
+            return { safe: true };
+
         } catch (error) {
-            logger.error('Gemini Moderation Error:', error);
+            logger.error('OpenAI Moderation Error:', error.message);
             // Fallback: allow message if AI fails
             return { safe: true };
         }
