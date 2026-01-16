@@ -314,7 +314,7 @@ flowchart TB
     end
 
     subgraph After["✅ 개선 (즉시 응답)"]
-        B1[서버 시작] --> B2[/health 등록] --> B3[미들웨어 설정]
+        B1[서버 시작] --> B2["/health 등록"] --> B3[미들웨어 설정]
     end
 ```
 
