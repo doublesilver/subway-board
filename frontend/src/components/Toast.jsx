@@ -30,7 +30,7 @@ function Toast({ message, type = 'info', duration = 3000, onClose }) {
   const toastContent = (
     <div className={`toast toast-${type}`} onClick={onClose}>
       <span className="toast-icon">{icons[type]}</span>
-      <span className="toast-message">{message}</span>
+      <span className="toast-content">{message}</span>
     </div>
   );
 

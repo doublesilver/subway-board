@@ -44,7 +44,7 @@
   margin-top: 1px;
 }
 
-.toast-message {
+.toast-content {
   flex: 1;
   line-height: 1.5;
   min-width: 0;
