@@ -1547,8 +1547,8 @@ body {
 
 .reply-preview-divider {
   height: 1px;
-  background: rgba(148, 163, 184, 0.4);
-  border-top: 1px dashed rgba(148, 163, 184, 0.6);
+  background: rgba(148, 163, 184, 0.6);
+  border-top: 1px solid rgba(148, 163, 184, 0.6);
 }
 
 .reply-close {
@@ -2961,8 +2961,8 @@ body::-webkit-scrollbar {
 }
 
 .message-bubble.other {
-  background: #0f1521;
-  color: #f8fafc;
+  background: #d6ff2f;
+  color: #000;
 }
 
 .message-bubble.my {
