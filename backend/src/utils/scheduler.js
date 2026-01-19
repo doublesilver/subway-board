@@ -1,6 +1,5 @@
 const cron = require('node-cron');
 const pool = require('../db/connection');
-const { clearVisitCache } = require('../controllers/visitController');
 
 const deleteOldData = async () => {
   try {
@@ -12,8 +11,8 @@ const deleteOldData = async () => {
     const commentsResult = await pool.query('DELETE FROM comments');
     const postsResult = await pool.query('DELETE FROM posts');
 
-    // 방문자 중복 체크 캐시 초기화
-    clearVisitCache();
+    // 방문자 중복 체크는 DB 기반으로 변경됨 (unique_visitors 테이블)
+    // 인메모리 캐시 제거됨
 
     console.log(`Cleanup completed: ${postsResult.rowCount} posts and ${commentsResult.rowCount} comments deleted`);
   } catch (error) {

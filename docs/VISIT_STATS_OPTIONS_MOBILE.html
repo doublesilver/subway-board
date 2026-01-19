@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>방문자 통계 DB 고도화</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Noto Sans KR', sans-serif;
+      background: #000;
+      color: #fff;
+      line-height: 1.5;
+      padding: 20px 16px;
+      padding-top: env(safe-area-inset-top, 20px);
+      padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 40px);
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #86868b;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 32px 0 16px;
+      color: #f5f5f7;
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin: 20px 0 12px;
+      color: #a1a1a6;
+    }
+
+    .card {
+      background: #1c1c1e;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-right: 8px;
+      margin-bottom: 12px;
+    }
+
+    .badge.current { background: #6366f1; }
+    .badge.option1 { background: #30d158; }
+    .badge.option2 { background: #ff9f0a; color: #000; }
+    .badge.option3 { background: #ff375f; }
+    .badge.recommend { background: linear-gradient(135deg, #a855f7, #6366f1); }
+
+    /* 테이블 - 가로 스크롤 */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 12px -20px;
+      padding: 0 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      min-width: 300px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid #2c2c2e;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #2c2c2e;
+      font-weight: 600;
+      color: #a1a1a6;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      color: #f5f5f7;
+    }
+
+    /* 코드 블록 */
+    .code {
+      background: #2c2c2e;
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'SF Mono', Menlo, monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+
+    .code .keyword { color: #ff7b72; }
+    .code .type { color: #79c0ff; }
+    .code .comment { color: #6e7681; }
+
+    /* 기능 리스트 */
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #2c2c2e;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    .feature.yes { border-left: 3px solid #30d158; }
+    .feature.no { border-left: 3px solid #ff453a; opacity: 0.5; }
+
+    .icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .icon.check { color: #30d158; }
+    .icon.cross { color: #ff453a; }
+
+    /* 용량 바 */
+    .storage {
+      margin: 16px 0;
+    }
+
+    .storage-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #a1a1a6;
+    }
+
+    .storage-bar {
+      height: 8px;
+      background: #2c2c2e;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .storage-fill {
+      height: 100%;
+      border-radius: 4px;
+    }
+
+    .storage-fill.small { width: 5%; background: #30d158; }
+    .storage-fill.medium { width: 50%; background: #ff9f0a; }
+    .storage-fill.large { width: 100%; background: #ff375f; }
+
+    /* 구분선 */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #3a3a3c, transparent);
+      margin: 32px 0;
+    }
+
+    /* 비교 테이블 */
+    .compare-table th:first-child,
+    .compare-table td:first-child {
+      position: sticky;
+      left: 0;
+      background: #1c1c1e;
+      z-index: 1;
+    }
+
+    .compare-table th:first-child {
+      background: #2c2c2e;
+    }
+
+    .highlight {
+      background: rgba(168, 85, 247, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* 추천 카드 */
+    .recommend-card {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(99, 102, 241, 0.2));
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+
+    .recommend-card h4 {
+      color: #a855f7;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .recommend-card .combo {
+      font-size: 14px;
+      color: #86868b;
+      margin-bottom: 12px;
+    }
+
+    .recommend-card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .recommend-card li {
+      padding: 6px 0;
+      padding-left: 20px;
+      position: relative;
+      font-size: 15px;
+    }
+
+    .recommend-card li::before {
+      content: ">";
+      position: absolute;
+      left: 0;
+      color: #a855f7;
+    }
+
+    /* 가이드 */
+    .guide-item {
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      background: #2c2c2e;
+      border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    .guide-item .question {
+      font-size: 14px;
+      color: #86868b;
+      margin-bottom: 6px;
+    }
+
+    .guide-item .answer {
+      font-size: 17px;
+      font-weight: 600;
+      color: #a855f7;
+    }
+
+    /* 분석 예시 */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .stat-box {
+      background: #2c2c2e;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-box .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #f5f5f7;
+    }
+
+    .stat-box .label {
+      font-size: 12px;
+      color: #86868b;
+      margin-top: 4px;
+    }
+
+    .stat-box.highlight-green .value { color: #30d158; }
+    .stat-box.highlight-orange .value { color: #ff9f0a; }
+    .stat-box.highlight-pink .value { color: #ff375f; }
+    .stat-box.highlight-purple .value { color: #a855f7; }
+
+    /* 인포 박스 */
+    .info-box {
+      background: rgba(48, 209, 88, 0.15);
+      border: 1px solid rgba(48, 209, 88, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+
+    .info-box.pink {
+      background: rgba(255, 55, 95, 0.15);
+      border-color: rgba(255, 55, 95, 0.3);
+    }
+
+    .info-box strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    /* 푸터 */
+    .footer {
+      text-align: center;
+      margin-top: 48px;
+      padding: 20px;
+      color: #6e6e73;
+      font-size: 13px;
+    }
+
+    /* 스크롤 힌트 */
+    .scroll-hint {
+      font-size: 12px;
+      color: #6e6e73;
+      text-align: right;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>방문자 통계 DB 고도화</h1>
+  <p class="subtitle">가기싫어 서비스 | 2026-01-19</p>
+
+  <!-- 현재 구조 -->
+  <h2>현재 구조</h2>
+  <div class="card">
+    <span class="badge current">현재</span>
+
+    <h3>daily_visits 테이블</h3>
+    <p class="scroll-hint">좌우 스크롤 &rarr;</p>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>번호</th>
+          <th>날짜</th>
+          <th>호선</th>
+          <th>방문수</th>
+        </tr>
+        <tr><td>1</td><td>01-19</td><td>2호선</td><td>45</td></tr>
+        <tr><td>2</td><td>01-19</td><td>7호선</td><td>32</td></tr>
+        <tr><td>3</td><td>01-18</td><td>2호선</td><td>51</td></tr>
+      </table>
+    </div>
+
+    <h3>분석 가능</h3>
+    <div class="feature-list">
+      <div class="feature yes"><span class="icon check">&#10003;</span>일별 총 방문자</div>
+      <div class="feature yes"><span class="icon check">&#10003;</span>호선별 방문자</div>
+      <div class="feature no"><span class="icon cross">&#10007;</span>시간대별 분석</div>
+      <div class="feature no"><span class="icon cross">&#10007;</span>재방문율</div>
+      <div class="feature no"><span class="icon cross">&#10007;</span>디바이스 분석</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 옵션 1 -->
+  <h2>옵션 1</h2>
+  <div class="card">
+    <span class="badge option1">개별 로그</span>
+    <span class="badge recommend">풀 분석</span>
+
+    <h3>visit_logs 테이블</h3>
+    <p class="scroll-hint">좌우 스크롤 &rarr;</p>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>방문자</th>
+          <th>호선</th>
+          <th>시간</th>
+          <th>기기</th>
+        </tr>
+        <tr><td>a3f2c8</td><td>2호선</td><td>07:15</td><td>모바일</td></tr>
+        <tr><td>7b1e9f</td><td>2호선</td><td>07:18</td><td>PC</td></tr>
+        <tr><td>a3f2c8</td><td>7호선</td><td>07:22</td><td>모바일</td></tr>
+      </table>
+    </div>
+
+    <h3>분석 가능</h3>
+    <div class="feature-list">
+      <div class="feature yes"><span class="icon check">&#10003;</span>시간대별 분석</div>
+      <div class="feature yes"><span class="icon check">&#10003;</span>재방문율</div>
+      <div class="feature yes"><span class="icon check">&#10003;</span>디바이스 비율</div>
+      <div class="feature yes"><span class="icon check">&#10003;</span>호선 이동 패턴</div>
+      <div class="feature yes"><span class="icon check">&#10003;</span>유입 경로</div>
+    </div>
+
+    <h3>분석 예시</h3>
+    <div class="stat-grid">
+      <div class="stat-box highlight-green">
+        <div class="value">7시대</div>
+        <div class="label">가장 많은 시간</div>
+      </div>
+      <div class="stat-box">
+        <div class="value">78%</div>
+        <div class="label">모바일 접속</div>
+      </div>
+      <div class="stat-box">
+        <div class="value">37%</div>
+        <div class="label">다시 온 사람</div>
+      </div>
+      <div class="stat-box highlight-green">
+        <div class="value">61%</div>
+        <div class="label">직접 접속</div>
+      </div>
+    </div>
+
+    <div class="storage">
+      <div class="storage-label">
+        <span>월 용량</span>
+        <span>~300KB</span>
+      </div>
+      <div class="storage-bar">
+        <div class="storage-fill large"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 옵션 2 -->
+  <h2>옵션 2</h2>
+  <div class="card">
+    <span class="badge option2">시간대별</span>
+    <span class="badge recommend">가벼운 시작</span>
+
+    <h3>hourly_visits 테이블</h3>
+    <p class="scroll-hint">좌우 스크롤 &rarr;</p>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>날짜</th>
+          <th>시간대</th>
+          <th>호선</th>
+          <th>방문수</th>
+        </tr>
+        <tr><td>01-19</td><td>7시</td><td>2호선</td><td>28</td></tr>
+        <tr><td>01-19</td><td>8시</td><td>2호선</td><td>17</td></tr>
+        <tr><td>01-19</td><td>7시</td><td>7호선</td><td>19</td></tr>
+      </table>
+    </div>
+
+    <h3>분석 가능</h3>
+    <div class="feature-list">
+      <div class="feature yes"><span class="icon check">&#10003;</span>시간대별 분석</div>
+      <div class="feature yes"><span class="icon check">&#10003;</span>호선별 피크 시간</div>
+      <div class="feature no"><span class="icon cross">&#10007;</span>재방문율</div>
+      <div class="feature no"><span class="icon cross">&#10007;</span>디바이스 분석</div>
+    </div>
+
+    <div class="info-box">
+      <strong>매우 가벼움!</strong>
+      9호선 x 2시간 x 30일 = 540 rows/월
+    </div>
+
+    <div class="storage">
+      <div class="storage-label">
+        <span>월 용량</span>
+        <span>~16KB</span>
+      </div>
+      <div class="storage-bar">
+        <div class="storage-fill small"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 옵션 3 -->
+  <h2>옵션 3</h2>
+  <div class="card">
+    <span class="badge option3">고유 방문자</span>
+    <span class="badge recommend">안정성</span>
+
+    <h3>unique_visitors 테이블</h3>
+    <p class="scroll-hint">좌우 스크롤 &rarr;</p>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>방문자</th>
+          <th>날짜</th>
+          <th>첫 호선</th>
+          <th>방문 호선수</th>
+        </tr>
+        <tr><td>a3f2c8</td><td>01-19</td><td>2호선</td><td>2개</td></tr>
+        <tr><td>7b1e9f</td><td>01-19</td><td>2호선</td><td>1개</td></tr>
+        <tr><td>a3f2c8</td><td>01-18</td><td>7호선</td><td>1개</td></tr>
+      </table>
+    </div>
+
+    <h3>분석 가능</h3>
+    <div class="feature-list">
+      <div class="feature yes"><span class="icon check">&#10003;</span>DAU / WAU / MAU</div>
+      <div class="feature yes"><span class="icon check">&#10003;</span>재방문율</div>
+      <div class="feature yes"><span class="icon check">&#10003;</span>서버 재시작 대응</div>
+      <div class="feature no"><span class="icon cross">&#10007;</span>시간대별 분석</div>
+    </div>
+
+    <h3>분석 예시</h3>
+    <div class="stat-grid">
+      <div class="stat-box highlight-pink">
+        <div class="value">87</div>
+        <div class="label">DAU (일간)</div>
+      </div>
+      <div class="stat-box highlight-pink">
+        <div class="value">234</div>
+        <div class="label">WAU (주간)</div>
+      </div>
+      <div class="stat-box highlight-pink">
+        <div class="value">456</div>
+        <div class="label">MAU (월간)</div>
+      </div>
+      <div class="stat-box highlight-purple">
+        <div class="value">34%</div>
+        <div class="label">리텐션</div>
+      </div>
+    </div>
+
+    <div class="info-box pink">
+      <strong>추가 장점</strong>
+      인메모리 캐시 제거 가능<br>
+      서버 재시작에도 중복 체크 유지
+    </div>
+
+    <div class="storage">
+      <div class="storage-label">
+        <span>월 용량</span>
+        <span>~150KB</span>
+      </div>
+      <div class="storage-bar">
+        <div class="storage-fill medium"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 비교 요약 -->
+  <h2>비교 요약</h2>
+  <div class="card">
+    <p class="scroll-hint">좌우 스크롤 &rarr;</p>
+    <div class="table-wrap">
+      <table class="compare-table">
+        <tr>
+          <th>분석 항목</th>
+          <th>현재</th>
+          <th>1번</th>
+          <th>2번</th>
+          <th>3번</th>
+        </tr>
+        <tr>
+          <td>시간대별</td>
+          <td><span class="icon cross">&#10007;</span></td>
+          <td><span class="icon check">&#10003;</span></td>
+          <td><span class="icon check">&#10003;</span></td>
+          <td><span class="icon cross">&#10007;</span></td>
+        </tr>
+        <tr>
+          <td>재방문</td>
+          <td><span class="icon cross">&#10007;</span></td>
+          <td><span class="icon check">&#10003;</span></td>
+          <td><span class="icon cross">&#10007;</span></td>
+          <td><span class="icon check">&#10003;</span></td>
+        </tr>
+        <tr>
+          <td>일간/월간</td>
+          <td><span class="icon cross">&#10007;</span></td>
+          <td><span class="icon check">&#10003;</span></td>
+          <td><span class="icon cross">&#10007;</span></td>
+          <td><span class="icon check">&#10003;</span></td>
+        </tr>
+        <tr>
+          <td>기기종류</td>
+          <td><span class="icon cross">&#10007;</span></td>
+          <td><span class="icon check">&#10003;</span></td>
+          <td><span class="icon cross">&#10007;</span></td>
+          <td><span class="icon cross">&#10007;</span></td>
+        </tr>
+        <tr>
+          <td>서버안정</td>
+          <td><span class="icon cross">&#10007;</span></td>
+          <td><span class="icon cross">&#10007;</span></td>
+          <td><span class="icon cross">&#10007;</span></td>
+          <td><span class="icon check">&#10003;</span></td>
+        </tr>
+        <tr>
+          <td>월 용량</td>
+          <td>5KB</td>
+          <td>300KB</td>
+          <td class="highlight">16KB</td>
+          <td>150KB</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 추천 조합 -->
+  <h2>추천 조합</h2>
+
+  <div class="recommend-card">
+    <h4>A. 가벼운 분석</h4>
+    <p class="combo">daily_visits + hourly_visits</p>
+    <ul>
+      <li>용량 부담 최소 (~21KB/월)</li>
+      <li>시간대별 피크 분석</li>
+      <li>구현 간단</li>
+    </ul>
+  </div>
+
+  <div class="recommend-card">
+    <h4>B. 중간 분석</h4>
+    <p class="combo">daily_visits + unique_visitors</p>
+    <ul>
+      <li>DAU/WAU/MAU 측정</li>
+      <li>재방문율 분석</li>
+      <li>서버 재시작에도 안정적</li>
+    </ul>
+  </div>
+
+  <div class="recommend-card">
+    <h4>C. 풀 분석</h4>
+    <p class="combo">daily_visits + visit_logs + unique_visitors</p>
+    <ul>
+      <li>모든 분석 가능</li>
+      <li>가장 상세한 인사이트</li>
+      <li>마케팅/사업 분석 활용</li>
+    </ul>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 선택 가이드 -->
+  <h2>선택 가이드</h2>
+
+  <div class="guide-item">
+    <span class="question">"일단 가볍게 시작하고 싶어"</span>
+    <span class="answer">옵션 2 (시간대별)</span>
+  </div>
+
+  <div class="guide-item">
+    <span class="question">"재방문율이 궁금해"</span>
+    <span class="answer">옵션 3 (UV)</span>
+  </div>
+
+  <div class="guide-item">
+    <span class="question">"서버 재시작해도 안정적이었으면"</span>
+    <span class="answer">옵션 3 (UV)</span>
+  </div>
+
+  <div class="guide-item">
+    <span class="question">"나중에 마케팅 분석도 할거야"</span>
+    <span class="answer">옵션 1 + 3 (풀 분석)</span>
+  </div>
+
+  <div class="footer">
+    <p>가기싫어 - 출근길 익명 채팅방</p>
+    <p>방문자 통계 DB 고도화 제안서</p>
+    <p>2026-01-19</p>
+  </div>
+
+</body>
+</html>
