@@ -132,14 +132,16 @@ body {
   inset: 0;
   z-index: -10;
   overflow: hidden;
-  background: linear-gradient(to bottom right, #f9fafb, #ffffff, #f3f4f6);
+  background: radial-gradient(circle at 12% 10%, #1b2334, transparent 40%),
+    radial-gradient(circle at 82% 20%, #182033, transparent 35%),
+    linear-gradient(180deg, #0c1016, #0f1724);
 }
 
 .orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(60px);
-  opacity: 0.4;
+  opacity: 0.2;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
 }
@@ -2711,6 +2713,9 @@ body::-webkit-scrollbar {
   padding: 12px 0 0;
   background: #0f1521;
   border-bottom: none;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .main-content {
@@ -2794,6 +2799,8 @@ body::-webkit-scrollbar {
   box-shadow: none;
   margin: 0 16px 16px;
   padding: 12px 16px 16px;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .home-subtitle {
