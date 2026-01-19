@@ -1,4 +1,3 @@
-const xss = require('xss');
 const { CONTENT, SUBWAY_LINE } = require('../config/constants');
 const { createErrorResponse, ErrorCodes } = require('../utils/errorCodes');
 
@@ -40,10 +39,9 @@ const validatePost = (req, res, next) => {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  const cleanContent = xss(content);
-  req.body.content = cleanContent;
+  req.body.content = content;
 
-  if (sqlInjectionPattern.test(cleanContent)) {
+  if (sqlInjectionPattern.test(content)) {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
@@ -72,10 +70,9 @@ const validateComment = (req, res, next) => {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  const cleanContent = xss(content);
-  req.body.content = cleanContent;
+  req.body.content = content;
 
-  if (sqlInjectionPattern.test(cleanContent)) {
+  if (sqlInjectionPattern.test(content)) {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
