@@ -38,7 +38,8 @@
       "Bash(git stash:*)",
       "Bash(xargs ls:*)",
       "Bash(du:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(chcp 65001)"
     ]
   }
 }

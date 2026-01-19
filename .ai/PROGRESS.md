@@ -1,0 +1,30 @@
+# 바톤터치 문서 (Progress)
+
+## 목적
+Codex 또는 다른 AI 에이전트가 즉시 이어서 작업할 수 있도록 현재 상태와 맥락을 요약한다.
+
+## 최근 변경 요약 (2026-01-19)
+- README.md 전면 업데이트: 인코딩 복원, 누락 기능 보완 (피드백, 비속어 필터링, Rate Limiting 수치 등)
+- 답장(reply) 저장/표시 적용: `posts.reply_to` 저장 + UI 미리보기 레이아웃.
+- 입장/퇴장 시스템 메시지: 배경/테두리 제거 후 텍스트만 표시.
+- 말풍선 색상 통일(상대/내 말풍선 동일 색상) + 답장 구분선 실선 적용.
+
+## 배포 상태
+- 최근 변경 사항 `main`에 push 완료.
+- `https://www.gagisiro.com/` 200 OK 확인.
+
+## 현재 이슈/주의
+- 카카오 로그인: 뼈대만 구현됨, 실제 동작 안함
+- 운영시간: 베타 기간 24시간, 2026-01-21부터 평일 07:00~09:00
+
+## 다음 작업 후보
+- 답장 UX 추가 보완(원본 메시지 하이라이트 등).
+- 모바일 실기기에서 답장/스크롤/키보드 동작 재확인.
+
+## 주요 파일
+- 스타일: `frontend/src/App.css`
+- 메인: `frontend/src/pages/HomePage.jsx`
+- 채팅: `frontend/src/pages/LinePage.jsx`
+- 백엔드 엔트리: `backend/src/index.js`
+- 라우트: `backend/src/routes/index.js`
+- 스키마: `backend/src/db/schema.sql`
