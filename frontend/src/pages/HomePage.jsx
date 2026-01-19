@@ -97,16 +97,22 @@ function HomePage() {
   };
 
   // 로딩 중이거나 에러 발생 시 빈 페이지 표시 (헤더+콘텐츠 통일)
-  if (loading || error) return <div className="home-container"></div>;
-
-
+  const showContent = !loading && !error;
 
   return (
     <div className="home-container">
+      {loading && (
+        <div className="home-loading-overlay" aria-live="polite">
+          <div className="spinner" />
+          <p className="home-loading-text">Loading...</p>
+        </div>
+      )}
       {/* 운영 시간이 아닐 때 모달 표시 */}
       {!isOperatingHours && <ClosedAlertModal />}
 
       {/* 메인 헤더 (Centered & Gradient) */}
+      {showContent && (
+        <>
       <div className="home-header">
         <p className="home-subtitle">
           🔒 익명 채팅 · ⏰ 평일 오전 7–9시 · 🚫 주말·공휴일 제외
@@ -155,6 +161,8 @@ function HomePage() {
           </div>
         ))}
       </div>
+        </>
+      )}
     </div>
   );
 }
