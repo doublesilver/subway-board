@@ -35,7 +35,7 @@ function App() {
 
 function AppContent() {
   return (
-    <div className="App">
+    <div className="App app-shell">
       <Routes>
         <Route path="/auth/kakao/success" element={<KakaoCallback />} />
         <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
