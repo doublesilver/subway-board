@@ -2740,6 +2740,7 @@ body {
     border-radius: 18px;
     overflow: hidden;
     min-height: calc(100vh - 72px);
+    position: relative;
   }
 
   .app-shell .chat-container {
@@ -2752,15 +2753,17 @@ body {
   .app-shell .chat-header {
     position: sticky;
     top: 0;
-    left: auto;
-    right: auto;
+    left: 0;
+    right: 0;
+    width: 100%;
   }
 
   .app-shell .chat-composer {
     position: absolute;
     bottom: 0;
-    left: auto;
-    right: auto;
+    left: 0;
+    right: 0;
+    width: 100%;
   }
 
   .app-shell .closed-modal-overlay {
