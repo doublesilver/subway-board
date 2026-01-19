@@ -2757,10 +2757,15 @@ body {
   }
 
   .app-shell .chat-composer {
-    position: sticky;
+    position: absolute;
     bottom: 0;
     left: auto;
     right: auto;
+  }
+
+  .app-shell .closed-modal-overlay {
+    position: absolute;
+    inset: 0;
   }
 }
 
