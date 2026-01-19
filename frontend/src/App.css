@@ -1267,10 +1267,10 @@ body {
 
 .system-message span {
   font-size: 13px;
-  color: var(--text-tertiary);
-  background: rgba(168, 85, 247, 0.1);
-  padding: 6px 16px;
-  border-radius: 12px;
+  color: #94a3b8;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
   font-weight: 500;
 }
 
@@ -1520,6 +1520,35 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 200px;
+}
+
+.reply-target {
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.reply-preview {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.reply-preview-title {
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.reply-preview-original {
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.reply-preview-divider {
+  height: 1px;
+  background: rgba(148, 163, 184, 0.4);
+  border-top: 1px dashed rgba(148, 163, 184, 0.6);
 }
 
 .reply-close {

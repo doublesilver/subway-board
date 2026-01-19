@@ -308,6 +308,11 @@ function LinePage() {
                 const isMyMessage = currentUser && message.anonymous_id === currentUser.sessionId;
                 const isSwipingThis = swipedMessageId === message.id;
                 const swipeOffset = isSwipingThis ? touchOffset : 0;
+                const replyTarget = message.reply_to
+                  ? messages.find(m => m.id === message.reply_to)
+                  : null;
+                const replyNickname = replyTarget?.nickname || '익명';
+                const replyContent = replyTarget?.content || '삭제된 메시지';
 
                 return (
                   <div key={message.id} className={`message-wrapper ${isMyMessage ? 'my-message' : ''}`}>
@@ -326,7 +331,9 @@ function LinePage() {
                         <div className={`message-bubble ${isMyMessage ? 'my' : 'other'}`}>
                           {message.reply_to && (
                             <div className="reply-preview">
-                              <span className="reply-preview-label">답장:</span> {messages.find(m => m.id === message.reply_to)?.content?.substring(0, 30) || '삭제된 메시지'}
+                              <div className="reply-preview-title">{replyNickname} 님에게 답장</div>
+                              <div className="reply-preview-original">{replyContent}</div>
+                              <div className="reply-preview-divider"></div>
                             </div>
                           )}
                           <div className="message-text">{message.content}</div>
@@ -365,8 +372,7 @@ function LinePage() {
         {replyTo && (
           <div className="reply-bar">
             <div className="reply-bar-content">
-              <span className="reply-label">답장</span>
-              <span className="reply-text">{replyTo.content.substring(0, 40)}</span>
+              <span className="reply-target">{(replyTo.nickname || '익명')} 님에게 답장</span>
             </div>
             <button onClick={() => setReplyTo(null)} className="reply-close">✕</button>
           </div>
