@@ -2713,9 +2713,16 @@ body::-webkit-scrollbar {
   border-bottom: none;
 }
 
-.main-content,
-.container {
+.main-content {
   background: #111827;
+}
+
+.main-content .container {
+  background: #111827;
+}
+
+.header .container {
+  background: transparent;
 }
 
 .header-content {
@@ -2968,6 +2975,10 @@ body::-webkit-scrollbar {
 }
 
 .message-nickname {
+  color: #94a3b8;
+}
+
+.message-wrapper.my-message .message-nickname {
   color: #94a3b8;
 }
 
