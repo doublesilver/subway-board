@@ -2782,6 +2782,90 @@ body::-webkit-scrollbar {
   color: #000;
 }
 
+.feedback-modal-overlay {
+  background: rgba(3, 7, 18, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.feedback-modal {
+  background: #0f1521;
+  color: #f8fafc;
+  border: 2px solid #000;
+  box-shadow: 8px 8px 0 #000;
+}
+
+.feedback-modal-header {
+  border-bottom: 1px solid #1f2937;
+}
+
+.feedback-modal-header h2 {
+  color: #f8fafc;
+  background: none;
+  -webkit-text-fill-color: initial;
+}
+
+.feedback-modal-close {
+  color: #e2e8f0;
+}
+
+.feedback-modal-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+.feedback-modal-description {
+  color: #cbd5f5;
+}
+
+.feedback-textarea {
+  background: #0b1220;
+  border: 2px solid #0b1220;
+  color: #f8fafc;
+}
+
+.feedback-textarea:focus {
+  border-color: #f8fafc;
+  background: #0b1220;
+  box-shadow: none;
+}
+
+.feedback-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.feedback-char-count {
+  color: #94a3b8;
+}
+
+.feedback-modal-footer {
+  background: #0b1220;
+  border-top: 1px solid #1f2937;
+}
+
+.feedback-button {
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.feedback-button-cancel {
+  background: #0b1220;
+  color: #e2e8f0;
+}
+
+.feedback-button-cancel:hover {
+  background: #111827;
+}
+
+.feedback-button-submit {
+  background: #f8fafc;
+  color: #0b1220;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.feedback-button-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
 .share-button,
 .feedback-button-icon {
   width: 44px;

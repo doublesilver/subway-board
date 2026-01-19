@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { feedbackAPI } from '../services/api';
 
 const FeedbackModal = ({ onClose }) => {
@@ -44,7 +45,9 @@ const FeedbackModal = ({ onClose }) => {
         }
     };
 
-    return (
+    if (typeof document === 'undefined') return null;
+
+    return createPortal(
         <div className="feedback-modal-overlay" onClick={handleOverlayClick}>
             <div className="feedback-modal">
                 <div className="feedback-modal-header">
@@ -98,7 +101,7 @@ const FeedbackModal = ({ onClose }) => {
                 </form>
             </div>
         </div>
-    );
+    , document.body);
 };
 
 export default FeedbackModal;

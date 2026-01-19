@@ -164,6 +164,7 @@ function LinePage() {
     const tempId = `temp-${Date.now()}`;
     const optimisticMessage = {
       id: tempId,
+      client_id: tempId,
       content: messageContent,
       nickname: currentUser?.nickname || '익명',
       anonymous_id: currentUser?.sessionId,
@@ -189,7 +190,7 @@ function LinePage() {
         }
       }, 10);
     }
-    scrollToBottom();
+    scrollToBottom(false);
 
     // 서버에 전송
     setSubmitting(true);
@@ -199,9 +200,7 @@ function LinePage() {
         subway_line_id: parseInt(lineId),
         reply_to: currentReplyTo?.id || null,
       });
-      // 성공 시: WebSocket에서 실제 메시지가 오면 중복 제거됨
-      // 임시 메시지 제거 (WebSocket 메시지로 대체됨)
-      setMessages(prev => prev.filter(m => m.id !== tempId));
+      // 성공 시: WebSocket에서 실제 메시지로 교체됨 (임시 메시지는 유지)
     } catch (err) {
       // 실패 시: 임시 메시지 제거 및 에러 표시
       setMessages(prev => prev.filter(m => m.id !== tempId));

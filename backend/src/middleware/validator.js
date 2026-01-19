@@ -34,13 +34,16 @@ const validatePost = (req, res, next) => {
     ));
   }
 
-  // XSS prevention using xss library
-  const cleanContent = xss(content);
-  if (cleanContent !== content) {
+  // XSS prevention: allow harmless symbols like >ㅁ<, block real HTML tags
+  const hasHtmlTag = /<\/?[a-z][\s\S]*?>/i.test(content);
+  if (hasHtmlTag) {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  if (sqlInjectionPattern.test(content)) {
+  const cleanContent = xss(content);
+  req.body.content = cleanContent;
+
+  if (sqlInjectionPattern.test(cleanContent)) {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
@@ -63,13 +66,16 @@ const validateComment = (req, res, next) => {
     ));
   }
 
-  // XSS prevention using xss library (consistent with validatePost)
-  const cleanContent = xss(content);
-  if (cleanContent !== content) {
+  // XSS prevention: allow harmless symbols like >ㅁ<, block real HTML tags
+  const hasHtmlTag = /<\/?[a-z][\s\S]*?>/i.test(content);
+  if (hasHtmlTag) {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 
-  if (sqlInjectionPattern.test(content)) {
+  const cleanContent = xss(content);
+  req.body.content = cleanContent;
+
+  if (sqlInjectionPattern.test(cleanContent)) {
     return res.status(400).json(createErrorResponse(ErrorCodes.VALIDATION_INVALID_FORMAT));
   }
 

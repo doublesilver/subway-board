@@ -5,6 +5,8 @@ export const useChatScroll = (messages) => {
     const messagesContainerRef = useRef(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
     const isInitialLoad = useRef(true);
+    const lastMessageKeyRef = useRef(null);
+    const lastCountRef = useRef(0);
 
     const scrollToBottom = (smooth = true) => {
         messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
@@ -18,13 +20,23 @@ export const useChatScroll = (messages) => {
     };
 
     useEffect(() => {
-        if (messages.length > 0) {
-            if (isInitialLoad.current) {
-                scrollToBottom(false);
-                isInitialLoad.current = false;
-            } else if (!showScrollButton) {
-                scrollToBottom(true);
-            }
+        if (messages.length === 0) return;
+
+        const lastMessage = messages[messages.length - 1];
+        const lastKey = lastMessage?.client_id || lastMessage?.id;
+
+        if (lastKey === lastMessageKeyRef.current && messages.length === lastCountRef.current) {
+            return;
+        }
+
+        lastMessageKeyRef.current = lastKey;
+        lastCountRef.current = messages.length;
+
+        if (isInitialLoad.current) {
+            scrollToBottom(false);
+            isInitialLoad.current = false;
+        } else if (!showScrollButton) {
+            scrollToBottom(true);
         }
     }, [messages, showScrollButton]);
 

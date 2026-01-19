@@ -119,6 +119,22 @@ export const useChatSocket = (lineId) => {
                 const alreadyExists = prev.find(m => m.id === data.message.id);
                 if (alreadyExists) return prev;
 
+                const pendingIndex = prev.findIndex((m) => (
+                    m._isPending &&
+                    m.anonymous_id === data.message.anonymous_id &&
+                    m.content === data.message.content &&
+                    (m.reply_to || null) === (data.message.reply_to || null)
+                ));
+                if (pendingIndex != -1) {
+                    const updatedMessages = [...prev];
+                    updatedMessages[pendingIndex] = {
+                        ...data.message,
+                        client_id: updatedMessages[pendingIndex].client_id
+                    };
+                    sessionStorage.setItem(messagesKey, JSON.stringify(updatedMessages));
+                    return updatedMessages;
+                }
+
                 // Filter logic based on join time
                 if (joinTime) {
                     const joinDate = new Date(joinTime);
