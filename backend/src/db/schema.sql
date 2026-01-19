@@ -47,6 +47,27 @@ CREATE TABLE IF NOT EXISTS daily_visits (
   UNIQUE(visit_date, subway_line_id)
 );
 
+-- 시간대별 호선별 방문 집계 테이블
+CREATE TABLE IF NOT EXISTS hourly_visits (
+  id SERIAL PRIMARY KEY,
+  visit_date DATE NOT NULL,
+  visit_hour SMALLINT NOT NULL,
+  subway_line_id INTEGER REFERENCES subway_lines(id) ON DELETE CASCADE,
+  visit_count INTEGER DEFAULT 0,
+  UNIQUE(visit_date, visit_hour, subway_line_id)
+);
+
+-- 고유 방문자 테이블 (중복 방지 + DAU/WAU/MAU)
+CREATE TABLE IF NOT EXISTS unique_visitors (
+  id SERIAL PRIMARY KEY,
+  visitor_hash VARCHAR(16) NOT NULL,
+  visit_date DATE NOT NULL,
+  first_line_id INTEGER REFERENCES subway_lines(id) ON DELETE CASCADE,
+  lines_visited SMALLINT DEFAULT 1,
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(visitor_hash, visit_date)
+);
+
 -- 인덱스 생성
 CREATE INDEX IF NOT EXISTS idx_posts_subway_line ON posts(subway_line_id);
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at);
@@ -55,6 +76,9 @@ CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
 CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at);
 CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_daily_visits_date ON daily_visits(visit_date DESC);
+CREATE INDEX IF NOT EXISTS idx_hourly_visits_date ON hourly_visits(visit_date DESC);
+CREATE INDEX IF NOT EXISTS idx_unique_visitors_date ON unique_visitors(visit_date DESC);
+CREATE INDEX IF NOT EXISTS idx_unique_visitors_hash ON unique_visitors(visitor_hash);
 
 -- 서울 지하철 호선 데이터 삽입 (1-9호선만)
 INSERT INTO subway_lines (line_number, line_name, color) VALUES
