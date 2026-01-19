@@ -1,6 +1,24 @@
 const pool = require('../db/connection');
+const crypto = require('crypto');
 
-// 방문 기록 (해당 날짜+호선의 카운트 증가)
+// 방문자 중복 체크용 인메모리 캐시
+// key: "날짜:호선ID:visitorHash", value: true
+const visitCache = new Map();
+
+// 방문 캐시 전체 초기화 (스케줄러에서 호출)
+const clearVisitCache = () => {
+  visitCache.clear();
+  console.log('Visit cache cleared');
+};
+
+// 방문자 고유 해시 생성 (IP + User-Agent)
+const getVisitorHash = (req) => {
+  const ip = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const userAgent = req.get('user-agent') || '';
+  return crypto.createHash('sha256').update(`${ip}:${userAgent}`).digest('hex').substring(0, 16);
+};
+
+// 방문 기록 (해당 날짜+호선의 카운트 증가, 중복 방문 제외)
 const recordVisit = async (req, res) => {
   try {
     const { subway_line_id } = req.body;
@@ -11,6 +29,16 @@ const recordVisit = async (req, res) => {
 
     // 오늘 날짜 (KST 기준)
     const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' });
+    const visitorHash = getVisitorHash(req);
+    const cacheKey = `${today}:${subway_line_id}:${visitorHash}`;
+
+    // 이미 오늘 해당 호선에 방문한 사용자면 스킵
+    if (visitCache.has(cacheKey)) {
+      return res.status(200).json({ success: true, duplicate: true });
+    }
+
+    // 캐시에 기록
+    visitCache.set(cacheKey, true);
 
     // UPSERT: 있으면 카운트 증가, 없으면 새로 생성
     await pool.query(`
@@ -83,5 +111,6 @@ const getStats = async (req, res) => {
 
 module.exports = {
   recordVisit,
-  getStats
+  getStats,
+  clearVisitCache
 };

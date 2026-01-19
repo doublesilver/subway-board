@@ -13,7 +13,8 @@
 | `frontend/src/components/ClosedAlertModal.jsx` | 입장하기 버튼 추가 | 기존 코드로 복원 |
 | `frontend/src/App.css` | 입장하기 버튼 스타일 추가 | 추가된 스타일 제거 |
 | `backend/src/middleware/checkOperatingHours.js` | TEST_MODE 환경변수 체크 추가 | 해당 로직 제거 |
-| `backend/src/utils/scheduler.js` | 초기화 시간 0시로 변경 | 9시로 원복 |
+| `backend/src/utils/scheduler.js` | 초기화 시간 0시로 변경, 캐시 초기화 포함 | 9시로 원복 |
+| `backend/src/controllers/visitController.js` | 방문자 중복 체크 캐시 추가 | 변경 없음 (유지) |
 | `backend/.env` | TEST_MODE=true 추가 | 해당 변수 제거 |
 
 ---
@@ -276,6 +277,25 @@ module.exports = checkOperatingHours;
 
 **현재 (테스트 기간 - 0시 초기화):**
 ```javascript
+const cron = require('node-cron');
+const pool = require('../db/connection');
+const { clearVisitCache } = require('../controllers/visitController');
+
+const deleteOldData = async () => {
+  try {
+    console.log('Starting daily cleanup (Full Wipe)...');
+    const commentsResult = await pool.query('DELETE FROM comments');
+    const postsResult = await pool.query('DELETE FROM posts');
+
+    // 방문자 중복 체크 캐시 초기화
+    clearVisitCache();
+
+    console.log(`Cleanup completed: ${postsResult.rowCount} posts and ${commentsResult.rowCount} comments deleted`);
+  } catch (error) {
+    console.error('Error during cleanup:', error);
+  }
+};
+
 const startScheduler = () => {
   // 테스트 기간: 매일 자정 (00:00)에 실행
   cron.schedule('0 0 * * *', deleteOldData, {
@@ -297,6 +317,8 @@ const startScheduler = () => {
   console.log('Daily cleanup scheduler started (runs at 09:00 KST)');
 };
 ```
+
+> **Note**: `clearVisitCache()` 호출은 유지합니다. 방문자 중복 체크 캐시는 매일 초기화되어야 합니다.
 
 ---
 
@@ -332,6 +354,7 @@ TEST_MODE=true
 | **서비스 접속** | 24시간 가능 (입장하기 버튼) | 평일 07:00~09:00만 |
 | **비운영시간 팝업** | "서비스를 선보이는 기간" + 입장 버튼 | "운영 시간이 아니에요" |
 | **메시지 초기화** | 매일 자정 (00:00) | 매일 오전 9시 |
+| **방문 캐시 초기화** | 매일 자정 (00:00) | 매일 오전 9시 |
 | **백엔드 검증** | 항상 통과 (TEST_MODE) | 시간 검증 활성화 |
 
 ---
