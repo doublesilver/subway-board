@@ -313,8 +313,9 @@ function LinePage() {
                 const replyNickname = replyTarget?.nickname || '익명';
                 const replyContent = replyTarget?.content || '삭제된 메시지';
 
+                const messageKey = message.client_id || message.id;
                 return (
-                  <div key={message.id} className={`message-wrapper ${isMyMessage ? 'my-message' : ''}`}>
+                  <div key={messageKey} className={`message-wrapper ${isMyMessage ? 'my-message' : ''}`}>
                     <div
                       style={{
                         transform: `translateX(${swipeOffset}px)`,
