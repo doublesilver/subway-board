@@ -22,7 +22,7 @@ const ClosedAlertModal = () => {
                 <p className="modal-desc">
                     입장하기 버튼을 통해서 이용해 보세요!<br /><br />
                     <span className="operating-hours-info">
-                        19일(월) 이후에는 07시~09시에만 운영됩니다
+                        21일(수) 이후에는 07시~09시에만 운영됩니다.
                     </span>
                 </p>
                 <button className="enter-test-button" onClick={handleEnterTestMode}>
