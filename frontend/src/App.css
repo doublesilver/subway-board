@@ -2741,6 +2741,27 @@ body {
     overflow: hidden;
     min-height: calc(100vh - 72px);
   }
+
+  .app-shell .chat-container {
+    position: relative;
+    inset: auto;
+    height: 100%;
+    min-height: calc(100vh - 72px);
+  }
+
+  .app-shell .chat-header {
+    position: sticky;
+    top: 0;
+    left: auto;
+    right: auto;
+  }
+
+  .app-shell .chat-composer {
+    position: sticky;
+    bottom: 0;
+    left: auto;
+    right: auto;
+  }
 }
 
 body::-webkit-scrollbar {
