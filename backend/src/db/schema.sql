@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS posts (
   deleted_at TIMESTAMP DEFAULT NULL
 );
 
+ALTER TABLE posts
+ADD COLUMN IF NOT EXISTS reply_to INTEGER REFERENCES posts(id) ON DELETE SET NULL;
+
 -- 댓글 테이블
 CREATE TABLE IF NOT EXISTS comments (
   id SERIAL PRIMARY KEY,
@@ -47,6 +50,7 @@ CREATE TABLE IF NOT EXISTS daily_visits (
 -- 인덱스 생성
 CREATE INDEX IF NOT EXISTS idx_posts_subway_line ON posts(subway_line_id);
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at);
+CREATE INDEX IF NOT EXISTS idx_posts_reply_to ON posts(reply_to);
 CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
 CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at);
 CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at DESC);

@@ -76,7 +76,7 @@ const getPostById = asyncHandler(async (req, res, next) => {
 });
 
 const createPost = asyncHandler(async (req, res, next) => {
-  const { content, subway_line_id } = req.body;
+  const { content, subway_line_id, reply_to } = req.body;
 
   if (!content) {
     return next(AppError.fromErrorCode(ErrorCodes.VALIDATION_EMPTY_CONTENT, 400));
@@ -95,11 +95,30 @@ const createPost = asyncHandler(async (req, res, next) => {
 
   const user = await getOrCreateUser(req.user);
 
+  let replyToId = null;
+  if (reply_to !== undefined && reply_to !== null) {
+    const parsedReplyTo = parseInt(reply_to);
+    if (isNaN(parsedReplyTo)) {
+      return next(AppError.fromErrorCode(ErrorCodes.VALIDATION_INVALID_FORMAT, 400));
+    }
+
+    const replyTarget = await pool.query(
+      'SELECT id FROM posts WHERE id = $1 AND subway_line_id = $2 AND deleted_at IS NULL',
+      [parsedReplyTo, subway_line_id]
+    );
+
+    if (replyTarget.rows.length === 0) {
+      return next(AppError.fromErrorCode(ErrorCodes.RESOURCE_POST_NOT_FOUND, 404));
+    }
+
+    replyToId = parsedReplyTo;
+  }
+
   const result = await pool.query(
-    `INSERT INTO posts (content, subway_line_id, user_id)
-      VALUES ($1, $2, $3)
+    `INSERT INTO posts (content, subway_line_id, user_id, reply_to)
+      VALUES ($1, $2, $3, $4)
       RETURNING *`,
-    [content, subway_line_id, user.id]
+    [content, subway_line_id, user.id, replyToId]
   );
 
   const newMessage = result.rows[0];
