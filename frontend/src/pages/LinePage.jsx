@@ -248,17 +248,14 @@ function LinePage() {
     return result;
   }, [messages]);
 
-  if (loading && messages.length === 0 && !lineInfo) {
-    return (
-      <div className="loading">
-        <div className="spinner"></div>
-        <p>채팅방을 불러오는 중...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="chat-container">
+      {loading && (
+        <div className="chat-loading-overlay" aria-live="polite">
+          <div className="spinner"></div>
+          <p>채팅방을 불러오는 중...</p>
+        </div>
+      )}
       {isSessionExpired && <SessionExpiredModal onConfirm={() => navigate('/', { replace: true })} />}
       {toasts.map(toast => (
         <Toast key={toast.id} message={toast.message} type={toast.type} duration={toast.duration} onClose={() => hideToast(toast.id)} />
@@ -286,12 +283,7 @@ function LinePage() {
       </header>
 
       <div className="chat-messages" ref={messagesContainerRef} onScroll={handleScroll}>
-        {loading ? (
-          <div className="loading-inline">
-            <div className="spinner"></div>
-            <p>채팅방을 불러오는 중...</p>
-          </div>
-        ) : (
+        {!loading && (
           <>
             <div className="welcome-notice">
               <div className="welcome-message"><strong>{currentUser?.nickname || '익명'}</strong> 님이 들어왔어요.</div>
