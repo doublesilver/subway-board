@@ -163,12 +163,19 @@ app.use(express.urlencoded({ extended: true }));
 // HTTP logging
 app.use(morgan('combined', { stream: logger.stream }));
 
+const rateLimitKey = (req) => {
+  const anonymousId = req.headers['x-anonymous-id'];
+  if (anonymousId) return `anon:${anonymousId}`;
+  return req.ip;
+};
+
 // POST/DELETE rate limit
 const writeLimiter = rateLimit({
   windowMs: RATE_LIMIT.WRITE.WINDOW_MS,
   max: RATE_LIMIT.WRITE.MAX,
   message: '?ˆë¬´ ë§Žì? ?”ì²­??ë°œìƒ?ˆìŠµ?ˆë‹¤. ? ì‹œ ???¤ì‹œ ?œë„?´ì£¼?¸ìš”.',
   skip: (req) => req.method === 'GET',
+  keyGenerator: rateLimitKey,
 });
 
 // GET rate limit (DDoS mitigation)
@@ -179,6 +186,7 @@ const readLimiter = rateLimit({
   skip: (req) => req.method !== 'GET',
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: rateLimitKey,
 });
 
 app.use('/api', writeLimiter);
