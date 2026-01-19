@@ -2713,6 +2713,11 @@ body::-webkit-scrollbar {
   border-bottom: none;
 }
 
+.main-content,
+.container {
+  background: #111827;
+}
+
 .header-content {
   border: none;
   border-radius: 0;
@@ -2963,6 +2968,16 @@ body::-webkit-scrollbar {
 }
 
 .message-nickname {
+  color: #94a3b8;
+}
+
+.welcome-message,
+.welcome-warning,
+.welcome-date {
+  color: #94a3b8;
+}
+
+.welcome-message strong {
   color: #d6ff2f;
 }
 
