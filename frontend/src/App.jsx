@@ -22,20 +22,22 @@ function App() {
   return (
     <AuthProvider>
       <AnimatedBackground />
-      {!isOperatingHours && !isPreview ? (
-        <ClosedAlertModal />
-      ) : (
-        <Router>
-          <AppContent />
-        </Router>
-      )}
+      <div className="app-shell">
+        {!isOperatingHours && !isPreview ? (
+          <ClosedAlertModal />
+        ) : (
+          <Router>
+            <AppContent />
+          </Router>
+        )}
+      </div>
     </AuthProvider>
   );
 }
 
 function AppContent() {
   return (
-    <div className="App app-shell">
+    <div className="App">
       <Routes>
         <Route path="/auth/kakao/success" element={<KakaoCallback />} />
         <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
