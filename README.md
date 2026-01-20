@@ -95,14 +95,31 @@ mindmap
 - 서비스 개선을 위한 사용자 피드백 수집
 - 익명 피드백 제출 지원
 
-### 콘텐츠 필터링
-- 비속어 자동 필터링으로 건전한 채팅 환경 유지
-- XSS 방지 처리
+### AI 하이브리드 콘텐츠 필터링
+- **1차**: Regex 기반 로컬 비속어 필터로 빠른 1차 방어
+- **2차**: Google Gemini 1.5 Flash 기반 AI 문맥 분석으로 교묘한 혐오 표현 필터링
+- XSS 방지 처리 및 Cleanbot 시스템 구축
+
+### 관리자 대시보드
+- **데이터 시각화**: Recharts를 활용한 일별/호선별/시간대별 방문자 추이 그래프
+- **KPI 모니터링**: DAU, WAU, MAU 및 재방문율(Retention Rate) 자동 집계
+- **커스텀 쿼리**: SQL을 직접 실행하여 자유로운 데이터 분석 가능 (SELECT 전용)
+- **보안**: 별도 비밀번호 및 JWT 토큰 기반 인증 시스템 (24시간 세션 유지)
+
+**Dashboard API 엔드포인트:**
+| 엔드포인트 | 메서드 | 설명 |
+|-----------|--------|------|
+| `/api/dashboard/login` | POST | 관리자 로그인 (JWT 발급) |
+| `/api/dashboard/data` | GET | 통계 데이터 조회 (DAU/WAU/MAU) |
+| `/api/dashboard/raw` | GET | 원시 통계 데이터 |
+| `/api/dashboard/query` | POST | 커스텀 SQL 쿼리 실행 |
 
 ### 모바일 최적화
 - 모바일 퍼스트 반응형 디자인
 - iOS/Android 키보드 대응 (visualViewport API)
 - 시스템 다크모드 자동 지원
+
+> **Note**: 관리자 기능에 대한 자세한 내용은 [관리자 대시보드 가이드](docs/ADMIN_DASHBOARD_GUIDE.md)를 참고하세요.
 
 ---
 
@@ -122,6 +139,7 @@ flowchart LR
         Express[Express 5]
         SIO_S[Socket.IO Server]
         Helmet[Helmet 8]
+        Gemini[Gemini 1.5 Flash]
     end
 
     subgraph Database["Database"]
@@ -158,6 +176,7 @@ flowchart LR
 | **Node.js** | 22 LTS | 최신 LTS, 향상된 성능 |
 | **Express** | 5.0 | async/await 네이티브 지원, 개선된 라우팅 |
 | **Socket.IO** | 4.8 | WebSocket 추상화, Room 기반 브로드캐스트 |
+| **Google Gemini** | 1.5 Flash | AI 기반 문맥/혐오 표현 필터링 (Free Tier) |
 | **PostgreSQL** | 16 | 안정적인 RDBMS, JSON 지원 |
 | **JWT** | 9.0 | 관리자 인증 토큰 관리 |
 | **Helmet** | 8.0 | HTTP 보안 헤더 자동 설정 |
@@ -192,6 +211,10 @@ flowchart TB
         Scheduler[Cron Scheduler]
     end
 
+    subgraph AI_Service["Google Cloud"]
+        Gemini_API[Gemini 1.5 Flash]
+    end
+
     subgraph DB["Railway PostgreSQL"]
         PostgreSQL[(PostgreSQL 16)]
     end
@@ -200,6 +223,7 @@ flowchart TB
     Static -->|API Calls| ExpressAPI
     WS_Client <-->|WebSocket| WS_Server
     ExpressAPI -->|Query| PostgreSQL
+    ExpressAPI -->|Analysis| Gemini_API
     Scheduler -->|Daily Cleanup| PostgreSQL
 ```
 
@@ -209,6 +233,7 @@ sequenceDiagram
     participant U as 사용자
     participant C as React Client
     participant S as Socket.IO Server
+    participant AI as Gemini AI
     participant DB as PostgreSQL
 
     U->>C: 호선 선택 (2호선)
@@ -219,7 +244,9 @@ sequenceDiagram
     U->>C: 메시지 입력 "출근 힘들어요"
     C->>S: POST /api/posts
     S->>S: 운영시간 검증
-    S->>S: 비속어 필터링
+    S->>S: 1차 Local Regex 필터링
+    S->>AI: 2차 문맥 분석 요청
+    AI-->>S: { safe: true }
     S->>DB: INSERT message
     DB-->>S: OK
     S-->>C: 201 Created
@@ -234,6 +261,8 @@ sequenceDiagram
 erDiagram
     SUBWAY_LINES ||--o{ POSTS : contains
     SUBWAY_LINES ||--o{ DAILY_VISITS : tracks
+    SUBWAY_LINES ||--o{ HOURLY_VISITS : tracks
+    SUBWAY_LINES ||--o{ UNIQUE_VISITORS : first_visit
 
     SUBWAY_LINES {
         int id PK
@@ -259,6 +288,23 @@ erDiagram
         date visit_date
         int subway_line_id FK
         int visit_count
+    }
+
+    HOURLY_VISITS {
+        int id PK
+        date visit_date
+        smallint visit_hour "0~23"
+        int subway_line_id FK
+        int visit_count
+    }
+
+    UNIQUE_VISITORS {
+        int id PK
+        string visitor_hash "SHA256 해시"
+        date visit_date
+        int first_line_id FK
+        smallint lines_visited
+        timestamp created_at
     }
 
     FEEDBACK {
@@ -390,6 +436,13 @@ CREATE TABLE daily_visits (
 - **UPSERT 패턴**: 같은 날짜+호선이면 카운트 증가
 - **통계 API**: `GET /api/admin/stats?days=7`
 
+### 12. AI 하이브리드 필터링 (비용/속도 최적화)
+- **문제**: 모든 메시지를 AI로 검사하면 비용과 레이턴시가 발생
+- **해결**:
+  - 1단계: **Local Regex**로 명확한 비속어 즉시 차단 (0ms, 비용 0)
+  - 2단계: **Gemini 1.5 Flash**로 문맥 기반 혐오 표현 검사 (평균 300ms, Free Tier)
+  - **Fail-Open**: AI API 장애 시 로컬 필터 통과분은 허용하여 서비스 가용성 보장
+
 ---
 
 ## 프로젝트 구조
@@ -411,7 +464,9 @@ subway-board/
 │   │   │   └── useToast.js        # 토스트 알림
 │   │   ├── pages/               # 페이지 컴포넌트
 │   │   │   ├── HomePage.jsx       # 호선 선택
-│   │   │   └── LinePage.jsx       # 채팅방
+│   │   │   ├── LinePage.jsx       # 채팅방 (메인)
+│   │   │   ├── AdminDashboard.jsx # 관리자 통계/분석
+│   │   │   └── LoginPage.jsx      # 관리자 로그인
 │   │   ├── services/            # API 서비스
 │   │   │   └── api.js             # axios 인스턴스
 │   │   └── utils/               # 유틸리티

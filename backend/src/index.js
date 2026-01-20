@@ -119,12 +119,20 @@ const isTossDomain = (origin) => {
   return /^https:\/\/[a-z0-9-]+\.(apps|private-apps)\.tossmini\.com$/.test(origin);
 };
 
+// CORS configuration with strict origin validation
 app.use(cors({
   origin: function (origin, callback) {
     logger.http('CORS request from origin:', { origin });
 
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    // Block requests with no origin in production (prevents CORS bypass)
+    // Allow in development for tools like Postman/curl
+    if (!origin) {
+      if (process.env.NODE_ENV === 'production') {
+        logger.warn('CORS blocked: no origin header in production');
+        return callback(new Error('Origin header required'));
+      }
+      return callback(null, true);
+    }
 
     if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin)) {
       callback(null, true);
@@ -141,8 +149,13 @@ if (isMain) {
   socketService.init(httpServer, {
     cors: {
       origin: (origin, callback) => {
-        // allow requests with no origin
-        if (!origin) return callback(null, true);
+        // Block requests with no origin in production
+        if (!origin) {
+          if (process.env.NODE_ENV === 'production') {
+            return callback(new Error('Origin header required'));
+          }
+          return callback(null, true);
+        }
 
         if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin)) {
           callback(null, true);
@@ -173,7 +186,7 @@ const rateLimitKey = (req) => {
 const writeLimiter = rateLimit({
   windowMs: RATE_LIMIT.WRITE.WINDOW_MS,
   max: RATE_LIMIT.WRITE.MAX,
-  message: '?ˆë¬´ ë§Žì? ?”ì²­??ë°œìƒ?ˆìŠµ?ˆë‹¤. ? ì‹œ ???¤ì‹œ ?œë„?´ì£¼?¸ìš”.',
+  message: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
   skip: (req) => req.method === 'GET',
   keyGenerator: rateLimitKey,
 });
@@ -182,7 +195,7 @@ const writeLimiter = rateLimit({
 const readLimiter = rateLimit({
   windowMs: RATE_LIMIT.READ.WINDOW_MS,
   max: RATE_LIMIT.READ.MAX,
-  message: '?ˆë¬´ ë§Žì? ì¡°íšŒ ?”ì²­??ë°œìƒ?ˆìŠµ?ˆë‹¤. ? ì‹œ ???¤ì‹œ ?œë„?´ì£¼?¸ìš”.',
+  message: '너무 많은 조회 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
   skip: (req) => req.method !== 'GET',
   standardHeaders: true,
   legacyHeaders: false,
@@ -193,10 +206,11 @@ app.use('/api', writeLimiter);
 app.use('/api', readLimiter);
 
 app.use('/api', routes);
+app.use('/api-docs', require('./routes/docs'));
 
 app.get('/', (req, res) => {
   res.json({
-    message: 'ì¶œí‡´ê·¼ê¸¸ ?µëª… ê²Œì‹œ??API',
+    message: '출퇴근길 익명 게시판 API',
     version: '1.0.0',
     endpoints: {
       health: '/health',
