@@ -15,6 +15,7 @@
 │  │  │  ├─ postController.js
 │  │  │  ├─ feedbackController.js
 │  │  │  ├─ visitController.js
+│  │  │  ├─ dashboardController.js  # 관리자 대시보드 API
 │  │  │  └─ subwayLineController.js
 │  │  ├─ middleware/
 │  │  │  ├─ authMiddleware.js
@@ -47,7 +48,10 @@
 │     ├─ App.css               # 글로벌 스타일
 │     ├─ pages/
 │     │  ├─ HomePage.jsx       # 호선 선택
-│     │  └─ LinePage.jsx       # 채팅방
+│     │  ├─ LinePage.jsx       # 채팅방
+│     │  ├─ AdminDashboard.jsx # 관리자 대시보드
+│     │  ├─ PreviewHome.jsx    # 미리보기 홈
+│     │  └─ PreviewChat.jsx    # 미리보기 채팅
 │     ├─ components/
 │     │  ├─ ClosedAlertModal.jsx
 │     │  ├─ FeedbackModal.jsx
@@ -98,6 +102,25 @@
 - `posts.message_type`: 'user' | 'system' (입장/퇴장)
 - 매일 자정(00:00) 자동 삭제 (scheduler.js)
 
+### 통계 테이블
+- `hourly_visits`: 시간대별/호선별 방문 집계 (UPSERT 패턴)
+- `unique_visitors`: 고유 방문자 기록 (visitor_hash + visit_date 유니크)
+- `daily_visits`: 일별 호선별 방문 통계
+
+## Admin Dashboard
+- 경로: `/admin`
+- 인증: 비밀번호 + IP 화이트리스트 + JWT (24시간)
+- 기능: DAU/WAU/MAU, 호선별 통계, 시간대별 분석, 커스텀 SQL
+- 차트: recharts 라이브러리
+
+### 환경변수 (Railway)
+```
+ADMIN_DASHBOARD_PASSWORD  # 대시보드 로그인 비밀번호
+ADMIN_IP_WHITELIST        # (옵션) 허용 IP 목록 (콤마 구분, CIDR 지원)
+ADMIN_JWT_SECRET          # (옵션) JWT 시크릿, 미설정시 ADMIN_KEY 사용
+ADMIN_KEY                 # 기존 관리자 API 키
+```
+
 ## Key Files
 - Backend Entry: `backend/src/index.js`
 - Routes: `backend/src/routes/index.js`
@@ -108,6 +131,16 @@
 - Deploy Config: `vercel.json`, `railway.json`
 
 ## Tech Stack
-- Frontend: React 19, Vite 6, React Router 7, Socket.IO Client
-- Backend: Node.js 22, Express 5, Socket.IO, PostgreSQL 16
+- Frontend: React 19, Vite 6, React Router 7, Socket.IO Client, recharts
+- Backend: Node.js 22, Express 5, Socket.IO, PostgreSQL 16, jsonwebtoken
 - Infra: Vercel (frontend), Railway (backend + DB)
+
+## API Endpoints (주요)
+```
+POST /api/dashboard/login     # 대시보드 로그인 (JWT 발급)
+GET  /api/dashboard/data      # 대시보드 통계 데이터
+GET  /api/dashboard/raw       # 원본 테이블 데이터
+POST /api/dashboard/query     # 커스텀 SQL 쿼리 (SELECT only)
+POST /api/visits              # 방문 기록
+GET  /api/admin/stats         # 통계 요약
+```
