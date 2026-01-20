@@ -6,6 +6,7 @@ import LinePage from './pages/LinePage';
 import KakaoCallback from './pages/KakaoCallback';
 import PreviewHome from './pages/PreviewHome';
 import PreviewChat from './pages/PreviewChat';
+import AdminDashboard from './pages/AdminDashboard';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthButton from './components/AuthButton';
 import AnimatedBackground from './components/AnimatedBackground';
@@ -18,6 +19,18 @@ function App() {
   // 앱 실행 시 최초 1회 운영 시간 체크
   const isOperatingHours = checkIsOperatingHours();
   const isPreview = typeof window !== 'undefined' && window.location.pathname.startsWith('/preview');
+  const isAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+
+  // Admin 페이지는 별도 처리 (운영시간 체크 X, 배경 X)
+  if (isAdmin) {
+    return (
+      <Router>
+        <Routes>
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Routes>
+      </Router>
+    );
+  }
 
   return (
     <AuthProvider>

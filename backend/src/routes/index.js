@@ -8,10 +8,11 @@ const commentController = require('../controllers/commentController');
 const authController = require('../controllers/authController');
 const feedbackController = require('../controllers/feedbackController');
 const visitController = require('../controllers/visitController');
+const dashboardController = require('../controllers/dashboardController');
 const { validatePost, validateComment } = require('../middleware/validator');
 const authMiddleware = require('../middleware/authMiddleware');
 const checkOperatingHours = require('../middleware/checkOperatingHours');
-const adminMiddleware = require('../middleware/adminMiddleware');
+const { adminMiddleware, adminLoginMiddleware } = require('../middleware/adminMiddleware');
 
 // 특수 호선 삭제 (1회성 정리용)
 router.post('/admin/cleanup-lines', adminMiddleware, async (req, res) => {
@@ -60,5 +61,11 @@ router.get('/admin/feedback', adminMiddleware, feedbackController.getAllFeedback
 // Visit tracking routes
 router.post('/visits', authMiddleware, visitController.recordVisit);
 router.get('/admin/stats', adminMiddleware, visitController.getStats);
+
+// Dashboard routes (JWT 기반 인증)
+router.post('/dashboard/login', adminLoginMiddleware, dashboardController.login);
+router.get('/dashboard/data', dashboardController.verifyToken, dashboardController.getDashboardData);
+router.get('/dashboard/raw', dashboardController.verifyToken, dashboardController.getRawData);
+router.post('/dashboard/query', dashboardController.verifyToken, dashboardController.executeQuery);
 
 module.exports = router;

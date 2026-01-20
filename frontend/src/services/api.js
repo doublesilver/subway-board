@@ -86,4 +86,40 @@ export const authAPI = {
   issueAnonymousSignature: () => api.post('/api/auth/anonymous'),
 };
 
+// Dashboard API (JWT 인증)
+const dashboardApi = axios.create({
+  baseURL: API.BASE_URL,
+  timeout: API.TIMEOUT,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+dashboardApi.interceptors.request.use((config) => {
+  const token = localStorage.getItem('admin_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+dashboardApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('admin_token');
+      window.location.href = '/admin';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const dashboardAPI = {
+  login: (password) => api.post('/api/dashboard/login', { password }),
+  getData: (days = 30) => dashboardApi.get('/api/dashboard/data', { params: { days } }),
+  getRawData: (table, days = 7, limit = 1000) =>
+    dashboardApi.get('/api/dashboard/raw', { params: { table, days, limit } }),
+  executeQuery: (sql) => dashboardApi.post('/api/dashboard/query', { sql }),
+};
+
 export default api;
