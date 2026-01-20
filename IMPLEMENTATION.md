@@ -121,6 +121,8 @@ frontend/
 │   │   └── AdminDashboard.jsx
 │   ├── services/         # API 서비스
 │   │   └── api.js
+│   ├── test/             # 테스트 설정
+│   │   └── setup.js
 │   └── utils/            # 유틸리티
 │       ├── operatingHours.js
 │       ├── socket.js
@@ -134,7 +136,8 @@ frontend/
 backend/
 ├── src/
 │   ├── config/           # 설정
-│   │   └── constants.js
+│   │   ├── constants.js
+│   │   └── validateEnv.js
 │   ├── controllers/      # 컨트롤러
 │   │   ├── postController.js
 │   │   ├── dashboardController.js
@@ -157,7 +160,8 @@ backend/
 │       ├── scheduler.js
 │       ├── activeUsers.js
 │       ├── profanityFilter.js
-│       └── logger.js
+│       ├── logger.js
+│       └── response.js
 ├── tests/                # 테스트
 └── index.js
 ```
@@ -235,12 +239,18 @@ VITE_API_URL=https://api.gagisiro.com
 
 ### Railway (Backend)
 ```
+# 필수 환경변수
 NODE_ENV=production
 DATABASE_URL=<PostgreSQL Connection String>
-PORT=5000
-GEMINI_API_KEY=<API Key>
-ADMIN_DASHBOARD_PASSWORD=<Password>
-ADMIN_JWT_SECRET=<Secret>
+JWT_SECRET=<JWT Secret>
+ADMIN_KEY=<Admin API Key>
+
+# 선택 환경변수
+OPENAI_API_KEY=<OpenAI API Key>
+SENTRY_DSN=<Sentry DSN>
+REDIS_URL=<Redis URL>
+ADMIN_DASHBOARD_PASSWORD=<Dashboard Password>
+ADMIN_IP_WHITELIST=<IP Whitelist>
 ```
 
 ---
@@ -263,6 +273,15 @@ npm run dev
 ---
 
 ## 최근 변경 사항
+
+### 2026-01-21
+- 환경변수 검증 모듈 추가 (`validateEnv.js`)
+- API 응답 헬퍼 유틸리티 추가 (`response.js`)
+- DB 커넥션 풀 설정 상수화 (min, timeout 등)
+- 페이지네이션 MAX_LIMIT 추가
+- 로깅 구조화 개선 (JSON 포맷, 서비스명 포함)
+- 프론트엔드 테스트 환경 구축 (Vitest)
+- useChatSocket, useChatScroll 훅 테스트 추가
 
 ### 2026-01-20
 - AI 서비스 변경: Google Gemini → OpenAI Moderation API
@@ -289,5 +308,5 @@ npm run dev
 
 ---
 
-**문서 작성일**: 2026-01-20
-**버전**: 3.1
+**문서 작성일**: 2026-01-21
+**버전**: 3.2

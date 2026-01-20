@@ -13,11 +13,17 @@ const RATE_LIMIT = {
 // 데이터베이스 설정
 const DATABASE = {
   POOL_MAX: parseInt(process.env.DB_POOL_MAX) || 20,
+  POOL_MIN: parseInt(process.env.DB_POOL_MIN) || 2,
+  IDLE_TIMEOUT_MS: parseInt(process.env.DB_IDLE_TIMEOUT_MS) || 30000,
+  CONNECTION_TIMEOUT_MS: parseInt(process.env.DB_CONNECTION_TIMEOUT_MS) || 60000,
+  STATEMENT_TIMEOUT_MS: parseInt(process.env.DB_STATEMENT_TIMEOUT_MS) || 60000,
+  QUERY_TIMEOUT_MS: parseInt(process.env.DB_QUERY_TIMEOUT_MS) || 60000,
 };
 
 // 페이지네이션 설정
 const PAGINATION = {
   DEFAULT_LIMIT: parseInt(process.env.DEFAULT_PAGE_LIMIT) || 20,
+  MAX_LIMIT: parseInt(process.env.MAX_PAGE_LIMIT) || 100,
 };
 
 // WebSocket 설정

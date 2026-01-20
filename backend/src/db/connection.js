@@ -6,10 +6,11 @@ require('dotenv').config();
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: DATABASE.POOL_MAX,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 60000, // Increased to 60s for Railway migrations
-  statement_timeout: 60000, // Query timeout
-  query_timeout: 60000, // Additional query timeout
+  min: DATABASE.POOL_MIN,
+  idleTimeoutMillis: DATABASE.IDLE_TIMEOUT_MS,
+  connectionTimeoutMillis: DATABASE.CONNECTION_TIMEOUT_MS,
+  statement_timeout: DATABASE.STATEMENT_TIMEOUT_MS,
+  query_timeout: DATABASE.QUERY_TIMEOUT_MS,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
 });
 

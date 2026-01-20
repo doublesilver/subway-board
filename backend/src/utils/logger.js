@@ -27,7 +27,34 @@ const colors = {
 
 winston.addColors(colors);
 
-// 로그 포맷 정의
+// 구조화된 JSON 포맷 (프로덕션용 - 로그 분석 도구와 호환)
+const structuredFormat = winston.format.combine(
+  winston.format.timestamp({ format: 'YYYY-MM-DDTHH:mm:ss.SSSZ' }),
+  winston.format.errors({ stack: true }),
+  winston.format((info) => {
+    // 표준 필드 구조화
+    const structured = {
+      timestamp: info.timestamp,
+      level: info.level,
+      message: info.message,
+      service: 'gagisiro-api',
+      environment: process.env.NODE_ENV || 'development',
+    };
+
+    // 메타데이터 추가 (예약어 제외)
+    const reserved = ['timestamp', 'level', 'message', 'service', 'environment'];
+    for (const [key, value] of Object.entries(info)) {
+      if (!reserved.includes(key)) {
+        structured[key] = value;
+      }
+    }
+
+    return structured;
+  })(),
+  winston.format.json()
+);
+
+// 로그 포맷 정의 (파일용)
 const format = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
   winston.format.errors({ stack: true }),
@@ -67,21 +94,21 @@ const transports = [
   }),
 ];
 
-// 프로덕션 환경에서는 파일 로깅 추가
+// 프로덕션 환경에서는 파일 로깅 추가 (구조화된 JSON 포맷)
 if (process.env.NODE_ENV === 'production') {
   transports.push(
-    // 모든 로그
+    // 모든 로그 (구조화된 JSON)
     new winston.transports.File({
       filename: 'logs/combined.log',
-      format,
+      format: structuredFormat,
       maxsize: 5242880, // 5MB
       maxFiles: 5,
     }),
-    // 에러 로그만
+    // 에러 로그만 (구조화된 JSON)
     new winston.transports.File({
       filename: 'logs/error.log',
       level: 'error',
-      format,
+      format: structuredFormat,
       maxsize: 5242880,
       maxFiles: 5,
     })

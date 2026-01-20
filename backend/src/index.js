@@ -8,6 +8,12 @@ const { createServer } = require('http');
 const Sentry = require('@sentry/node');
 require('dotenv').config();
 
+// 환경변수 검증 (dotenv 로드 후 즉시 실행)
+const validateEnv = require('./config/validateEnv');
+if (require.main === module) {
+  validateEnv();
+}
+
 // Sentry 초기화 (가장 먼저 실행)
 if (process.env.SENTRY_DSN) {
   Sentry.init({
