@@ -5,7 +5,7 @@ const request = require('supertest');
 const express = require('express');
 
 const authMiddleware = require('../src/middleware/authMiddleware');
-const adminMiddleware = require('../src/middleware/adminMiddleware');
+const { adminMiddleware } = require('../src/middleware/adminMiddleware');
 const authController = require('../src/controllers/authController');
 
 const app = express();

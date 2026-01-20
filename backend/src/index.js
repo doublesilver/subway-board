@@ -5,7 +5,21 @@ const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const compression = require('compression');
 const { createServer } = require('http');
+const Sentry = require('@sentry/node');
 require('dotenv').config();
+
+// Sentry 초기화 (가장 먼저 실행)
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    integrations: [
+      Sentry.httpIntegration(),
+      Sentry.expressIntegration(),
+    ],
+  });
+}
 
 const socketService = require('./utils/socket');
 
@@ -31,11 +45,18 @@ if (isMain) {
 
 httpServer.on('error', (err) => {
   console.error('Server error:', err);
+  Sentry.captureException(err);
 });
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:', err);
+  Sentry.captureException(err);
   process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  Sentry.captureException(reason);
 });
 
 // Basic health check
@@ -146,28 +167,35 @@ app.use(cors({
 
 // Socket.io setup (socket.js module)
 if (isMain) {
-  socketService.init(httpServer, {
-    cors: {
-      origin: (origin, callback) => {
-        // Block requests with no origin in production
-        if (!origin) {
-          if (process.env.NODE_ENV === 'production') {
-            return callback(new Error('Origin header required'));
+  (async () => {
+    await socketService.init(httpServer, {
+      cors: {
+        origin: (origin, callback) => {
+          // Block requests with no origin in production
+          if (!origin) {
+            if (process.env.NODE_ENV === 'production') {
+              return callback(new Error('Origin header required'));
+            }
+            return callback(null, true);
           }
-          return callback(null, true);
-        }
 
-        if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin)) {
-          callback(null, true);
-        } else {
-          logger.warn('Socket.IO CORS blocked for origin:', { origin });
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
-      methods: ['GET', 'POST'],
-      credentials: true
-    }
-  });
+          if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin)) {
+            callback(null, true);
+          } else {
+            logger.warn('Socket.IO CORS blocked for origin:', { origin });
+            callback(new Error('Not allowed by CORS'));
+          }
+        },
+        methods: ['GET', 'POST'],
+        credentials: true
+      }
+    });
+
+    // Socket.io event handler (Redis 연결 후 실행)
+    const { handleSocketConnection } = require('./utils/activeUsers');
+    const io = socketService.getIO();
+    io.on('connection', handleSocketConnection);
+  })();
 }
 
 app.use(express.json());
@@ -228,12 +256,5 @@ app.all('/{*path}', (req, res, next) => {
 
 // Global error handler
 app.use(globalErrorHandler);
-
-// Socket.io event handler
-if (isMain) {
-  const { handleSocketConnection } = require('./utils/activeUsers');
-  const io = socketService.getIO();
-  io.on('connection', handleSocketConnection);
-}
 
 module.exports = app;

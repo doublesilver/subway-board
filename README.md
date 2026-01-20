@@ -97,8 +97,9 @@ mindmap
 
 ### AI 하이브리드 콘텐츠 필터링
 - **1차**: Regex 기반 로컬 비속어 필터로 빠른 1차 방어
-- **2차**: Google Gemini 1.5 Flash 기반 AI 문맥 분석으로 교묘한 혐오 표현 필터링
+- **2차**: OpenAI Moderation API 기반 AI 문맥 분석으로 교묘한 혐오 표현 필터링
 - XSS 방지 처리 및 Cleanbot 시스템 구축
+- Fail-Open 전략: AI 장애 시 로컬 필터 통과분 허용
 
 ### 관리자 대시보드
 - **데이터 시각화**: Recharts를 활용한 일별/호선별/시간대별 방문자 추이 그래프
@@ -176,7 +177,8 @@ flowchart LR
 | **Node.js** | 22 LTS | 최신 LTS, 향상된 성능 |
 | **Express** | 5.0 | async/await 네이티브 지원, 개선된 라우팅 |
 | **Socket.IO** | 4.8 | WebSocket 추상화, Room 기반 브로드캐스트 |
-| **Google Gemini** | 1.5 Flash | AI 기반 문맥/혐오 표현 필터링 (Free Tier) |
+| **OpenAI** | Moderation API | AI 기반 문맥/혐오 표현 필터링 |
+| **Sentry** | 10.x | 에러 모니터링 및 알림 |
 | **PostgreSQL** | 16 | 안정적인 RDBMS, JSON 지원 |
 | **JWT** | 9.0 | 관리자 인증 토큰 관리 |
 | **Helmet** | 8.0 | HTTP 보안 헤더 자동 설정 |

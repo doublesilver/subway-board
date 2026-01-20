@@ -22,6 +22,7 @@
   "license": "ISC",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@sentry/node": "^10.35.0",
     "axios": "^1.13.2",
     "badwords-ko": "^1.0.4",
     "compression": "^1.8.1",

@@ -43,11 +43,17 @@
 
 - 2단계 하이브리드 필터링:
   - 1차: 로컬 Regex 비속어 필터 (빠름, 비용 0)
-  - 2차: Google Gemini 1.5 Flash AI 문맥 분석
+  - 2차: OpenAI Moderation API (정교한 카테고리별 분석)
 - XSS 방지 처리
 - Fail-Open 전략: AI 장애 시 로컬 필터 통과분 허용
 
-### 6. 관리자 대시보드
+### 6. 에러 모니터링
+
+- Sentry 연동으로 실시간 에러 추적
+- uncaughtException, unhandledRejection 자동 캡처
+- 프로덕션 환경 샘플링 (10%)
+
+### 7. 관리자 대시보드
 
 - JWT 기반 인증 (24시간 유효)
 - DAU/WAU/MAU 자동 집계
@@ -77,10 +83,11 @@
 | Express | 5.0 | 웹 프레임워크 |
 | Socket.IO | 4.8 | 실시간 통신 |
 | PostgreSQL | 16 | 데이터베이스 |
+| OpenAI | Moderation API | AI 콘텐츠 필터링 |
+| Sentry | 10.x | 에러 모니터링 |
 | Helmet | 8.0 | 보안 헤더 |
 | Winston | 3.19 | 로깅 |
 | node-cron | 3.0 | 스케줄링 |
-| Google Gemini | 1.5 Flash | AI 콘텐츠 필터링 |
 
 ### Infrastructure
 
@@ -258,6 +265,9 @@ npm run dev
 ## 최근 변경 사항
 
 ### 2026-01-20
+- AI 서비스 변경: Google Gemini → OpenAI Moderation API
+- Sentry 에러 모니터링 연동
+- Redis Adapter 준비 (수평 확장 대비)
 - CORS 보안 강화: 프로덕션 환경에서 origin 없는 요청 차단
 - Rate limit 메시지 인코딩 수정
 
