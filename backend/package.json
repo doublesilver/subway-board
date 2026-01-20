@@ -23,6 +23,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.13.2",
+    "badwords-ko": "^1.0.4",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -32,9 +33,12 @@
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "node-cron": "^3.0.3",
+    "openai": "^6.16.0",
     "pg": "^8.14.0",
     "playwright": "^1.57.0",
     "socket.io": "^4.8.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^9.0.1",
     "winston": "^3.19.0",
     "xss": "^1.0.15"
