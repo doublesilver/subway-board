@@ -65,6 +65,10 @@ mindmap
       모바일 퍼스트 디자인
       iOS/Android 키보드 대응
       다크모드 지원
+    관리자 대시보드
+      실시간 방문자 통계
+      DAU/WAU/MAU 분석
+      커스텀 SQL 쿼리
 ```
 
 ### 호선별 실시간 채팅
@@ -146,6 +150,7 @@ flowchart LR
 | **React Router** | 7.11 | SPA 라우팅, 중첩 라우트 지원 |
 | **Socket.IO Client** | 4.8 | 실시간 양방향 통신 |
 | **Axios** | 1.13 | HTTP 클라이언트, 인터셉터 지원 |
+| **Recharts** | 2.15 | 데이터 시각화 차트 라이브러리 |
 
 ### Backend
 | 기술 | 버전 | 선택 이유 |
@@ -154,6 +159,7 @@ flowchart LR
 | **Express** | 5.0 | async/await 네이티브 지원, 개선된 라우팅 |
 | **Socket.IO** | 4.8 | WebSocket 추상화, Room 기반 브로드캐스트 |
 | **PostgreSQL** | 16 | 안정적인 RDBMS, JSON 지원 |
+| **JWT** | 9.0 | 관리자 인증 토큰 관리 |
 | **Helmet** | 8.0 | HTTP 보안 헤더 자동 설정 |
 | **Winston** | 3.19 | 구조화된 로깅 시스템 |
 | **node-cron** | 3.0 | 일일 데이터 정리 스케줄링 |
@@ -444,6 +450,8 @@ subway-board/
 │   └── index.js                 # 서버 엔트리
 │
 ├── designs/                     # UI 디자인 목업
+├── docs/                        # 문서
+│   └── ADMIN_DASHBOARD_GUIDE.md # 대시보드 가이드
 ├── RESTORE.md                   # 테스트→정식 원복 가이드
 └── README.md                    # 프로젝트 문서
 ```

@@ -74,6 +74,8 @@
 │        └─ constants.js       # API URL, 타임아웃 등
 │
 ├─ designs/                    # UI 디자인 목업
+├─ docs/
+│  └─ ADMIN_DASHBOARD_GUIDE.md # 대시보드 사용 가이드
 ├─ assets/                     # 정적 에셋
 ├─ logs/                       # 애플리케이션 로그
 │
