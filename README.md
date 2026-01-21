@@ -631,6 +631,38 @@ gantt
     Custom Hooks 리팩토링 :done, 2026-01-14, 2d
     낙관적 업데이트      :done, 2026-01-16, 1d
     방문자 통계 시스템   :done, 2026-01-16, 1d
+    section v2.2 (채용 준비)
+    CI/CD 파이프라인    :done, 2026-01-21, 1d
+    Swagger API 문서화  :done, 2026-01-21, 1d
+```
+
+---
+
+## v2.2 업데이트: 자동화 및 문서화 (2026.01)
+
+채용 담당자 피드백을 반영하여 **협업 효율성**과 **개발 안정성**을 강화했습니다.
+
+### 1. API 문서화 (Swagger/OpenAPI)
+- **개발자 경험(DX) 개선**: 프론트엔드-백엔드 협업 시 명확한 인터페이스 제공
+- **Live Documentation**: 서버 코드(`routes/*.js`)와 동기화된 문서 자동 생성
+- **접속 주소**: `/api-docs`
+
+![Subway Board API Documentation](file:///C:/Users/korea/.gemini/antigravity/brain/f014c75d-af49-4835-b18e-9f547e0e85d0/swagger_api_docs_1768976642067.png)
+
+### 2. CI/CD 파이프라인 (GitHub Actions)
+- **테스트 자동화**: `main` 브랜치 푸시 시 `npm test` 자동 트리거
+- **배포 안정성 확보**: 테스트 통과 시에만 Railway 배포 프로세스 진행 (안전장치)
+- **설정 파일**: `.github/workflows/main.yml`
+
+```yaml
+# .github/workflows/main.yml 예시
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run Tests
+      run: npm test
 ```
 
 ---

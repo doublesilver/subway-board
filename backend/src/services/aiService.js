@@ -1,26 +1,24 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const OpenAI = require('openai');
 const logger = require('../utils/logger');
 const ProfanityFilter = require('../utils/profanityFilter');
 
 class AIService {
-    constructor(apiKey = process.env.GEMINI_API_KEY) {
-        this.model = null;
+    constructor(apiKey = process.env.OPENAI_API_KEY) {
+        this.client = null;
         this.init(apiKey);
     }
 
     init(apiKey) {
         if (apiKey) {
-            const genAI = new GoogleGenerativeAI(apiKey);
-            // Using gemini-1.5-flash which is free and fast, with fail-open logic for quota limits
-            this.model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            this.client = new OpenAI({ apiKey });
         } else {
-            logger.warn('GEMINI_API_KEY is missing. AI features will be disabled.');
+            logger.warn('OPENAI_API_KEY is missing. AI features will be disabled.');
         }
     }
 
     /**
      * Check if the content is safe.
-     * Uses AI (Gemini) as primary filter, falls back to regex-based ProfanityFilter.
+     * Uses AI (OpenAI Moderation) as primary filter, combined with local profanity filter.
      * @param {string} text - The text to check.
      * @returns {Promise<{safe: boolean, reason?: string}>}
      */
@@ -31,35 +29,49 @@ class AIService {
         }
 
         // 2차: AI 모델 (더 정교한 컨텍스트 기반 판단)
-        if (!this.model) {
+        if (!this.client) {
             // AI 없으면 로컬 필터만으로 통과
             return { safe: true };
         }
 
         try {
-            const prompt = `
-        You are a content moderation assistant.
-        Check the user's message for hate speech, explicit violence, sexual content, or severe harassment.
-        Permit mild slang or casual expressions.
-        Return ONLY a JSON object: { "safe": boolean, "reason": string }.
-        "reason" should be a short explanation in Korean if unsafe, otherwise null.
+            const response = await this.client.moderations.create({ input: text });
+            const result = response.results[0];
 
-        Message: "${text}"
-      `;
+            if (result.flagged) {
+                // 카테고리 분석
+                const categories = result.categories;
+                // true인 카테고리만 추출
+                const reasons = Object.keys(categories)
+                    .filter(key => categories[key])
+                    .map(key => this.translateCategory(key));
 
-            const result = await this.model.generateContent(prompt);
-            const response = await result.response;
-            const textResponse = response.text();
+                return {
+                    safe: false,
+                    reason: `부적절한 내용 감지 (${reasons.join(', ')})`
+                };
+            }
 
-            // Clean up markdown code blocks if present (Gemini sometimes adds them)
-            const jsonStr = textResponse.replace(/^```json\n|\n```$/g, '').trim();
-
-            return JSON.parse(jsonStr);
+            return { safe: true };
         } catch (error) {
-            logger.error('Gemini Moderation Error:', error);
-            // AI 실패 시 로컬 필터를 이미 통과했으므로 허용
+            logger.error('OpenAI Moderation Error:', error);
+            // AI 실패 시 로컬 필터를 이미 통과했으므로 허용 (Fail-open)
             return { safe: true };
         }
+    }
+
+    translateCategory(category) {
+        const map = {
+            'sexual': '성적인 내용',
+            'hate': '혐오 발언',
+            'harassment': '괴롭힘',
+            'self-harm': '자해',
+            'sexual/minors': '미성년자 관련 성적 내용',
+            'hate/threatening': '위협적인 혐오 발언',
+            'violence/graphic': '잔인한 폭력',
+            'violence': '폭력',
+        };
+        return map[category] || category;
     }
 }
 

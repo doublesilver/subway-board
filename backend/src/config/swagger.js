@@ -4,9 +4,9 @@ const options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Gagisiro API Documentation',
+            title: 'Subway Board API',
             version: '1.0.0',
-            description: 'API documentation for Gagisiro (Subway Anonymous Board)',
+            description: 'API documentation for Subway Board (gagisiro.com)',
             contact: {
                 name: 'Developer',
                 url: 'https://gagisiro.com',
@@ -18,8 +18,8 @@ const options = {
                 description: 'Local Development Server',
             },
             {
-                url: 'https://api.gagisiro.com',
-                description: 'Production Server',
+                url: 'https://subway-board-backend-production.up.railway.app',
+                description: 'Production Server (Railway)',
             },
         ],
         components: {
@@ -32,7 +32,7 @@ const options = {
             },
         },
     },
-    apis: ['./src/routes/*.js', './src/controllers/*.js'], // Path to the API docs
+    apis: ['src/routes/*.js', 'src/controllers/*.js'], // Relative path from backend root (where npm start runs)
 };
 
 const specs = swaggerJsdoc(options);

@@ -40,11 +40,79 @@ if (process.env.ENABLE_KAKAO_LOGIN === 'true') {
 router.get('/auth/me', authController.getCurrentUser);
 router.post('/auth/anonymous', authController.issueAnonymousSignature); // 익명 서명 발급
 
+/**
+ * @swagger
+ * /api/subway-lines:
+ *   get:
+ *     summary: 전체 지하철 호선 목록 조회
+ *     tags: [Subway]
+ *     responses:
+ *       200:
+ *         description: 호선 목록 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   line_number:
+ *                     type: string
+ *                   line_name:
+ *                     type: string
+ *                   color:
+ *                     type: string
+ */
 router.get('/subway-lines', subwayLineController.getAllLines);
 
 // Reading endpoints also need auth to verify ownership (if anonymousId provided)
+/**
+ * @swagger
+ * /api/posts/line/{lineId}:
+ *   get:
+ *     summary: 호선별 게시글 조회
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: lineId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: 게시글 목록
+ */
 router.get('/posts/line/:lineId', authMiddleware, postController.getPostsByLine);
 router.get('/posts/:postId', authMiddleware, postController.getPostById);
+
+/**
+ * @swagger
+ * /api/posts:
+ *   post:
+ *     summary: 게시글 작성
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - subway_line_id
+ *               - content
+ *             properties:
+ *               subway_line_id:
+ *                 type: integer
+ *               content:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: 작성 성공
+ */
 router.post('/posts', authMiddleware, checkOperatingHours, validatePost, postController.createPost);
 router.post('/posts/join', authMiddleware, checkOperatingHours, postController.createJoinMessage); // 입장도 제한
 router.post('/posts/leave', authMiddleware, postController.createLeaveMessage); // 퇴장은 허용 (잔류 인원 처리)
