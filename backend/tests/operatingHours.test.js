@@ -13,8 +13,8 @@ describe('Operating Hours Middleware (Unit)', () => {
     });
 
     it('✅ Should call next() during operating hours (Mon 08:30)', () => {
-        // 2026-01-14 is Wednesday (Weekday). 08:30 is valid.
-        jest.setSystemTime(new Date('2026-01-14T08:30:00'));
+        // 2026-01-14 is Wednesday (Weekday). 08:30 KST.
+        jest.setSystemTime(new Date('2026-01-14T08:30:00+09:00'));
 
         const req = httpMocks.createRequest();
         const res = httpMocks.createResponse();
@@ -26,8 +26,8 @@ describe('Operating Hours Middleware (Unit)', () => {
     });
 
     it('🚫 Should return 403 during non-operating hours (Mon 14:00)', () => {
-        // 14:00 is outside 07:00 ~ 09:00
-        jest.setSystemTime(new Date('2026-01-14T14:00:00'));
+        // 14:00 KST is outside 07:00 ~ 09:00
+        jest.setSystemTime(new Date('2026-01-14T14:00:00+09:00'));
 
         const req = httpMocks.createRequest();
         const res = httpMocks.createResponse();
@@ -45,7 +45,7 @@ describe('Operating Hours Middleware (Unit)', () => {
 
     it('🚫 Should return 403 on weekends (Sat 08:30)', () => {
         // 2026-01-17 is Saturday
-        jest.setSystemTime(new Date('2026-01-17T08:30:00'));
+        jest.setSystemTime(new Date('2026-01-17T08:30:00+09:00'));
 
         const req = httpMocks.createRequest();
         const res = httpMocks.createResponse();
