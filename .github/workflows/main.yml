@@ -11,6 +11,21 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     strategy:
       matrix:
         node-version: [22.x]
@@ -30,12 +45,11 @@ jobs:
       working-directory: ./backend
 
     - name: Run Tests
-      # 실제 DB 연결 없이 실행 가능한 유닛 테스트만 수행하거나,
-      # 테스트 DB가 필요한 경우 서비스 컨테이너 설정이 필요함.
-      # 현재는 기본적인 테스트 스크립트 실행.
+      # CI 환경에서는 실제 DB 컨테이너(Postgres Service)를 사용
       run: npm test
       working-directory: ./backend
       env:
         CI: true
-        # 필요한 경우 더미 환경변수 설정
-        DATABASE_URL: "postgres://user:pass@localhost:5432/db" 
+        DATABASE_URL: "postgres://user:password@localhost:5432/testdb"
+        JWT_SECRET: "test-secret"
+        ADMIN_KEY: "test-admin-key" 
