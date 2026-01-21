@@ -6,10 +6,10 @@
 const logger = require('../utils/logger');
 
 // 필수 환경변수 (없으면 서버 시작 불가)
+// ADMIN_KEY는 ADMIN_DASHBOARD_PASSWORD로 대체 가능
 const REQUIRED_ENV = [
   'DATABASE_URL',
   'JWT_SECRET',
-  'ADMIN_KEY',
 ];
 
 // 선택적 환경변수 (없어도 서버는 동작하지만 일부 기능 제한)
@@ -55,6 +55,19 @@ function validateEnv() {
     logger.warn('Optional environment variables not configured:', {
       warnings,
     });
+  }
+
+  // ADMIN_KEY 또는 ADMIN_DASHBOARD_PASSWORD 중 하나는 필수
+  if (!process.env.ADMIN_KEY && !process.env.ADMIN_DASHBOARD_PASSWORD) {
+    const errorMsg = 'Missing required environment variable: ADMIN_KEY or ADMIN_DASHBOARD_PASSWORD';
+    logger.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  // ADMIN_KEY가 없으면 ADMIN_DASHBOARD_PASSWORD를 ADMIN_KEY로 사용
+  if (!process.env.ADMIN_KEY && process.env.ADMIN_DASHBOARD_PASSWORD) {
+    process.env.ADMIN_KEY = process.env.ADMIN_DASHBOARD_PASSWORD;
+    logger.info('Using ADMIN_DASHBOARD_PASSWORD as ADMIN_KEY');
   }
 
   // 환경변수 값 유효성 검사
