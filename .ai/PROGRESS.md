@@ -6,9 +6,11 @@ Codex 또는 다른 AI 에이전트가 즉시 이어서 작업할 수 있도록 
 ## 최근 변경 요약 (2026-01-21)
 
 ### 자동화 및 문서화 (채용 준비)
-- **CI/CD 파이프라인 구축**: GitHub Actions (`main.yml`) 추가. `main` 브랜치 푸시 시 자동 테스트 실행.
-- **API 문서화**: Swagger (`swagger-jsdoc`) 설정 및 주요 엔드포인트(`/api/posts` 등) 문서화 완료.
-- **포트폴리오 검토**: `PORTFOLIO_REVIEW.md` 작성 및 개선 사항(자동화, 문서화) 반영.
+- **CI/CD 파이프라인 구축**: GitHub Actions (`main.yml`) 성공.
+    - `npm test` 자동화 및 DB 서비스 컨테이너 통합 완료.
+    - Timezone 이슈 해결 (`operatingHours` 테스트).
+- **API 문서화**: Swagger (`swagger-jsdoc`) 설정 및 주요 엔드포인트 문서화 완료.
+- **포트폴리오 검토**: `PORTFOLIO_REVIEW.md` 작성 및 피드백 반영.
 
 ### 관리자 대시보드 구현 (2026-01-20)
 - `/admin` 경로로 접속 가능한 관리자 대시보드 추가
