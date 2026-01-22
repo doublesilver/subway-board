@@ -3,7 +3,23 @@
 ## 목적
 Codex 또는 다른 AI 에이전트가 즉시 이어서 작업할 수 있도록 현재 상태와 맥락을 요약한다.
 
-## 최근 변경 요약 (2026-01-21)
+## 최근 변경 요약 (2026-01-22)
+
+### 정식 운영 전환
+- **운영 시간**: 평일 07:00 ~ 09:00 (테스트 모드 제거)
+- **데이터 삭제**: 매일 09:00 KST (운영 종료 시점)
+  - 삭제 대상: `posts`, `comments` (채팅 메시지)
+  - 보존 대상: `daily_visits`, `hourly_visits`, `unique_visitors`, `feedback`
+- **비운영시간 모달**: 테스트 입장 버튼 제거, 정식 안내 메시지로 변경
+- **관리자 24시간 접속**: 대시보드 로그인 시 `admin_mode` 활성화
+
+### 코드 품질 개선 (2026-01-21)
+- 환경변수 검증 모듈 추가 (`validateEnv.js`)
+- API 응답 헬퍼 유틸리티 추가 (`response.js`)
+- DB 커넥션 풀 설정 상수화
+- 로깅 구조화 개선 (JSON 포맷)
+- 프론트엔드 테스트 환경 구축 (Vitest)
+- `useChatSocket`, `useChatScroll` 훅 테스트 추가
 
 ### 자동화 및 문서화 (채용 준비)
 - **CI/CD 파이프라인 구축**: GitHub Actions (`main.yml`) 성공.
@@ -11,6 +27,7 @@ Codex 또는 다른 AI 에이전트가 즉시 이어서 작업할 수 있도록 
     - Timezone 이슈 해결 (`operatingHours` 테스트).
 - **API 문서화**: Swagger (`swagger-jsdoc`) 설정 및 주요 엔드포인트 문서화 완료.
 - **포트폴리오 검토**: `PORTFOLIO_REVIEW.md` 작성 및 피드백 반영.
+- **프로젝트 정리 (Cleanliness)**: 불필요한 파일(로그, 임시 스크립트) 삭제 및 코드 정리(`console.log`, `TODO`).
 
 ### 관리자 대시보드 구현 (2026-01-20)
 - `/admin` 경로로 접속 가능한 관리자 대시보드 추가
@@ -55,13 +72,13 @@ ADMIN_JWT_SECRET                 # JWT 시크릿 (미설정시 ADMIN_KEY 사용)
 
 ## 현재 이슈/주의
 - 카카오 로그인: 뼈대만 구현됨, 실제 동작 안함
-- 운영시간: 테스트 기간 24시간, 2026-01-21부터 평일 07:00~09:00
-- 정식 운영 전환 시 `RESTORE.md` 참고
+- **운영시간**: 평일 07:00~09:00 (정식 운영 중)
+- **관리자 접속**: `/admin` 로그인 후 24시간 접속 가능
 
 ## 다음 작업 후보
 - 대시보드 추가 기능 (실시간 모니터링, 알림 등)
 - 모바일 대시보드 최적화
-- 정식 운영 전환 (RESTORE.md 실행)
+- AI Agent 포트폴리오 프로젝트 (RAG, MCP 등)
 
 ## 주요 파일
 
@@ -86,7 +103,7 @@ ADMIN_JWT_SECRET                 # JWT 시크릿 (미설정시 ADMIN_KEY 사용)
 | `backend/src/controllers/postController.js` | 게시글 CRUD |
 | `backend/src/middleware/adminMiddleware.js` | IP 화이트리스트, 비밀번호 검증 |
 | `backend/src/db/schema.sql` | DB 테이블 정의 |
-| `backend/src/utils/scheduler.js` | 자정 데이터 삭제 스케줄러 |
+| `backend/src/utils/scheduler.js` | 09시 데이터 삭제 스케줄러 |
 
 ### 문서
 | 파일 | 설명 |
