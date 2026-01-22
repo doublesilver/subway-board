@@ -122,7 +122,7 @@
   cursor: pointer;
 }
 
-.refresh-btn, .logout-btn {
+.refresh-btn, .logout-btn, .test-btn {
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 14px;
@@ -136,6 +136,12 @@
   color: #fff;
 }
 
+.test-btn {
+  background: linear-gradient(135deg, #A855F7 0%, #7C3AED 100%);
+  border: none;
+  color: #fff;
+}
+
 .logout-btn {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -144,6 +150,11 @@
 
 .refresh-btn:hover {
   background: #00874A;
+}
+
+.test-btn:hover {
+  background: linear-gradient(135deg, #9333EA 0%, #6D28D9 100%);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
 }
 
 .logout-btn:hover {

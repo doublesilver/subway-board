@@ -1197,6 +1197,27 @@ body {
   box-shadow: 6px 6px 0 #000;
 }
 
+/* 채팅 내 URL 링크 스타일 */
+.chat-link {
+  color: #60a5fa;
+  text-decoration: underline;
+  word-break: break-all;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.chat-link:hover {
+  color: #93c5fd;
+}
+
+.message-bubble.my .chat-link {
+  color: #2563eb;
+}
+
+.message-bubble.my .chat-link:hover {
+  color: #1d4ed8;
+}
+
 .message-username {
   font-size: 11px;
   font-weight: 600;
@@ -1390,6 +1411,7 @@ body {
   line-height: var(--composer-input-line-height);
   outline: none;
   font-family: inherit;
+  vertical-align: middle;
 }
 
 /* 이미지 첨부 버튼 (오른쪽) */
@@ -3120,19 +3142,21 @@ body::-webkit-scrollbar {
 .composer-form {
   border: 2px solid #000;
   background: #0f1521;
-  box-shadow: 6px 6px 0 #000;
+  box-shadow: 4px 4px 0 #000;
 }
 
 .composer-form:focus-within {
   background: #0f1521;
   border-color: #000;
-  box-shadow: 6px 6px 0 #000;
+  box-shadow: 4px 4px 0 #000;
 }
 
 .composer-input {
   border: none;
   background: transparent;
   color: #f8fafc;
+  display: flex;
+  align-items: center;
 }
 
 .composer-input::placeholder {

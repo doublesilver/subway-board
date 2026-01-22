@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { dashboardAPI } from '../services/api';
 import { enableAdminMode, disableAdminMode } from '../utils/operatingHours';
 import {
@@ -75,6 +76,7 @@ function SummaryCard({ title, value, subValue, color }) {
 }
 
 function Dashboard() {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -109,6 +111,11 @@ function Dashboard() {
     localStorage.removeItem('admin_token');
     disableAdminMode(); // 관리자 모드 비활성화
     window.location.reload();
+  };
+
+  const handleTestService = () => {
+    enableAdminMode(); // 관리자 모드 활성화 (비운영시간 접속 가능)
+    navigate('/');
   };
 
   const executeCustomQuery = async () => {
@@ -148,6 +155,7 @@ function Dashboard() {
             <option value={90}>최근 90일</option>
           </select>
           <button onClick={loadData} className="refresh-btn">새로고침</button>
+          <button onClick={handleTestService} className="test-btn">서비스 테스트</button>
           <button onClick={handleLogout} className="logout-btn">로그아웃</button>
         </div>
       </header>

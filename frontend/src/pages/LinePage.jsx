@@ -6,6 +6,7 @@ import Toast from '../components/Toast';
 import { checkIsOperatingHours } from '../utils/operatingHours';
 import SessionExpiredModal from '../components/SessionExpiredModal';
 import { CONTENT, UI } from '../config/constants';
+import LinkifyText from '../components/LinkifyText';
 
 // Custom Hooks
 import { useChatSocket } from '../hooks/useChatSocket';
@@ -336,7 +337,7 @@ function LinePage() {
                               <div className="reply-preview-divider"></div>
                             </div>
                           )}
-                          <div className="message-text">{message.content}</div>
+                          <div className="message-text"><LinkifyText text={message.content} /></div>
                         </div>
                         <div className="message-meta">
                           <span className="message-time">{formatTime(message.created_at)}</span>
