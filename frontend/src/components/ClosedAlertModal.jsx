@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 
-// 테스트 기간용 모달 (원복 시 RESTORE.md 참고)
 const ClosedAlertModal = () => {
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -9,25 +8,32 @@ const ClosedAlertModal = () => {
         };
     }, []);
 
-    const handleEnterTestMode = () => {
-        sessionStorage.setItem('test_mode_accepted', 'true');
-        window.location.reload();
-    };
+    // 현재 요일 확인
+    const now = new Date();
+    const day = now.getDay();
+    const isWeekend = day === 0 || day === 6;
 
     return (
         <div className="closed-modal-overlay">
             <div className="closed-modal">
-                <div className="modal-icon">🎉</div>
-                <h2 className="modal-title">서비스를 선보이는 기간이에요</h2>
+                <div className="modal-icon">😴</div>
+                <h2 className="modal-title">지금은 운영 시간이 아니에요</h2>
                 <p className="modal-desc">
-                    입장하기 버튼을 통해서 이용해 보세요!<br /><br />
-                    <span className="operating-hours-info">
-                        21일(수) 이후에는 07시~09시에만 운영됩니다.
-                    </span>
+                    {isWeekend ? (
+                        <>
+                            주말에는 운영하지 않아요.<br />
+                            평일 출근길에 다시 만나요!
+                        </>
+                    ) : (
+                        <>
+                            평일 오전 7시 ~ 9시에 운영해요.<br />
+                            출근길에 다시 만나요!
+                        </>
+                    )}
                 </p>
-                <button className="enter-test-button" onClick={handleEnterTestMode}>
-                    입장하기
-                </button>
+                <div className="operating-hours-badge">
+                    <span>🚇 평일 07:00 ~ 09:00</span>
+                </div>
             </div>
         </div>
     );

@@ -2,12 +2,7 @@ const { ErrorCodes } = require('../utils/errorCodes');
 const AppError = require('../utils/AppError');
 
 const checkOperatingHours = (req, res, next) => {
-    // 테스트 모드: 24시간 개방 (테스트 기간용 - 원복 시 삭제)
-    if (process.env.TEST_MODE === 'true') {
-        return next();
-    }
-
-    // 개발 환경이나 관리자 모드인 경우 건너뛰기 가능
+    // 개발 환경에서는 운영 시간 무시 가능
     if (process.env.NODE_ENV === 'development' && process.env.IGNORE_OPERATING_HOURS === 'true') {
         return next();
     }

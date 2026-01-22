@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { dashboardAPI } from '../services/api';
+import { enableAdminMode, disableAdminMode } from '../utils/operatingHours';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -31,6 +32,7 @@ function AdminLogin({ onLogin }) {
     try {
       const response = await dashboardAPI.login(password);
       localStorage.setItem('admin_token', response.data.token);
+      enableAdminMode(); // 관리자 모드 활성화 (24시간 접속 가능)
       onLogin();
     } catch (err) {
       setError(err.response?.data?.error || '로그인에 실패했습니다');
@@ -105,6 +107,7 @@ function Dashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem('admin_token');
+    disableAdminMode(); // 관리자 모드 비활성화
     window.location.reload();
   };
 
