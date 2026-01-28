@@ -1,9 +1,42 @@
 version: '3.8'
 
-# Railway DB를 사용하는 경량 배포 구성
-# PostgreSQL 컨테이너 없이 외부 DB에 연결
+# 라즈베리파이 완전 자체 호스팅 구성
+# PostgreSQL + Backend + Frontend 모두 로컬에서 실행
 
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: gagisiro-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-gagisiro}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Database password required}
+      - POSTGRES_DB=${POSTGRES_DB:-gagisiro}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - gagisiro-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gagisiro} -d ${POSTGRES_DB:-gagisiro}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   # Backend API (Node.js + Express + Socket.IO)
   backend:
     build:
@@ -16,8 +49,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
-      # Railway PostgreSQL 연결 (외부 DB)
-      - DATABASE_URL=${DATABASE_URL:?Railway DATABASE_URL required}
+      # 로컬 PostgreSQL 연결
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-gagisiro}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-gagisiro}
       - JWT_SECRET=${JWT_SECRET:?JWT secret required}
       - ADMIN_KEY=${ADMIN_KEY:?Admin key required}
       - ADMIN_DASHBOARD_PASSWORD=${ADMIN_DASHBOARD_PASSWORD}
@@ -28,8 +61,8 @@ services:
       - RATE_LIMIT_WRITE_MAX=${RATE_LIMIT_WRITE_MAX:-50}
       - RATE_LIMIT_READ_WINDOW_MS=${RATE_LIMIT_READ_WINDOW_MS:-60000}
       - RATE_LIMIT_READ_MAX=${RATE_LIMIT_READ_MAX:-100}
-      # Database Pool (외부 DB는 작게 유지)
-      - DB_POOL_MAX=${DB_POOL_MAX:-5}
+      # Database Pool (로컬 DB는 더 큰 풀 사용 가능)
+      - DB_POOL_MAX=${DB_POOL_MAX:-10}
       # Content Limits
       - POST_MAX_LENGTH=${POST_MAX_LENGTH:-1000}
       - COMMENT_MAX_LENGTH=${COMMENT_MAX_LENGTH:-500}
@@ -37,6 +70,9 @@ services:
       - ./logs/backend:/app/logs
     networks:
       - gagisiro-network
+    depends_on:
+      postgres:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -91,3 +127,7 @@ services:
 networks:
   gagisiro-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

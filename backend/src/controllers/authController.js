@@ -123,11 +123,9 @@ const issueAnonymousSignature = async (req, res) => {
     }
 
     const crypto = require('crypto');
-    // console.log('DEBUG: Requiring uuid'); // Commented out to avoid clutter if not needed
     const { v4: uuidv4 } = require('uuid');
 
     const anonymousId = uuidv4();
-    // console.log('DEBUG: Generated ID', anonymousId);
 
     if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET missing in issueAnonymousSignature');
 

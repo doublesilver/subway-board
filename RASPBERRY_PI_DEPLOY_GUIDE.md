@@ -15,7 +15,7 @@
 ### 생성된 파일
 ```
 c:\side/
-├── docker-compose.pi.yml          # 라즈베리파이용 Docker Compose
+├── docker-compose.pi.yml          # 라즈베리파이용 Docker Compose (PostgreSQL 포함)
 ├── .env.pi.example                # 환경 변수 템플릿
 ├── backend/
 │   └── Dockerfile                 # Backend Docker 이미지
@@ -25,7 +25,27 @@ c:\side/
 └── scripts/
     ├── deploy-pi.sh               # 자동 배포
     ├── backup-db.sh               # DB 백업
-    └── monitor.sh                 # 리소스 모니터링
+    ├── monitor.sh                 # 리소스 모니터링
+    └── migrate-from-railway.sh    # Railway DB 마이그레이션
+```
+
+### 아키텍처
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Raspberry Pi 4                           │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │  Frontend   │  │   Backend   │  │    PostgreSQL       │ │
+│  │  (Nginx)    │→ │ (Node.js)   │→ │    (Docker)         │ │
+│  │  :3000      │  │  :5000      │  │    :5432            │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+│         │                │                                  │
+└─────────│────────────────│──────────────────────────────────┘
+          │                │
+          ↓                ↓
+    ┌─────────────────────────────┐
+    │     Tailscale Funnel        │
+    │  https://gagisiro.com       │
+    └─────────────────────────────┘
 ```
 
 ---
@@ -130,7 +150,43 @@ VITE_API_URL=https://<MACHINE_NAME>.<TAILNET>.ts.net
 
 ---
 
-## 5단계: Tailscale Funnel 설정
+## 5단계: Railway DB 마이그레이션 (선택)
+
+기존 Railway DB의 데이터를 로컬 PostgreSQL로 마이그레이션합니다.
+
+### 사전 준비
+- Railway 대시보드에서 DATABASE_URL 복사
+- 라즈베리파이에 `pg_dump` 설치: `sudo apt install postgresql-client`
+
+### 마이그레이션 실행
+```bash
+# Railway DATABASE_URL 설정
+export RAILWAY_DATABASE_URL="postgresql://postgres:PASSWORD@HOST:PORT/railway"
+
+# PostgreSQL 컨테이너 먼저 시작
+docker compose -f docker-compose.pi.yml up -d postgres
+
+# 마이그레이션 스크립트 실행
+chmod +x scripts/migrate-from-railway.sh
+./scripts/migrate-from-railway.sh
+```
+
+### 마이그레이션 검증
+```bash
+# 테이블 확인
+docker exec gagisiro-db psql -U gagisiro -d gagisiro -c "\dt"
+
+# 데이터 수 확인
+docker exec gagisiro-db psql -U gagisiro -d gagisiro -c "SELECT COUNT(*) FROM posts;"
+```
+
+### 참고사항
+- 덤프 파일은 `backups/` 폴더에 저장됨
+- 마이그레이션 후 Railway 구독 해지 가능
+
+---
+
+## 6단계: Tailscale Funnel 설정 (선택)
 
 Tailscale Funnel을 사용하면 포트포워딩 없이 안전하게 서비스를 공개할 수 있습니다.
 
@@ -177,7 +233,7 @@ FRONTEND_URL=https://<MACHINE_NAME>.<TAILNET>.ts.net
 
 ---
 
-## 6단계: 배포 실행
+## 7단계: 배포 실행
 
 ```bash
 # 스크립트 실행 권한 부여
@@ -201,7 +257,7 @@ docker compose -f docker-compose.pi.yml logs -f
 
 ---
 
-## 7단계: 서비스 확인
+## 8단계: 서비스 확인
 
 ### 컨테이너 상태 확인
 ```bash
@@ -231,7 +287,7 @@ curl http://localhost:5000/api/health
 
 ---
 
-## 8단계: 리소스 모니터링
+## 9단계: 리소스 모니터링
 
 ```bash
 # 리소스 사용량 확인
@@ -332,4 +388,5 @@ docker compose -f docker-compose.pi.yml up -d --build
 ---
 
 **작성일**: 2026-01-28
-**상태**: 배포 준비 완료
+**업데이트**: 2026-01-28 - 완전 자체 호스팅 (Railway 제거)
+**상태**: 배포 준비 완료 (PostgreSQL 로컬 포함)
