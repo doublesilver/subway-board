@@ -188,8 +188,9 @@ flowchart LR
 ### Infrastructure
 | 서비스 | 용도 |
 |--------|------|
-| **Vercel** | 프론트엔드 배포, CDN, CI/CD |
-| **Railway** | 백엔드 배포, PostgreSQL 호스팅 |
+| **Vercel** | 프론트엔드 배포, CDN, CI/CD (클라우드) |
+| **Railway** | 백엔드 배포, PostgreSQL 호스팅 (클라우드) |
+| **Raspberry Pi 4** | 자체 서버 배포 (Docker + Tailscale) |
 
 ---
 
@@ -634,6 +635,44 @@ gantt
     section v2.2 (채용 준비)
     CI/CD 파이프라인    :done, 2026-01-21, 1d
     Swagger API 문서화  :done, 2026-01-21, 1d
+```
+
+---
+
+## 배포 방법
+
+### 클라우드 배포 (Vercel + Railway)
+기본 배포 환경입니다. [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)를 참조하세요.
+
+### 자체 서버 배포 (Raspberry Pi 4)
+라즈베리파이에 Docker로 배포할 수 있습니다.
+
+```bash
+# 1. 프로젝트 클론
+git clone https://github.com/your-repo/gagisiro.git
+cd gagisiro
+
+# 2. 환경 변수 설정
+cp .env.pi.example .env
+nano .env  # 필수 값 설정
+
+# 3. 배포 실행
+chmod +x scripts/*.sh
+./scripts/deploy-pi.sh
+```
+
+상세 가이드: [RASPBERRY_PI_DEPLOY_GUIDE.md](RASPBERRY_PI_DEPLOY_GUIDE.md)
+
+### 배포 파일 구조
+```
+├── docker-compose.pi.yml      # Docker Compose 설정
+├── .env.pi.example            # 환경 변수 템플릿
+├── backend/Dockerfile         # Backend 이미지
+├── frontend/Dockerfile        # Frontend 이미지
+└── scripts/
+    ├── deploy-pi.sh           # 자동 배포
+    ├── backup-db.sh           # DB 백업
+    └── monitor.sh             # 모니터링
 ```
 
 ---

@@ -49,7 +49,23 @@ coverage/
 # Cleanup Targets (Local only)
 toss.md
 frontend/app.json
-*.py
 *.zip
 stitch_subway_board_home_screen/
 Subway Board Chat App/
+
+# Security - Sensitive files (NEVER commit these)
+client_secret_*.json
+token.json
+*.pem
+*.key
+
+# Raspberry Pi deployment data
+data/
+temp_downloads/
+
+# Toss app (separate project)
+toss-app/
+
+# Misc
+nul
+drive_uploader.py

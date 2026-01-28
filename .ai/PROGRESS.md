@@ -3,7 +3,41 @@
 ## 목적
 Codex 또는 다른 AI 에이전트가 즉시 이어서 작업할 수 있도록 현재 상태와 맥락을 요약한다.
 
-## 최근 변경 요약 (2026-01-22)
+## 최근 변경 요약 (2026-01-28)
+
+### 라즈베리파이 서버 이전 준비
+- **Docker 환경 구축**:
+  - `backend/Dockerfile`: Node.js 22 Alpine 기반 멀티스테이지 빌드
+  - `frontend/Dockerfile`: Vite 빌드 → Nginx 서빙
+  - `frontend/nginx.conf`: SPA 라우팅, 보안 헤더, gzip 설정
+  - `docker-compose.pi.yml`: PostgreSQL + Backend + Frontend 통합
+  - `.env.pi.example`: 라즈베리파이용 환경변수 템플릿
+
+- **배포 스크립트**:
+  - `scripts/deploy-pi.sh`: 자동 배포 (환경변수 검증, 빌드, 헬스체크)
+  - `scripts/backup-db.sh`: PostgreSQL 백업 (7일 보관)
+  - `scripts/monitor.sh`: 리소스 모니터링 (CPU, 메모리, 컨테이너 상태)
+
+- **보안 점검**:
+  - `.gitignore` 업데이트 (민감 파일 추가)
+  - 불필요 파일 정리 (temp_downloads/, nul 등)
+  - 보안 평가 보고서 작성 (`PROJECT_HEALTH_REPORT.md`)
+
+- **문서화**:
+  - `RASPBERRY_PI_DEPLOY_GUIDE.md`: Tailscale Funnel 배포 가이드
+  - `PROJECT_HEALTH_REPORT.md`: 프로젝트 건강상태 평가 (72/100)
+  - README.md 업데이트 (배포 방법 섹션 추가)
+
+### 보안 이슈 (즉시 조치 필요)
+- **CRITICAL**: backend/.env에 실제 API 키 노출됨
+  - OpenAI, Gemini, Kakao API 키 재생성 필요
+  - Railway DB 비밀번호 변경 필요
+  - JWT_SECRET, ADMIN_KEY 재생성 필요
+- **CRITICAL**: client_secret_*.json, token.json 파일 제거 필요
+
+---
+
+## 이전 변경 요약 (2026-01-22)
 
 ### 정식 운영 전환
 - **운영 시간**: 평일 07:00 ~ 09:00 (테스트 모드 제거)
@@ -53,10 +87,19 @@ Codex 또는 다른 AI 에이전트가 즉시 이어서 작업할 수 있도록 
 - 말풍선 색상 통일
 
 ## 배포 상태
-- 최근 변경 사항 `main`에 push 완료
-- Frontend: Vercel 자동 배포
-- Backend: Railway 자동 배포
+- **클라우드 (현재)**: Vercel + Railway
+- **자체 서버 (준비 완료)**: Raspberry Pi 4 + Docker + Tailscale Funnel
 - `https://www.gagisiro.com/` 200 OK
+
+### 라즈베리파이 배포 준비 파일
+| 파일 | 설명 |
+|------|------|
+| `docker-compose.pi.yml` | 전체 서비스 오케스트레이션 |
+| `backend/Dockerfile` | Backend API 이미지 |
+| `frontend/Dockerfile` | Frontend Nginx 이미지 |
+| `.env.pi.example` | 환경변수 템플릿 |
+| `scripts/deploy-pi.sh` | 자동 배포 스크립트 |
+| `RASPBERRY_PI_DEPLOY_GUIDE.md` | 배포 가이드 |
 
 ## 환경변수 (Railway)
 ```
@@ -76,6 +119,8 @@ ADMIN_JWT_SECRET                 # JWT 시크릿 (미설정시 ADMIN_KEY 사용)
 - **관리자 접속**: `/admin` 로그인 후 24시간 접속 가능
 
 ## 다음 작업 후보
+- **즉시**: API 키 재생성 및 Git 이력 정리
+- **라즈베리파이 배포**: 실제 배포 테스트 및 검증
 - 대시보드 추가 기능 (실시간 모니터링, 알림 등)
 - 모바일 대시보드 최적화
 - AI Agent 포트폴리오 프로젝트 (RAG, MCP 등)
