@@ -147,18 +147,19 @@ flowchart LR
         PG[(PostgreSQL 16)]
     end
 
-    subgraph Infra["Infrastructure"]
-        Vercel[Vercel]
-        Railway[Railway]
+    subgraph Infra["Raspberry Pi 4 (Self-Hosted)"]
+        Docker[Docker Compose]
+        Tailscale[Tailscale Funnel]
+        Nginx[Nginx Reverse Proxy]
     end
 
     React --> SIO_C
     SIO_C <-->|WebSocket| SIO_S
     React -->|HTTP| Express
     Express --> PG
-    Frontend --> Vercel
-    Backend --> Railway
-    PG --> Railway
+    Frontend --> Nginx
+    Nginx --> Docker
+    Docker --> Tailscale
 ```
 
 ### Frontend
@@ -186,11 +187,14 @@ flowchart LR
 | **node-cron** | 3.0 | 일일 데이터 정리 스케줄링 |
 
 ### Infrastructure
-| 서비스 | 용도 |
-|--------|------|
-| **Vercel** | 프론트엔드 배포, CDN, CI/CD (클라우드) |
-| **Railway** | 백엔드 배포, PostgreSQL 호스팅 (클라우드) |
-| **Raspberry Pi 4** | 자체 서버 배포 (Docker + Tailscale) |
+| 서비스 | 용도 | 상태 |
+|--------|------|------|
+| **Raspberry Pi 4** | 완전 자체 호스팅 (Docker + Tailscale Funnel) | ✅ 운영 중 |
+| ~~Vercel~~ | ~~프론트엔드 배포, CDN~~ | 마이그레이션 완료 |
+| ~~Railway~~ | ~~백엔드 배포, PostgreSQL~~ | 마이그레이션 완료 |
+
+> **2026.01 업데이트**: 클라우드(Vercel+Railway)에서 **라즈베리파이 4 자체 호스팅**으로 완전 전환.
+> 월 $20+ 예상 비용 → 전기료 ~$3/월로 절감, 데이터 완전 통제권 확보.
 
 ---
 
@@ -204,26 +208,27 @@ flowchart TB
         WS_Client[WebSocket Client]
     end
 
-    subgraph CDN["Vercel CDN"]
-        Static[Static Assets]
+    subgraph Tailscale["Tailscale Funnel (HTTPS)"]
+        Funnel[Public URL]
     end
 
-    subgraph Server["Railway Server"]
-        ExpressAPI[Express 5 API]
-        WS_Server[Socket.IO Server]
-        Scheduler[Cron Scheduler]
+    subgraph RaspberryPi["Raspberry Pi 4 (Self-Hosted)"]
+        subgraph Docker["Docker Compose"]
+            Nginx[Nginx :3000]
+            ExpressAPI[Express 5 API :5000]
+            WS_Server[Socket.IO Server]
+            Scheduler[Cron Scheduler]
+            PostgreSQL[(PostgreSQL 16)]
+        end
     end
 
     subgraph AI_Service["Google Cloud"]
         Gemini_API[Gemini 1.5 Flash]
     end
 
-    subgraph DB["Railway PostgreSQL"]
-        PostgreSQL[(PostgreSQL 16)]
-    end
-
-    ReactApp -->|HTTPS| Static
-    Static -->|API Calls| ExpressAPI
+    ReactApp -->|HTTPS| Funnel
+    Funnel --> Nginx
+    Nginx -->|Proxy| ExpressAPI
     WS_Client <-->|WebSocket| WS_Server
     ExpressAPI -->|Query| PostgreSQL
     ExpressAPI -->|Analysis| Gemini_API
@@ -598,14 +603,26 @@ flowchart LR
 
 ## 보안 고려사항
 
+### 애플리케이션 보안
 | 보안 영역 | 구현 내용 |
 |----------|----------|
 | **HTTP 헤더** | Helmet.js로 보안 헤더 자동 설정 |
 | **Rate Limiting** | API 요청 제한 (쓰기: 15분당 50회, 읽기: 1분당 100회) |
-| **CORS** | 허용된 도메인만 접근 가능 |
+| **CORS** | 허용된 도메인만 접근 가능 (Origin 헤더 필수) |
 | **Input Validation** | XSS 필터링, 메시지 길이 검증 |
 | **SQL Injection** | Parameterized Query 사용 |
 | **콘텐츠 필터링** | 비속어 자동 필터링 |
+
+### 인프라 보안 (Self-Hosting)
+| 보안 영역 | 구현 내용 |
+|----------|----------|
+| **Nginx Rate Limiting** | API: 10r/s, 일반: 30r/s, 연결당 버스트 허용 |
+| **Connection Limit** | IP당 동시 접속 20개 제한 (DDoS 방어) |
+| **Security Headers** | X-Frame-Options, X-XSS-Protection, CSP, HSTS |
+| **UFW 방화벽** | 필요 포트만 허용 (22, 3000, 5000) |
+| **fail2ban** | SSH 브루트포스 공격 자동 차단 |
+| **Tailscale Funnel** | 포트포워딩 없이 안전한 HTTPS 노출 |
+| **Gzip 압축** | 대역폭 절약 및 응답 속도 향상 |
 
 ---
 
@@ -641,27 +658,39 @@ gantt
 
 ## 배포 방법
 
-### 클라우드 배포 (Vercel + Railway)
-기본 배포 환경입니다. [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)를 참조하세요.
+### 현재 운영 환경: 자체 서버 (Raspberry Pi 4) ✅
 
-### 자체 서버 배포 (Raspberry Pi 4)
-라즈베리파이에 Docker로 배포할 수 있습니다.
+라즈베리파이 4에서 Docker Compose로 완전 자체 호스팅 중입니다.
 
 ```bash
 # 1. 프로젝트 클론
-git clone https://github.com/your-repo/gagisiro.git
-cd gagisiro
+git clone https://github.com/doublesilver/subway-board.git
+cd subway-board
 
 # 2. 환경 변수 설정
 cp .env.pi.example .env
 nano .env  # 필수 값 설정
 
 # 3. 배포 실행
-chmod +x scripts/*.sh
-./scripts/deploy-pi.sh
+docker compose -f docker-compose.pi.yml up -d --build
 ```
 
 상세 가이드: [RASPBERRY_PI_DEPLOY_GUIDE.md](RASPBERRY_PI_DEPLOY_GUIDE.md)
+
+### 클라우드 vs 자체 호스팅 비교
+
+| 항목 | Vercel + Railway | Raspberry Pi |
+|------|------------------|--------------|
+| **월 비용** | ~$20+ (무료 티어 초과 시) | ~$3 (전기료) |
+| **확장성** | 클릭으로 확장 | 수동 스케일링 |
+| **데이터 통제** | 클라우드 저장 | 완전 소유 |
+| **관리 부담** | 없음 | 직접 관리 |
+| **학습 가치** | 플랫폼 의존 | DevOps 역량 증명 |
+
+> 🎯 **선택 이유**: 월 비용 절감, 데이터 완전 통제, DevOps 실무 경험 확보
+
+### (Legacy) 클라우드 배포 (Vercel + Railway)
+이전 배포 환경입니다. [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)를 참조하세요.
 
 ### 배포 파일 구조
 ```

@@ -19,7 +19,9 @@
 > **"출근길(07~09시) 가장 붐비는 시간의 사람들을 연결하는 실시간 서비스"**
 - **Service**: [https://gagisiro.com](https://gagisiro.com)
 - **소개**: 1호선~9호선별 실시간 채팅방과 운영 시간 자동 제어 시스템
-- **Tech**: `React` `Node.js` `Socket.IO` `PostgreSQL` `Vercel` `Railway`
+- **인프라**: 클라우드(Vercel+Railway) → **Raspberry Pi 4 자체 호스팅** 마이그레이션 완료
+- **보안**: Nginx Rate Limiting, UFW, fail2ban, Tailscale Funnel 적용
+- **Tech**: `React` `Node.js` `Socket.IO` `PostgreSQL` `Docker` `Tailscale`
 
 #### 2. [AI 기반 건물 유지보수 관리 시스템 (Maintenance App)](https://github.com/doublesilver/maintenance-app) 🏢
 > **"AI 분류와 비동기 큐를 도입한 스마트 건물 관리 플랫폼"**

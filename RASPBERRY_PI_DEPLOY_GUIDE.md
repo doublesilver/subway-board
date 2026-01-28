@@ -1,16 +1,29 @@
 # gagisiro.com - 라즈베리파이 배포 가이드
 
-## 배포 전 체크리스트
+> **✅ 배포 완료**: 2026-01-28 기준 Raspberry Pi 4에서 정상 운영 중
+
+## 운영 현황
+
+| 항목 | 상태 |
+|------|------|
+| **서비스 URL** | https://leeeunseok.tail32c3e2.ts.net |
+| **컨테이너** | gagisiro-frontend, gagisiro-api, gagisiro-db 모두 healthy |
+| **데이터** | Railway DB에서 마이그레이션 완료 (185명 방문자, 15건 피드백) |
+| **보안** | UFW, fail2ban, Nginx Rate Limiting 적용 |
+
+## 배포 체크리스트
 
 ### 완료된 작업
 - [x] Docker Compose 설정 파일 작성 (`docker-compose.pi.yml`)
 - [x] 환경 변수 템플릿 작성 (`.env.pi.example`)
 - [x] Backend Dockerfile 작성 (`backend/Dockerfile`)
 - [x] Frontend Dockerfile 작성 (`frontend/Dockerfile`)
-- [x] Nginx 설정 작성 (`frontend/nginx.conf`)
-- [x] 배포 스크립트 작성 (`scripts/deploy-pi.sh`)
-- [x] 백업 스크립트 작성 (`scripts/backup-db.sh`)
-- [x] 모니터링 스크립트 작성 (`scripts/monitor.sh`)
+- [x] Nginx 설정 작성 (`frontend/nginx.conf`) - Rate Limiting, Security Headers 포함
+- [x] Railway → 로컬 PostgreSQL 데이터 마이그레이션
+- [x] Tailscale Funnel HTTPS 설정
+- [x] UFW 방화벽 설정
+- [x] fail2ban SSH 보호 설정
+- [x] CORS 설정 (Tailscale 도메인 허용)
 
 ### 생성된 파일
 ```
@@ -378,15 +391,73 @@ docker compose -f docker-compose.pi.yml up -d --build
 
 ## 보안 체크리스트
 
-- [ ] 강력한 POSTGRES_PASSWORD 설정 (16자 이상)
-- [ ] 강력한 JWT_SECRET 설정 (32자 이상)
-- [ ] ADMIN_KEY / ADMIN_DASHBOARD_PASSWORD 변경
-- [ ] Tailscale Funnel로 외부 노출 (포트포워딩 불필요)
-- [ ] 정기 백업 설정
+### 필수 보안 설정
+- [x] 강력한 POSTGRES_PASSWORD 설정 (16자 이상)
+- [x] 강력한 JWT_SECRET 설정 (32자 이상)
+- [x] ADMIN_KEY / ADMIN_DASHBOARD_PASSWORD 변경
+- [x] Tailscale Funnel로 외부 노출 (포트포워딩 불필요)
+- [ ] 정기 백업 설정 (cron)
 - [ ] 로그 모니터링 설정
+
+### 보안 강화 적용 내역
+
+#### UFW 방화벽
+```bash
+sudo ufw enable
+sudo ufw allow 22/tcp    # SSH
+sudo ufw allow 3000/tcp  # Frontend
+sudo ufw allow 5000/tcp  # Backend
+sudo ufw allow in on tailscale0  # Tailscale
+```
+
+#### fail2ban SSH 보호
+```bash
+sudo apt install fail2ban
+sudo systemctl enable fail2ban
+sudo systemctl start fail2ban
+# 설정: /etc/fail2ban/jail.local
+```
+
+#### Nginx Rate Limiting (frontend/nginx.conf)
+```nginx
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=general_limit:10m rate=30r/s;
+limit_conn_zone $binary_remote_addr zone=conn_limit:10m;
+
+# Connection limits (DDoS protection)
+limit_conn conn_limit 20;
+
+# API rate limiting
+location /api {
+    limit_req zone=api_limit burst=20 nodelay;
+    proxy_pass http://backend:5000;
+}
+```
+
+#### Security Headers
+```nginx
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Content-Security-Policy "default-src 'self'; ..." always;
+```
+
+---
+
+## 클라우드 vs 자체 호스팅 비교
+
+| 항목 | Vercel + Railway | Raspberry Pi |
+|------|------------------|--------------|
+| **월 비용** | ~$20+ | ~$3 (전기료) |
+| **확장성** | 무제한 | 하드웨어 제약 |
+| **데이터 통제** | 클라우드 저장 | 완전 소유 |
+| **관리 부담** | 없음 | 직접 관리 |
+| **학습 가치** | 플랫폼 의존 | DevOps 역량 증명 |
+| **DDoS 방어** | 플랫폼 제공 | Nginx + Cloudflare 권장 |
 
 ---
 
 **작성일**: 2026-01-28
-**업데이트**: 2026-01-28 - 완전 자체 호스팅 (Railway 제거)
-**상태**: 배포 준비 완료 (PostgreSQL 로컬 포함)
+**업데이트**: 2026-01-28 - 배포 완료, 보안 강화 적용
+**상태**: ✅ 정상 운영 중
