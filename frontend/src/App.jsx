@@ -3,12 +3,9 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import './App.css';
 import HomePage from './pages/HomePage';
 import LinePage from './pages/LinePage';
-import KakaoCallback from './pages/KakaoCallback';
 import PreviewHome from './pages/PreviewHome';
 import PreviewChat from './pages/PreviewChat';
 import AdminDashboard from './pages/AdminDashboard';
-import { AuthProvider } from './contexts/AuthContext';
-import AuthButton from './components/AuthButton';
 import AnimatedBackground from './components/AnimatedBackground';
 import FeedbackModal from './components/FeedbackModal';
 
@@ -33,7 +30,7 @@ function App() {
   }
 
   return (
-    <AuthProvider>
+    <>
       <AnimatedBackground />
       <div className="app-shell">
         {!isOperatingHours && !isPreview ? (
@@ -44,7 +41,7 @@ function App() {
           </Router>
         )}
       </div>
-    </AuthProvider>
+    </>
   );
 }
 
@@ -52,7 +49,6 @@ function AppContent() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/auth/kakao/success" element={<KakaoCallback />} />
         <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
         <Route path="/line/:lineId" element={<LinePage />} />
         <Route path="/preview" element={<PreviewHome />} />
@@ -121,7 +117,6 @@ function Header() {
                 <line x1="12" y1="2" x2="12" y2="15"></line>
               </svg>
             </button>
-            <AuthButton />
           </div>
         </div>
       </div>
