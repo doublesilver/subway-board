@@ -139,6 +139,11 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
+// Tailscale Funnel domain pattern (https://<machine>.<tailnet>.ts.net)
+const isTailscaleDomain = (origin) => {
+  return /^https:\/\/[a-z0-9-]+\.[a-z0-9]+\.ts\.net$/.test(origin);
+};
+
 logger.info('Allowed CORS origins:', { origins: allowedOrigins });
 
 // Toss mini domain pattern (https://<appName>.apps.tossmini.com)
@@ -161,7 +166,7 @@ app.use(cors({
       return callback(null, true);
     }
 
-    if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin)) {
+    if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin) || isTailscaleDomain(origin)) {
       callback(null, true);
     } else {
       logger.warn('CORS blocked for origin:', { origin });
@@ -185,7 +190,7 @@ if (isMain) {
             return callback(null, true);
           }
 
-          if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin)) {
+          if (allowedOrigins.indexOf(origin) !== -1 || isTossDomain(origin) || isTailscaleDomain(origin)) {
             callback(null, true);
           } else {
             logger.warn('Socket.IO CORS blocked for origin:', { origin });
