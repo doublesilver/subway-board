@@ -445,6 +445,57 @@ add_header Content-Security-Policy "default-src 'self'; ..." always;
 
 ---
 
+## Cloudflare Proxy 설정 (gagisiro.com 연결)
+
+Cloudflare를 사용하면 DDoS 보호와 함께 커스텀 도메인을 연결할 수 있습니다.
+
+### 1단계: Cloudflare 계정 및 도메인 추가
+1. [Cloudflare](https://dash.cloudflare.com) 가입/로그인
+2. **Add a Site** → `gagisiro.com` 입력
+3. 네임서버를 Cloudflare로 변경 (도메인 등록업체에서 설정)
+
+### 2단계: DNS 레코드 설정
+| Type | Name | Content | Proxy |
+|------|------|---------|-------|
+| CNAME | `@` | `leeeunseok.tail32c3e2.ts.net` | Proxied (주황색) |
+| CNAME | `www` | `leeeunseok.tail32c3e2.ts.net` | Proxied |
+
+### 3단계: SSL/TLS 설정
+1. **SSL/TLS** → **Overview** → **Full (strict)** 선택
+2. **Edge Certificates** → **Always Use HTTPS** 활성화
+
+### 4단계: 보안 설정 (무료)
+1. **Security** → **Settings**:
+   - Security Level: **Medium**
+   - Challenge Passage: **30 minutes**
+2. **Security** → **WAF** (무료 규칙 활성화)
+3. **Security** → **Bots** → **Bot Fight Mode** 활성화
+
+### 5단계: 캐싱 최적화
+1. **Caching** → **Configuration**:
+   - Caching Level: **Standard**
+   - Browser Cache TTL: **4 hours**
+2. **Rules** → **Page Rules** (선택):
+   - `gagisiro.com/api/*` → Cache Level: Bypass
+
+### 6단계: Backend CORS 업데이트
+`backend/src/index.js`의 `allowedOrigins`에 추가:
+```javascript
+const allowedOrigins = [
+  'https://gagisiro.com',
+  'https://www.gagisiro.com',
+  // ... 기존 설정
+];
+```
+
+### 예상 효과
+- **무료 DDoS 보호**: L7 공격 방어
+- **글로벌 CDN**: 정적 파일 캐싱
+- **SSL 인증서**: 자동 관리
+- **Analytics**: 실시간 트래픽 분석
+
+---
+
 ## 클라우드 vs 자체 호스팅 비교
 
 | 항목 | Vercel + Railway | Raspberry Pi |
