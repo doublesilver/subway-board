@@ -3,6 +3,9 @@ const { DATABASE } = require('../config/constants');
 const logger = require('../utils/logger');
 require('dotenv').config();
 
+// SSL 설정: DB_SSL=true면 SSL 사용, 기본값은 false (로컬 Docker PostgreSQL용)
+const useSSL = process.env.DB_SSL === 'true';
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: DATABASE.POOL_MAX,
@@ -11,7 +14,7 @@ const pool = new Pool({
   connectionTimeoutMillis: DATABASE.CONNECTION_TIMEOUT_MS,
   statement_timeout: DATABASE.STATEMENT_TIMEOUT_MS,
   query_timeout: DATABASE.QUERY_TIMEOUT_MS,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+  ssl: useSSL ? { rejectUnauthorized: false } : false
 });
 
 pool.on('error', (err) => {

@@ -55,4 +55,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Run the application with migrations
-CMD ["sh", "-c", "npm run migrate:safe && npm run migrate:kakao:safe && node src/index.js"]
+CMD ["sh", "-c", "npm run migrate:safe && node src/index.js"]
