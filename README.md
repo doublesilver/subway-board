@@ -128,38 +128,29 @@ mindmap
 
 ```mermaid
 flowchart LR
-    subgraph Frontend["Frontend"]
-        React[React 19]
-        Vite[Vite 6]
-        Router[React Router 7]
+    subgraph Client["Client"]
+        React[React 19 + Vite 6]
         SIO_C[Socket.IO Client]
     end
 
-    subgraph Backend["Backend"]
-        Node[Node.js 22 LTS]
+    subgraph Server["Server (Raspberry Pi 4)"]
+        Nginx[Nginx]
         Express[Express 5]
-        SIO_S[Socket.IO Server]
-        Helmet[Helmet 8]
-        Gemini[Gemini 1.5 Flash]
-    end
-
-    subgraph Database["Database"]
+        SIO_S[Socket.IO]
         PG[(PostgreSQL 16)]
     end
 
-    subgraph Infra["Raspberry Pi 4 (Self-Hosted)"]
-        Docker[Docker Compose]
+    subgraph External["External"]
         Tailscale[Tailscale Funnel]
-        Nginx[Nginx Reverse Proxy]
+        Gemini[Gemini AI]
     end
 
-    React --> SIO_C
+    React -->|HTTPS| Tailscale
+    Tailscale --> Nginx
+    Nginx -->|Proxy| Express
     SIO_C <-->|WebSocket| SIO_S
-    React -->|HTTP| Express
     Express --> PG
-    Frontend --> Nginx
-    Nginx --> Docker
-    Docker --> Tailscale
+    Express -.->|AI Filter| Gemini
 ```
 
 ### Frontend
@@ -203,36 +194,30 @@ flowchart LR
 ### 전체 아키텍처
 ```mermaid
 flowchart TB
-    subgraph Client["Client (Browser)"]
+    subgraph Client["Client Browser"]
         ReactApp[React SPA]
-        WS_Client[WebSocket Client]
+        WS_Client[WebSocket]
     end
 
-    subgraph Tailscale["Tailscale Funnel (HTTPS)"]
-        Funnel[Public URL]
+    Tailscale[Tailscale Funnel HTTPS]
+
+    subgraph RaspberryPi["Raspberry Pi 4"]
+        Nginx[Nginx :3000]
+        ExpressAPI[Express API :5000]
+        WS_Server[Socket.IO]
+        Scheduler[Cron Scheduler]
+        PostgreSQL[(PostgreSQL)]
     end
 
-    subgraph RaspberryPi["Raspberry Pi 4 (Self-Hosted)"]
-        subgraph Docker["Docker Compose"]
-            Nginx[Nginx :3000]
-            ExpressAPI[Express 5 API :5000]
-            WS_Server[Socket.IO Server]
-            Scheduler[Cron Scheduler]
-            PostgreSQL[(PostgreSQL 16)]
-        end
-    end
+    Gemini[Gemini AI]
 
-    subgraph AI_Service["Google Cloud"]
-        Gemini_API[Gemini 1.5 Flash]
-    end
-
-    ReactApp -->|HTTPS| Funnel
-    Funnel --> Nginx
+    ReactApp -->|HTTPS| Tailscale
+    Tailscale --> Nginx
     Nginx -->|Proxy| ExpressAPI
     WS_Client <-->|WebSocket| WS_Server
-    ExpressAPI -->|Query| PostgreSQL
-    ExpressAPI -->|Analysis| Gemini_API
-    Scheduler -->|Daily Cleanup| PostgreSQL
+    ExpressAPI --> PostgreSQL
+    ExpressAPI -.-> Gemini
+    Scheduler --> PostgreSQL
 ```
 
 ### 실시간 채팅 흐름 (Sequence Diagram)
