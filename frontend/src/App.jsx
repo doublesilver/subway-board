@@ -8,6 +8,7 @@ import PreviewChat from './pages/PreviewChat';
 import AdminDashboard from './pages/AdminDashboard';
 import AnimatedBackground from './components/AnimatedBackground';
 import FeedbackModal from './components/FeedbackModal';
+import { AuthProvider } from './contexts/AuthContext';
 
 import { checkIsOperatingHours } from './utils/operatingHours';
 import ClosedAlertModal from './components/ClosedAlertModal';
@@ -30,7 +31,7 @@ function App() {
   }
 
   return (
-    <>
+    <AuthProvider>
       <AnimatedBackground />
       <div className="app-shell">
         {!isOperatingHours && !isPreview ? (
@@ -41,7 +42,7 @@ function App() {
           </Router>
         )}
       </div>
-    </>
+    </AuthProvider>
   );
 }
 
