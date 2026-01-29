@@ -7,7 +7,7 @@
 
 > **💬 Ask Me About**
 > *   **실시간 서비스 아키텍처** (Socket.IO, WebSocket)
-> *   **자체 호스팅 인프라 구축** (Docker, Tailscale, Nginx)
+> *   **Self-Hosting & DevOps** (Docker, GitHub Actions, Prometheus, Grafana)
 > *   **생성형 AI 서비스 연동** (LLM, RAG, Gemini)
 > *   **비동기 작업 처리 및 큐 최적화** (Celery, Redis)
 
@@ -24,9 +24,10 @@
 > **"출근길(07~09시) 가장 붐비는 시간의 사람들을 연결하는 실시간 서비스"**
 - **Service**: [https://gagisiro.com](https://gagisiro.com)
 - **소개**: 1호선~9호선별 실시간 채팅방과 운영 시간 자동 제어 시스템
-- **인프라**: 클라우드(Vercel+Railway) → **Raspberry Pi 4 자체 호스팅** 완전 전환
-- **보안**: Nginx Rate Limiting, UFW, fail2ban, Tailscale Funnel, 자동 복구 시스템
-- **Tech**: `React` `Node.js` `Socket.IO` `PostgreSQL` `Docker` `Tailscale`
+- **인프라**: 클라우드(Vercel+Railway) → **Raspberry Pi 4 자체 호스팅** 완전 전환 (월 $20+ → $3)
+- **DevOps**: GitHub Actions CI/CD, Prometheus+Grafana 모니터링, 자동 백업
+- **보안**: CSP 강화, Nginx Rate Limiting, UFW, fail2ban, Tailscale Funnel
+- **Tech**: `React 19` `Node.js 22` `Socket.IO` `PostgreSQL 16` `Docker` `Tailscale` `PWA`
 
 #### 3. [AI 기반 건물 유지보수 관리 시스템](https://github.com/doublesilver/maintenance-app) 🏢
 > **"AI 분류와 비동기 큐를 도입한 스마트 건물 관리 플랫폼"**
@@ -47,7 +48,7 @@
 
 ### 🛠️ 기술 스택 (Tech Stack)
 <div align="center">
-  <img src="https://skillicons.dev/icons?i=js,ts,python,nodejs,express,fastapi,react,nextjs,postgres,redis,aws,docker,linux,git,nginx&perline=15" />
+  <img src="https://skillicons.dev/icons?i=js,ts,python,nodejs,express,fastapi,react,nextjs,postgres,redis,docker,linux,git,nginx,githubactions,grafana&perline=16" />
 </div>
 
 <br/>
