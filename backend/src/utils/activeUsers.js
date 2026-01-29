@@ -2,6 +2,7 @@ const { WEBSOCKET, SUBWAY_LINE } = require('../config/constants');
 const { ErrorCodes } = require('./errorCodes');
 const logger = require('./logger');
 const socketService = require('../utils/socket'); // socket.js 모듈 가져오기
+const { metrics } = require('./metrics');
 
 // 각 호선별 활성 사용자 추적 (WebSocket 기반)
 // Map<lineId, Set<socketId>>
@@ -13,6 +14,7 @@ const socketToLine = new Map();
 // Socket.io 연결 핸들러
 function handleSocketConnection(socket) {
   logger.info('WebSocket client connected', { socketId: socket.id });
+  metrics.incCounter('websocket_connections_total', { event: 'connect' });
 
   // 연결 제한 (한 소켓당 최대 3개 방까지)
   let roomCount = 0;
@@ -117,6 +119,7 @@ function handleSocketConnection(socket) {
   // 연결 해제
   socket.on('disconnect', () => {
     logger.info('WebSocket client disconnected', { socketId: socket.id });
+    metrics.incCounter('websocket_connections_total', { event: 'disconnect' });
     const lineId = socketToLine.get(socket.id);
     if (lineId) {
       leaveRoom(socket, lineId);
@@ -147,6 +150,7 @@ function leaveRoom(socket, lineId) {
 // 특정 호선의 활성 사용자 수를 모든 클라이언트에게 브로드캐스트
 function broadcastActiveUsers(lineId) {
   const count = getActiveUserCount(lineId);
+  metrics.setGauge('active_users_count', { line_id: lineId }, count);
 
   try {
     const io = socketService.getIO();

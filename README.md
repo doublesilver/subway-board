@@ -128,29 +128,39 @@ mindmap
 
 ```mermaid
 flowchart LR
-    subgraph Client["Client"]
-        React[React 19 + Vite 6]
+    subgraph Frontend["🖥️ Frontend"]
+        React[React 19]
+        Vite[Vite 6]
+        Router[React Router 7]
         SIO_C[Socket.IO Client]
     end
 
-    subgraph Server["Server (Raspberry Pi 4)"]
-        Nginx[Nginx]
+    subgraph Backend["⚙️ Backend"]
+        Node[Node.js 22 LTS]
         Express[Express 5]
-        SIO_S[Socket.IO]
+        SIO_S[Socket.IO Server]
+        Helmet[Helmet 8]
+    end
+
+    subgraph Database["🗄️ Database"]
         PG[(PostgreSQL 16)]
     end
 
-    subgraph External["External"]
+    subgraph Infra["🍓 Raspberry Pi 4"]
+        Docker[Docker Compose]
         Tailscale[Tailscale Funnel]
-        Gemini[Gemini AI]
+        NginxProxy[Nginx Proxy]
     end
 
-    React -->|HTTPS| Tailscale
-    Tailscale --> Nginx
-    Nginx -->|Proxy| Express
+    subgraph AI["🤖 AI Service"]
+        Gemini[Gemini 1.5 Flash]
+    end
+
+    React --> SIO_C
     SIO_C <-->|WebSocket| SIO_S
+    React -->|HTTP| Express
     Express --> PG
-    Express -.->|AI Filter| Gemini
+    Express -.->|콘텐츠 필터링| Gemini
 ```
 
 ### Frontend
@@ -194,30 +204,56 @@ flowchart LR
 ### 전체 아키텍처
 ```mermaid
 flowchart TB
-    subgraph Client["Client Browser"]
-        ReactApp[React SPA]
-        WS_Client[WebSocket]
+    subgraph Client["🌐 Client Browser"]
+        ReactApp["⚛️ React SPA"]
+        WS_Client["🔌 WebSocket Client"]
     end
 
-    Tailscale[Tailscale Funnel HTTPS]
-
-    subgraph RaspberryPi["Raspberry Pi 4"]
-        Nginx[Nginx :3000]
-        ExpressAPI[Express API :5000]
-        WS_Server[Socket.IO]
-        Scheduler[Cron Scheduler]
-        PostgreSQL[(PostgreSQL)]
+    subgraph TailscaleNetwork["🔒 Tailscale Network"]
+        Funnel["📡 Tailscale Funnel"]
+        HTTPS["🔐 HTTPS 443"]
     end
 
-    Gemini[Gemini AI]
+    subgraph RaspberryPi["🍓 Raspberry Pi 4 (Self-Hosted)"]
+        subgraph Docker["🐳 Docker Compose"]
+            subgraph FrontendContainer["📦 Frontend Container"]
+                Nginx["🌐 Nginx :3000"]
+                StaticFiles["📁 Static Files"]
+            end
 
-    ReactApp -->|HTTPS| Tailscale
-    Tailscale --> Nginx
-    Nginx -->|Proxy| ExpressAPI
-    WS_Client <-->|WebSocket| WS_Server
-    ExpressAPI --> PostgreSQL
-    ExpressAPI -.-> Gemini
-    Scheduler --> PostgreSQL
+            subgraph BackendContainer["📦 Backend Container"]
+                ExpressAPI["⚡ Express API :5000"]
+                WS_Server["🔌 Socket.IO Server"]
+                RateLimit["🛡️ Rate Limiter"]
+            end
+
+            subgraph DBContainer["📦 Database Container"]
+                PostgreSQL[("🐘 PostgreSQL 16")]
+            end
+        end
+
+        subgraph System["🖥️ System Services"]
+            Cron["⏰ Cron Scheduler"]
+            Logrotate["📋 Logrotate"]
+            Fail2ban["🚫 fail2ban"]
+        end
+    end
+
+    subgraph External["☁️ External Services"]
+        Gemini["🤖 Gemini AI"]
+        Cloudflare["🛡️ Cloudflare (Optional)"]
+    end
+
+    ReactApp -->|"HTTPS Request"| Funnel
+    WS_Client <-->|"WebSocket"| Funnel
+    Funnel --> HTTPS
+    HTTPS --> Nginx
+    Nginx -->|"Proxy Pass"| ExpressAPI
+    ExpressAPI --> RateLimit
+    RateLimit --> PostgreSQL
+    ExpressAPI -.->|"콘텐츠 필터링"| Gemini
+    Cron -->|"자동 백업"| PostgreSQL
+    Cloudflare -.->|"DDoS 보호"| Funnel
 ```
 
 ### 실시간 채팅 흐름 (Sequence Diagram)

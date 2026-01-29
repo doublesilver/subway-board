@@ -28,6 +28,7 @@ if (process.env.SENTRY_DSN) {
 }
 
 const socketService = require('./utils/socket');
+const { metricsMiddleware, metricsHandler, metrics } = require('./utils/metrics');
 
 const app = express();
 const httpServer = createServer(app);
@@ -63,6 +64,23 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   Sentry.captureException(reason);
+});
+
+// Prometheus metrics endpoint (internal use only)
+app.get('/metrics', (req, res) => {
+  // Only allow from localhost or internal networks
+  const clientIp = req.ip || req.connection.remoteAddress;
+  const isInternal = clientIp === '127.0.0.1' ||
+    clientIp === '::1' ||
+    clientIp?.startsWith('10.') ||
+    clientIp?.startsWith('172.') ||
+    clientIp?.startsWith('192.168.');
+
+  if (process.env.NODE_ENV === 'production' && !isInternal) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  metricsHandler(req, res);
 });
 
 // Basic health check
@@ -113,11 +131,20 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", process.env.FRONTEND_URL || 'http://localhost:3000'],
+      connectSrc: [
+        "'self'",
+        process.env.FRONTEND_URL || 'http://localhost:3000',
+        'wss://*.ts.net',
+        'https://*.ts.net',
+      ],
       fontSrc: ["'self'", 'https:', 'data:'],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+      formAction: ["'self'"],
+      baseUri: ["'self'"],
+      upgradeInsecureRequests: [],
     },
   },
   hsts: {
@@ -125,11 +152,25 @@ app.use(helmet({
     includeSubDomains: true,
     preload: true
   },
-  referrerPolicy: { policy: 'same-origin' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   noSniff: true,
   xssFilter: true,
-  hidePoweredBy: true
+  hidePoweredBy: true,
+  crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: { policy: 'same-origin' },
+  crossOriginResourcePolicy: { policy: 'same-origin' },
+  originAgentCluster: true,
+  dnsPrefetchControl: { allow: false },
+  permittedCrossDomainPolicies: { permittedPolicies: 'none' },
 }));
+
+// Permissions Policy header
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+  );
+  next();
+});
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -214,6 +255,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // HTTP logging
 app.use(morgan('combined', { stream: logger.stream }));
+
+// Metrics collection
+app.use(metricsMiddleware);
 
 const rateLimitKey = (req) => {
   const anonymousId = req.headers['x-anonymous-id'];
